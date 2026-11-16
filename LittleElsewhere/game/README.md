@@ -33,6 +33,26 @@ godot --headless --path <项目目录> --script res://tests/creature_animation_t
 godot --headless --path <项目目录> --script res://tests/fieldkit_gm_test.gd -- --test-mode --capture
 ```
 
+## 生物精修与贴景运动
+
+21 种生物已使用同一套精细绘制：鸟有分层羽毛、独立翅膀关节、眼睛与足爪；动物增加毛发、尾巴和四肢动作；昆虫增加甲壳明暗、翅脉、触角与交替足步。实景、图鉴详情和来访头像共用形象，图鉴放大后也能辨认细节。风景与奇遇的 29 张收藏卡面改为真实分层场景截图，保留对应天气与奇观氛围。
+
+飞鸟按起跳、振翅、滑翔、减速、伸脚落枝与停留组成完整动作，停留时会眨眼、转头、理羽、啄食或鸣唱。麻雀和山雀先在枝头停留，再飞向食盘。松鼠从花盆后露头，沿原画树皮曲线爬上横枝，撑起身体坐稳啃食，再转身沿树干下降；甲虫和瓢虫沿各自树皮、花茎活动，离场会转身，花盆和叶片遮住进出端点。
+
+用 **PreviewCreatures.cmd** 查看每种生物的三个阶段；实机截图、放大造型与动图见[生物精修预览](../docs/refined-wildlife/)。本轮继续使用「35 口袋观察站」，窗外原画与正式存档格式保持兼容。
+
+- [visitor_art.gd](scripts/visitor_art.gd) 统一实景、图鉴与头像绘制；[bird_art.gd](scripts/bird_art.gd) 和 [creature_art.gd](scripts/creature_art.gd) 定义造型及身体动作。
+- [habitat_paths.gd](scripts/habitat_paths.gd) 保存实际枝条、树干、花茎接触路线；[visitor_motion.gd](scripts/visitor_motion.gd) 控制入场、停留、离场；[visitor_foreground_cover.gd](scripts/visitor_foreground_cover.gd) 使用原有前景素材实现遮挡。
+- [export_collection_art.gd](tools/export_collection_art.gd) 导出 21 张透明头像和 29 张场景收藏卡；[review_visitor_motion.gd](tools/review_visitor_motion.gd) 保存实景动画帧。两个工具都要求 `--capture`，不读取或修改正式收藏。
+
+以下导出命令需要 Godot 的正常图形渲染；路线检查可无窗口运行：
+
+```text
+godot --path <项目目录> --script res://tools/export_collection_art.gd -- --capture
+godot --path <项目目录> --script res://tools/review_visitor_motion.gd -- --capture --ui-lab --visitor=squirrel --review-dir=<输出目录>
+godot --headless --path <项目目录> --script res://tests/habitat_route_test.gd -- --test-mode --capture
+```
+
 ## 21–30：轻量 UI，同一幅窗景
 
 双击 **PreviewUILight.cmd** 查看此前十套轻量可交互方案。日系清淡（21–23）、轻手账（24–27）、小像素（28–30）只改变界面控件，沿用原有树、鸟、河流、弯曲岸线、城镇、雪山及所有动态天气。常驻控件的矩形面积不到窗景的 2%，没有额外画框或常驻图鉴面板。
@@ -240,7 +260,7 @@ Godot 的本地用户目录 `user://` 对应本机的 `%APPDATA%\WindowDiaryDemo
 
 天气由玩家切换，**没有联网获取真实天气，也没有与现实昼夜和季节同步**。八种氛围由可分别替换的透明场景层、程序化天空、水面、云雾、雨雪和独立奇遇动画共同构成；当前素材仍为演示用美术。图鉴与布置偏好是结合真实生物灵感和幻想奇遇的游戏观察手记，不作为物种习性、投喂或天文知识库。离线事件使用演示时间槽补算，不重建真实天气历史。
 
-尚未实现自由装修、连续筑巢故事、风景明信片或完整昼夜循环。现已支持 25/45/60 分钟倒计时；音乐、自然声开关及四路音量会保存，天气变化在保留个人音量设置的基础上调整环境混音。计时只记录主动开启陪伴时的运行时长，不测量注意力。音频是原创合成占位素材，后续可替换为正式配乐。
+尚未实现自由装修、连续筑巢故事、自由拍摄并导出风景明信片或完整昼夜循环。现已支持 25/45/60 分钟倒计时；音乐、自然声开关及四路音量会保存，天气变化在保留个人音量设置的基础上调整环境混音。计时只记录主动开启陪伴时的运行时长，不测量注意力。音频是原创合成占位素材，后续可替换为正式配乐。
 
 ## 工程文件
 

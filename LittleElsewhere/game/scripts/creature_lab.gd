@@ -1,5 +1,7 @@
 extends Control
 ## Native no-save visitor animation workbench, using the live World and WeatherStage.
+const DetailedArt=preload("res://scripts/visitor_art.gd")
+const Habitat=preload("res://scripts/habitat_paths.gd")
 const Preview = preload("res://scripts/creature_preview.gd")
 const NAMES: Dictionary = {"sparrow":"麻雀", "tit":"山雀", "robin":"知更鸟", "woodpecker":"啄木鸟", "owl":"林鸮", "kingfisher":"翠鸟", "swallow":"燕子", "magpie":"喜鹊", "white_eye":"绣眼鸟", "egret":"白鹭", "squirrel":"松鼠", "hedgehog":"刺猬", "cat":"猫", "bat":"蝙蝠", "butterfly":"白蝶", "luna_moth":"月蛾", "jewel_beetle":"宝石甲虫", "fireflies":"萤火虫", "dragonfly":"蜻蜓", "ladybug":"瓢虫", "stag_beetle":"锹甲"}
 const WEATHER_NAMES: Array[String] = ["晴日", "听雨", "月夜", "夕照", "落雪", "晨雾", "风雨", "晨曦"]
@@ -190,11 +192,16 @@ func _refresh() -> void:
         return
     var phase: String = {"entry":"入场", "idle":"停留", "exit":"离场"}.get(str(state["phase"]),"")
     phase_label.text = "%s  ·  %s %d%%  ·  %.1f / %.0f 秒  ·  %s%s" % [NAMES[selected],phase,float(state["phase_progress"])*100,float(state["age"]),float(state["duration"]),"安静" if world.quiet else "自然"," · 依次观看中" if sequence else ""]
-    preview_label.text = "%s · %s\n%s" % [NAMES[selected],phase,str(state["pose"])]
+    preview_label.text = "%s · %s\n%s" % [NAMES[selected],phase,{"perch":"站枝","look":"张望","nibble":"啃果","climb":"攀爬","preen":"梳羽","sing":"鸣唱","peck":"啄食","watch":"观察","sniff":"嗅闻","sit":"坐下","groom":"理毛","crouch":"蓄力","takeoff":"起跳展翅","flap":"振翅","glide":"滑翔","cruise":"飞行","brake":"减速展尾","land":"落地收翅","depart":"离场","arrive":"接近","fly_to_food":"飞往食盘","hover":"悬停","crawl":"爬行","walk":"行走","wade":"涉水"}.get(str(state["pose"]),str(state["pose"]))]
     progress_bar.value = float(state["age"])/float(state["duration"])*100
     for actor in world.actors:
         if str(actor["id"]) == selected:
             preview.show_actor(actor,world)
+            var area: Rect2=DetailedArt.bounds(selected,false).merge(DetailedArt.bounds(selected,true))
+            if selected=="squirrel":area=Rect2(-113,-113,226,226)
+            var zoom: float=minf(302.0/area.size.x,202.0/area.size.y)
+            preview.scale=Vector2.ONE*zoom
+            preview.position=Vector2(170,169)-area.get_center()*zoom
             break
 
 func _unhandled_key_input(event: InputEvent) -> void:

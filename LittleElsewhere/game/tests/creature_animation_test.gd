@@ -3,6 +3,7 @@ const World = preload("res://scripts/window_scene.gd")
 var checks: int = 0
 var failures: int = 0
 var recordings: int = 0
+var foreground: Image=Image.load_from_file("res://assets/art/layers_v1/foreground.png")
 
 func _initialize() -> void:
     run.call_deferred()
@@ -30,7 +31,7 @@ func run() -> void:
         world.trigger(id)
         var state: Dictionary = world.get_actor_lifecycle_snapshot(id)
         check(str(state.get("phase", "")) == "entry", id + " starts with an entry")
-        check(not scenery.intersects(world._actor_hit_rect(world.actors[0])), id + " begins off the scenery")
+        check(not scenery.intersects(world._actor_hit_rect(world.actors[0])) or behind_foreground(state), id + " begins offscreen or behind real foreground")
         var previous: Vector2 = state["position"]
         var phases: Array[String] = []
         var visible: bool = false
@@ -39,6 +40,7 @@ func run() -> void:
         var opaque: bool = true
         var progress_ok: bool = true
         var last_rect: Rect2
+        var last_state: Dictionary=state
         var duration: float = float(state["duration"])
         for frame in range(int(ceil(duration * 60.0)) + 2):
             world._process(1.0 / 60.0)
@@ -54,13 +56,14 @@ func run() -> void:
             progress_ok = progress_ok and p >= 0.0 and p <= 1.0
             opaque = opaque and is_equal_approx(float(state["alpha"]), 1.0)
             last_rect = world._actor_hit_rect(world.actors[0])
+            last_state=state
             if phase == "idle": visible = visible or scenery.intersects(last_rect)
         check(phases == ["entry", "idle", "exit"], id + " runs entry then idle then exit")
         check(finite and continuous, id + " has finite continuous motion without teleports")
         check(progress_ok, id + " reports bounded phase progress")
         check(visible, id + " is present in the scenery during idle")
         check(opaque, id + " does not fade in place to hide missing movement")
-        check(not scenery.intersects(last_rect), id + " is outside scenery before removal")
+        check(not scenery.intersects(last_rect) or behind_foreground(last_state), id + " exits offscreen or behind real foreground before removal")
         check(world.actors.is_empty(), id + " completes its lifecycle")
         check(recordings == before + 1, id + " records once across all phases")
         # Deterministic phase preview is useful for every species and does not record.
@@ -111,7 +114,7 @@ func run() -> void:
     check(world.actors.size() == 6, "full scene has six visitors")
     for id in retained: check(not world.get_actor_lifecycle_snapshot(id).is_empty(), "capacity never hard-removes " + id)
     check(world.get_actor_lifecycle_snapshot("sparrow").get("phase") == "exit", "capacity asks old visitor to leave")
-    world._process(4.1)
+    world._process(float(world.get_actor_lifecycle_snapshot("sparrow")["exit_duration"])+0.1)
     check(not world.get_actor_lifecycle_snapshot("squirrel").is_empty(), "queued species enters when departure completes")
     old_position = world.get_actor_position("squirrel")
     world.trigger("squirrel", false)
@@ -119,3 +122,11 @@ func run() -> void:
     world.free()
     print("CREATURE_ANIMATION_TEST checks=%d failures=%d" % [checks, failures])
     quit(1 if failures else 0)
+
+func behind_foreground(actor: Dictionary) -> bool:
+ if str(actor.get("id","")) not in ["squirrel","jewel_beetle","ladybug","stag_beetle"]:return false
+ if not bool(actor.get("hidden_in_habitat",false)):return false
+ var point: Vector2=actor.get("position",Vector2.ZERO)
+ var source: Vector2i=Vector2i(point*Vector2(foreground.get_size())/Vector2(1440,810))
+ if source.x<0 or source.y<0 or source.x>=foreground.get_width() or source.y>=foreground.get_height():return false
+ return foreground.get_pixelv(source).a>0.85

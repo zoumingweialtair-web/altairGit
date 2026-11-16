@@ -97,10 +97,10 @@ func _label(parent: Node, text: String, rect: Rect2, point_size: int = 18, color
 
 func _icon(parent: Node,id: String,rect: Rect2) -> TextureRect:
  var result: TextureRect = TextureRect.new()
+ result.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
  result.texture = Icons.texture(id)
  result.position = rect.position
  result.size = rect.size
- result.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
  result.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
  result.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
  result.mouse_filter = Control.MOUSE_FILTER_IGNORE

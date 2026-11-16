@@ -122,9 +122,9 @@ func _run() -> void:
     check(not scene.get_active_event_ids().has("butterfly"), "no butterfly visual in rain")
     scene.set_weather(0)
     scene.actors.clear()
-    scene.trigger("robin", false)
-    scene._process(8.0)
-    check(bool(scene.actors[0]["fly"]), "sunny birds still use feeder route")
+    scene.trigger("sparrow", false)
+    scene._process(13.5)
+    check(bool(scene.actors[0]["fly"]) and scene.actors[0].get("support")=="air", "sunny sparrow makes a deliberate feeder flight after perching")
     scene._process(60.0)
     check(scene.actors.is_empty() and scene.spectacles.is_empty(), "all temporary visuals eventually expire")
     for mode in range(8):

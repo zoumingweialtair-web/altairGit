@@ -209,10 +209,10 @@ func _button(parent: Node, text: String, rect: Rect2, callback: Callable, active
 
 func _icon(parent: Node, icon_id: String, pos: Vector2, extent: float = 32) -> TextureRect:
  var icon: TextureRect = TextureRect.new()
+ icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
  icon.texture = Icons.texture(icon_id)
  icon.position = pos
  icon.size = Vector2(extent, extent)
- icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
  icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
  icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
  icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -336,26 +336,6 @@ func _illustration(parent: Node, id: String, known: bool, rect: Rect2, animate: 
  parent.add_child(frame)
  var art: Control = Illustration.new()
  art.size = rect.size
- if _category(id, _state.get_entry_defs()) in ["birds", "animals", "insects"]:
-  var center: Vector2 = Vector2(120, 64)
-  var zoom: float = 1.35
-  if id in ["sparrow", "tit", "robin"]:
-   center = Vector2(110, 64)
-   zoom = 1.7
-  elif id == "butterfly":
-   center = Vector2(159, 55)
-   zoom = 1.5
-  elif id == "woodpecker":
-   center = Vector2(129, 55)
-   zoom = 1.4
-  elif id == "kingfisher":
-   center = Vector2(112, 68)
-   zoom = 1.5
-  elif id == "swallow":
-   center = Vector2(120, 54)
-  var scale_factor: float = zoom * rect.size.x / 160.0
-  art.size = Vector2(240, 120) * scale_factor
-  art.position = rect.size * 0.5 - center * scale_factor
  frame.add_child(art)
  art.configure(id, known, animate)
 

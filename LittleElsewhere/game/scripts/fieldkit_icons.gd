@@ -33,6 +33,11 @@ static func _star(im: Image,center: Vector2i,r: int,c: Color) -> void:
 
 static func texture(id: String) -> Texture2D:
  if _cache.has(id): return _cache[id]
+ var portrait_path: String="res://assets/creatures/v2/portraits/"+id+".png"
+ if ResourceLoader.exists(portrait_path):
+  var portrait: Texture2D=load(portrait_path) as Texture2D
+  _cache[id]=portrait
+  return portrait
  var im: Image = Image.create(32,32,false,Image.FORMAT_RGBA8)
  im.fill(Color.TRANSPARENT)
  var key: String = id

@@ -1,4 +1,9 @@
 extends Control
+const DetailedVisitor=preload("res://scripts/visitor_art.gd")
+const Silhouette=preload("res://shaders/visitor_silhouette.gdshader")
+var _portrait: Node2D
+var _postcard: Texture2D
+
 ## Native pixel vignette used by collection cards and detail pages.
 var entry_id: String = "sparrow"
 var discovered: bool = true
@@ -18,6 +23,7 @@ func _ready() -> void:
  clip_contents=true
  resized.connect(queue_redraw)
  set_process(animated and discovered)
+ _update_detailed_portrait()
 
 func configure(id: String, known: bool, animate: bool=false) -> void:
  entry_id=id
@@ -26,14 +32,16 @@ func configure(id: String, known: bool, animate: bool=false) -> void:
  _elapsed=0.0
  _redraw_wait=0.0
  set_process(animated)
+ _update_detailed_portrait()
  queue_redraw()
 
 func _process(delta: float) -> void:
  _elapsed+=delta
  _redraw_wait+=delta
- # Detail illustrations breathe at eight frames per second. Cards stay still.
- if _redraw_wait>=0.125:
-  _redraw_wait=fmod(_redraw_wait,0.125)
+ # Detail illustrations breathe at twenty-four frames per second. Cards stay still.
+ if _redraw_wait>=1.0/24.0:
+  _redraw_wait=fmod(_redraw_wait,1.0/24.0)
+  _update_detailed_portrait()
   queue_redraw()
 
 func _bob(speed: float=1.6,amount: float=2.0) -> float:
@@ -56,6 +64,19 @@ func _block(x: float,y: float,w: float,h: float,color: String) -> void:
 
 func _draw() -> void:
  if size.x<=0.0 or size.y<=0.0:return
+ if DetailedVisitor.is_creature(entry_id):
+  _draw_portrait_habitat()
+  return
+ if _postcard!=null:
+  if discovered:
+   var source: Vector2=_postcard.get_size()
+   var ratio: float=maxf(size.x/source.x,size.y/source.y)
+   var area: Rect2=Rect2((size-source*ratio)*0.5,source*ratio)
+   draw_texture_rect(_postcard,area,false)
+  else:
+   draw_rect(Rect2(Vector2.ZERO,size),Color("a6b0a0"))
+   draw_circle(size*0.5,minf(size.x,size.y)*0.27,Color("899783"))
+  return
  if entry_id=="parcel" or entry_id.begins_with("keepsake_"):
   var scale_factor: float=minf(size.x/120.0,size.y/120.0)
   draw_set_transform((size-Vector2(120,120)*scale_factor)*0.5,0.0,Vector2(scale_factor,scale_factor))
@@ -1110,3 +1131,43 @@ func _keepsake(id: String) -> void:
    _block(36+i*6,49+i*11,22-i*4,3,"c7d19c")
    _block(62,48+i*12,21-i*4,3,"c7d19c")
   _block(54,89,6,15,"7f946d")
+
+func _update_detailed_portrait() -> void:
+ if not is_inside_tree():return
+ if not DetailedVisitor.is_creature(entry_id):
+  if is_instance_valid(_portrait):_portrait.hide()
+  var path: String="res://assets/collection/v2/"+entry_id+".png"
+  _postcard=load(path) as Texture2D if ResourceLoader.exists(path) else null
+  return
+ _postcard=null
+ if not is_instance_valid(_portrait):
+  _portrait=DetailedVisitor.new()
+  _portrait.name="DetailedVisitor"
+  add_child(_portrait)
+ _portrait.show()
+ _portrait.actor=DetailedVisitor.portrait_actor(entry_id,_elapsed if animated else 1.5)
+ _portrait.context={"light":Color.WHITE,"alpha":1.0,"activity":0.7}
+ var area: Rect2=DetailedVisitor.bounds(entry_id,bool(_portrait.actor.get("fly",false)))
+ var fit: float=minf((size.x-16.0)/maxf(1.0,area.size.x),(size.y-14.0)/maxf(1.0,area.size.y))
+ _portrait.scale=Vector2.ONE*fit
+ _portrait.position=size*0.5-area.get_center()*fit
+ if not discovered:
+  var mask: ShaderMaterial=ShaderMaterial.new()
+  mask.shader=Silhouette
+  _portrait.material=mask
+ else:_portrait.material=null
+ _portrait.queue_redraw()
+
+func _draw_portrait_habitat() -> void:
+ var base: Color=Color("e4e4d4") if discovered else Color("c3c9ba")
+ draw_rect(Rect2(Vector2.ZERO,size),base)
+ # Subtle field-note wash; the visitor, not a blocky landscape, fills the card.
+ for band: int in range(8):
+  var color: Color=Color("c1d0c4").lerp(base,float(band)/8.0)
+  if not discovered:color=base
+  draw_rect(Rect2(0,band*size.y/8.0,size.x,size.y/8.0+1),color)
+ if is_instance_valid(_portrait) and not bool(_portrait.actor.get("fly",false)):
+  var foot: Vector2=_portrait.position
+  var y: float=clampf(foot.y+2.0,10.0,size.y-6.0)
+  draw_line(Vector2(8,y+1),Vector2(size.x-8,y+4),Color("8c8d71"),4.0)
+  draw_line(Vector2(8,y),Vector2(size.x-8,y+3),Color("a6a389"),1.0)

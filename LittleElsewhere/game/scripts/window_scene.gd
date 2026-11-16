@@ -1,4 +1,8 @@
 extends Node2D
+const Habitat=preload("res://scripts/habitat_paths.gd")
+const VisitorArt=preload("res://scripts/visitor_art.gd")
+const ForegroundCover=preload("res://scripts/visitor_foreground_cover.gd")
+var _visitor_cover: Node2D
 
 const VisitorMotion = preload("res://scripts/visitor_motion.gd")
 var _drawing_actor: Dictionary = {}
@@ -17,11 +21,7 @@ var attraction: String = "seeds"
 const TOWER_BASES: Array[Vector2] = [Vector2(650,368), Vector2(1000,325)]
 const TOWER_HEIGHTS: Array[float] = [40.0,24.0]
 var activity_blend: float = 1.0
-var sheltered_perches: Dictionary = {
-    "sparrow": Vector2(211, 375),
-    "tit": Vector2(278, 239),
-    "robin": Vector2(379, 321)
-}
+var sheltered_perches: Dictionary = Habitat.SHELTER.duplicate()
 var actors: Array[Dictionary] = []
 var spectacles: Array[Dictionary] = []
 # This compatibility registry hands the ten new effects to EncounterLayers.
@@ -39,21 +39,10 @@ const ATMOSPHERE_TINTS: Dictionary = {
 }
 const TREE_VISITORS: Array[String] = ["squirrel", "woodpecker", "owl", "luna_moth", "jewel_beetle", "fireflies", "kingfisher", "swallow", "magpie", "white_eye", "egret", "hedgehog", "cat", "bat", "dragonfly", "ladybug", "stag_beetle"]
 const FANTASY_EVENTS: Array[String] = ["aurora", "star_whale", "time_ripple", "tree_spirit", "lanterns", "ghost_train", "moon_gate", "signal_echo", "aurora_crown", "ember_clouds", "meteor_shower", "deep_one", "sunken_city", "sky_jellyfish", "twin_moons", "floating_isles", "bioluminescent_tide", "constellation_stag"]
-const VISITOR_ANCHORS: Dictionary = {
-    "squirrel": Vector2(185, 462), "woodpecker": Vector2(207, 321),
-    "owl": Vector2(191, 417), "luna_moth": Vector2(392, 248),
-    "jewel_beetle": Vector2(180, 479), "fireflies": Vector2(445, 481),
-    "kingfisher": Vector2(474, 306), "swallow": Vector2(710, 230),
-    "magpie": Vector2(547, 115), "white_eye": Vector2(379, 321),
-    "egret": Vector2(855, 494), "hedgehog": Vector2(289, 728),
-    "cat": Vector2(1237, 757), "bat": Vector2(718, 259),
-    "dragonfly": Vector2(810, 530), "ladybug": Vector2(248, 651), "stag_beetle": Vector2(226, 477)
-}
+const VISITOR_ANCHORS: Dictionary = Habitat.ANCHORS
 const EVENT_DURATIONS: Dictionary = {"aurora": 22.0, "star_whale": 22.0, "time_ripple": 20.0, "tree_spirit": 20.0, "lanterns":24.0, "ghost_train":24.0, "moon_gate":22.0, "signal_echo":22.0, "aurora_crown":60.0, "ember_clouds":60.0, "meteor_shower":60.0, "deep_one":60.0, "sunken_city":60.0, "sky_jellyfish":60.0, "twin_moons":60.0, "floating_isles":60.0, "bioluminescent_tide":60.0, "constellation_stag":60.0}
 var perches: Dictionary = {
-    "sparrow": Vector2(458, 302),
-    "tit": Vector2(550, 115),
-    "robin": Vector2(379, 321)
+    "sparrow": Habitat.ANCHORS["sparrow"], "tit": Habitat.ANCHORS["tit"], "robin": Habitat.ANCHORS["robin"]
 }
 const BIRD_PATTERN: Array[String] = [
     "...........OOOO....",
@@ -216,9 +205,7 @@ func _spawn_actor(id: String) -> void:
     for actor in actors:
         if str(actor["id"]) == id: return
     if id == "butterfly" and weather in VisitorMotion.SHELTER_WEATHER: return
-    var perch: Vector2 = VISITOR_ANCHORS.get(id, perches.get(id, Vector2(230, 550)))
-    if weather in VisitorMotion.SHELTER_WEATHER and sheltered_perches.has(id):
-        perch = sheltered_perches[id]
+    var perch: Vector2 = Habitat.anchor(id,weather)
     actors.append(VisitorMotion.spawn(id, perch, weather))
 
 func get_creature_ids() -> Array[String]:
@@ -228,13 +215,12 @@ func get_creature_duration(id: String) -> float:
     return VisitorMotion.duration(id, weather) if id in VisitorMotion.IDS else 0.0
 
 func get_actor_lifecycle_snapshot(id: String) -> Dictionary:
-    for actor in actors:
-        if str(actor["id"]) == id:
-            return {"id":id, "phase":actor.get("phase", "entry"),
-                "phase_progress":actor.get("phase_progress", 0.0), "duration":actor.get("duration", 0.0),
-                "age":actor["age"], "position":actor["pos"], "pose":actor.get("pose", ""),
-                "flying":actor["fly"], "alpha":actor["alpha"], "motion_age":actor["motion_age"],
-                "entry_duration":actor["entry_duration"], "exit_duration":actor["exit_duration"]}
+    for actor: Dictionary in actors:
+        if str(actor["id"])==id:
+            var result: Dictionary=actor.duplicate(true)
+            result["position"]=actor["pos"]
+            result["flying"]=actor["fly"]
+            return result
     return {}
 
 func request_actor_departure(id: String) -> bool:
@@ -257,6 +243,7 @@ func seek_actor_phase(id: String, phase: String, progress: float = 0.0) -> bool:
         actor.erase("exit_from")
         actor.erase("relocate_from")
         actor.erase("replacement")
+        for key: String in ["exit_path_progress","exit_perch_blend","exit_was_flying","exit_heading","crouch","relocate_was_flying","relocate_heading"]:actor.erase(key)
         actor["age"] = enter * p if phase == "entry" else (enter + (duration - enter - leave) * p if phase == "idle" else duration - leave + leave * p)
         actor["motion_age"] = float(actor["age"]) * (0.35 + 0.65 * activity_blend)
         VisitorMotion.sample(actor, weather, activity_blend)
@@ -278,6 +265,8 @@ func _process(delta: float) -> void:
         if int(actor.get("weather", weather)) != weather and str(actor.get("phase", "")) == "idle":
             actor["weather"] = weather
             actor["relocate_from"] = actor["pos"]
+            actor["relocate_was_flying"] = bool(actor.get("fly",false))
+            actor["relocate_heading"] = float(actor.get("route_angle",0.0))
             actor["relocate_at"] = actor["age"]
             if perches.has(id):
                 actor["anchor"] = sheltered_perches[id] if weather in VisitorMotion.SHELTER_WEATHER else perches[id]
@@ -294,6 +283,7 @@ func _process(delta: float) -> void:
         if float(spectacles[i]["age"]) > duration:
             spectacles.remove_at(i)
     _update_atmosphere_tint(delta)
+    _refresh_visitor_occlusion()
     queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -345,87 +335,10 @@ func _draw() -> void:
         _draw_snow()
 
 func _draw_bird(actor: Dictionary) -> void:
-    var id: String = str(actor["id"])
-    var age: float = float(actor.get("motion_age", actor["age"]))
-    var alpha: float = float(actor["alpha"])
-    var body: Color = Color("bda78a")
-    var wing: Color = Color("806d55")
-    var head: Color = Color("a99474")
-    if id == "tit":
-        body = Color("e5c866")
-        wing = Color("65858c")
-        head = Color("e9e1c7")
-    elif id == "robin":
-        body = Color("d59a69")
-        wing = Color("88765c")
-        head = Color("c98755")
-    var palette: Dictionary = {
-        "O": Color("34464a"), "H": head, "E": Color("17262e"),
-        "B": Color("b4a069"), "W": wing, "C": body,
-        "T": wing.darkened(0.1), "L": Color("495048")
-    }
-    var pos: Vector2 = actor["pos"]
-    var flying: bool = bool(actor["fly"])
-    var resting: float = weather_weights[2] + weather_weights[4] * 0.5
-    var bob: float = sin(age * 2.2) * lerpf(0.85, 0.18, resting) * activity_blend
-    var scale_pixel: float = 2.65
-    var puff: float = 1.0 + weather_weights[4] * 0.11
-    var facing: float = float(actor["facing"])
-    draw_set_transform((pos + Vector2(0, bob)).round(), float(actor.get("body_tilt", 0.0)) * facing, Vector2(scale_pixel * facing * puff, scale_pixel))
-    for y in range(BIRD_PATTERN.size()):
-        var row: String = BIRD_PATTERN[y]
-        for x in range(row.length()):
-            var key: String = row.substr(x, 1)
-            if key == ".":
-                continue
-            var color: Color = _ambient_color(palette[key])
-            # A sleeping eye is a short dark stroke rather than a blinking flash.
-            if key == "E" and (weather_weights[2] > 0.65 or fmod(age + float(id.length()), 5.3) < 0.18):
-                color = _ambient_color(head.darkened(0.35))
-            color.a = alpha
-            var peek: float = 1.0 if not flying and y < 5 and sin(age * 0.72) > 0.86 else 0.0
-            var part: Vector2 = Vector2.ZERO
-            var pose: String = str(actor.get("pose", "perch"))
-            if y < 5 and not flying:
-                if pose == "peck": part = Vector2(1, maxf(0.0, sin(age * 8.0)) * 2.5)
-                elif pose == "preen": part = Vector2(-2, 1)
-                elif pose == "sing" and key == "B": part.y = 1.0 if int(age * 4) % 2 == 0 else 0.0
-            if key == "T": part.y = roundf(sin(age * 1.6) * activity_blend)
-            if key == "L" and flying: part.y -= 2.0 * (1.0 - float(actor.get("land_blend", 0.0)))
-            if key == "C" and pose == "sing": part.x += roundf(sin(age * 4.0) * 0.6)
-            draw_rect(Rect2(Vector2(x - 9 + peek, y - 12) + part, Vector2.ONE), color)
-    if flying or (not quiet and weather in [0, 3] and fmod(age, 13.0) > 12.35):
-        var flap: bool = int(age * 9.0) % 2 == 0
-        var fold: float = float(actor.get("land_blend",0.0)) if str(actor.get("phase","idle")) != "idle" else 0.0
-        var wc: Color = _ambient_color(wing.lightened(0.12))
-        wc.a = alpha
-        if flap:
-            draw_rect(Rect2(-5, -16+fold*7, 5, 9-fold*4), wc)
-            draw_rect(Rect2(-8+fold*3, -18+fold*10, 5, 5-fold*2), wc)
-        else:
-            draw_rect(Rect2(-5, -6-fold*3, 7-fold*2, 7-fold*4), wc)
-    elif weather == 1 and sin(age * 1.1) > 0.91 and not quiet:
-        # A brief small shake and a few droplets, without screen-wide effects.
-        draw_rect(Rect2(-9, -13, 1, 2), Color(0.68, 0.81, 0.87, alpha * 0.6))
-        draw_rect(Rect2(7, -15, 1, 2), Color(0.68, 0.81, 0.87, alpha * 0.5))
-    elif weather in [0, 3] and age > 11.0 and sin(age * 3.5) > 0.8:
-        var seed: Color = Color("e4c488")
-        seed.a = alpha
-        draw_rect(Rect2(9, -3, 1, 1), seed)
-    draw_set_transform(Vector2.ZERO)
+    _draw_detailed_visitor(actor)
 
 func _draw_butterfly(actor: Dictionary) -> void:
-    var pos: Vector2 = actor["pos"]
-    var age: float = float(actor.get("motion_age", actor["age"]))
-    var width: float = 3.0 + absf(sin(age * 6.0)) * 6.0
-    var c: Color = _ambient_color(Color(0.98, 0.93, 0.75, float(actor["alpha"])))
-    draw_rect(Rect2(pos.x - width - 2, pos.y - 9, width, 10), c)
-    draw_rect(Rect2(pos.x + 2, pos.y - 9, width, 10), c)
-    draw_rect(Rect2(pos.x - width + 1, pos.y + 2, width - 2, 5), c.darkened(0.08))
-    draw_rect(Rect2(pos.x + 2, pos.y + 2, width - 2, 5), c.darkened(0.08))
-    draw_rect(Rect2(pos.x - 1, pos.y - 7, 3, 15), _visitor_ink("646453", float(actor["alpha"])))
-    for side in [-1.0, 1.0]:
-        draw_line(pos + Vector2(side, -7), pos + Vector2(side * (4 + sin(age * 2.3)), -12), _visitor_ink("646453", float(actor["alpha"])), 1.0)
+    _draw_detailed_visitor(actor)
 
 func _update_atmosphere_tint(delta: float) -> void:
     var state: Dictionary = get_atmosphere_state()
@@ -650,21 +563,14 @@ func get_actor_position(id: String) -> Vector2:
     return Vector2.INF
 
 func _actor_hit_rect(actor: Dictionary) -> Rect2:
-    var pos: Vector2 = actor["pos"]
-    if bool(actor.get("fly",false)) and str(actor["id"]) in ["woodpecker","owl","egret"]:
-        return Rect2(pos-Vector2(66,88),Vector2(132,118))
-    match str(actor["id"]):
-        "squirrel": return Rect2(pos - Vector2(50, 66), Vector2(94, 72))
-        "woodpecker": return Rect2(pos - Vector2(31, 60), Vector2(56, 66))
-        "owl": return Rect2(pos - Vector2(30, 64), Vector2(60, 68))
-        "luna_moth": return Rect2(pos - Vector2(43, 35), Vector2(86, 75))
-        "jewel_beetle": return Rect2(pos - Vector2(22, 36), Vector2(44, 46))
-        "fireflies": return Rect2(pos - Vector2(67, 49), Vector2(134, 98))
-        "cat": return Rect2(pos - Vector2(44, 76), Vector2(102, 83))
-        "hedgehog": return Rect2(pos - Vector2(45, 40), Vector2(88, 46))
-        "egret": return Rect2(pos - Vector2(25, 68), Vector2(62, 75))
-        "swallow", "bat", "dragonfly": return Rect2(pos - Vector2(44, 31), Vector2(88, 62))
-    return Rect2(pos - Vector2(31, 45), Vector2(68, 53))
+    var id: String=str(actor["id"])
+    var area: Rect2=VisitorArt.bounds_for_actor(actor)
+    if float(actor.get("facing",1.0))<0.0:area.position.x=-area.end.x
+    if str(actor.get("support","")) in ["bark","plant"]:
+        var radius: float=maxf(maxf(absf(area.position.x),absf(area.end.x)),maxf(absf(area.position.y),absf(area.end.y)))
+        area=Rect2(-radius,-radius,radius*2.0,radius*2.0)
+    area.position+=actor["pos"]
+    return area.grow(4.0)
 
 func _fantasy_hit_rect(event: Dictionary) -> Rect2:
     var t: float = float(event.get("motion_age", event["age"]))
@@ -710,29 +616,7 @@ func _visitor_ink(hex_color: String, alpha: float, ambient: bool = true) -> Colo
     return color
 
 func _draw_tree_visitor(actor: Dictionary) -> void:
-    var id: String = str(actor["id"])
-    var pos: Vector2 = actor["pos"]
-    var t: float = float(actor["motion_age"])
-    var alpha: float = float(actor["alpha"])
-    if bool(actor.get("fly", false)) and id in ["woodpecker", "owl", "egret"]:
-        var landing: float = float(actor.get("land_blend", 0.0))
-        var flight_actor: Dictionary = actor.duplicate()
-        flight_actor["alpha"] = alpha * (1.0 - landing)
-        _draw_large_bird_flight(flight_actor)
-        if landing <= 0.001: return
-        alpha *= landing
-    match id:
-        "squirrel": _draw_squirrel(pos, t, alpha, str(actor.get("pose", "climb")))
-        "woodpecker": _draw_woodpecker(pos, t, alpha)
-        "owl": _draw_owl(pos, t, alpha)
-        "luna_moth": _draw_luna_moth(pos, t, alpha)
-        "jewel_beetle": _draw_jewel_beetle(pos, t, alpha)
-        "fireflies": _draw_firefly_group(pos, t, alpha)
-        "kingfisher", "swallow", "magpie", "white_eye", "egret": _draw_new_bird(id, pos, t, alpha)
-        "hedgehog": _draw_hedgehog(pos, t, alpha)
-        "cat": _draw_cat(pos, t, alpha)
-        "bat": _draw_bat(pos, t, alpha)
-        "dragonfly", "ladybug", "stag_beetle": _draw_new_insect(id, pos, t, alpha)
+    _draw_detailed_visitor(actor)
 
 func _draw_squirrel(pos: Vector2, t: float, alpha: float, pose: String) -> void:
     var palette: Dictionary = {"O": Color("354640"), "F": Color("ae784b"), "H": Color("e1aa69"), "C": Color("efd5a2"), "E": Color("1c333c")}
@@ -1657,3 +1541,20 @@ func _draw_flight_wing(root: Vector2, axis: Vector2, width: float, color: Color)
     # body. A hand-warped quad could self-intersect at those exact poses.
     var normal: Vector2 = Vector2(-axis.y,axis.x).normalized() * width
     draw_colored_polygon(PackedVector2Array([root-normal*0.45,root+axis-normal*0.8,root+axis+normal*0.8,root+normal*0.45]),color)
+
+func _draw_detailed_visitor(actor: Dictionary) -> void:
+    VisitorArt.draw_actor(self,actor,{"light":_ambient_color(Color.WHITE),"activity":activity_blend,"alpha":float(actor.get("alpha",1.0))})
+
+func _refresh_visitor_occlusion() -> void:
+    if not layered_weather_enabled:return
+    if not is_instance_valid(_visitor_cover):
+        var stage: Node=get_parent().get_node_or_null("WeatherStage") if get_parent()!=null else null
+        if stage==null:return
+        var foreground: Sprite2D=stage.get_node_or_null("Foreground") as Sprite2D
+        if foreground==null:return
+        _visitor_cover=ForegroundCover.new()
+        _visitor_cover.world=self
+        _visitor_cover.foreground=foreground
+        _visitor_cover.material=foreground.material
+        add_child(_visitor_cover)
+    _visitor_cover.queue_redraw()

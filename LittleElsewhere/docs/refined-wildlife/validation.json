@@ -1,0 +1,111 @@
+{
+  "project": "Little Elsewhere",
+  "date": "2026-11-16T16:54:45.142196+08:00",
+  "engine": "Godot 4.7.2 / Compatibility",
+  "scope": "Fine native wildlife art, species-specific flight and idle, painted habitat routes and physical occlusion",
+  "creatures": {
+    "birds": 10,
+    "animals": 4,
+    "insects": 7,
+    "phases": [
+      "entry",
+      "idle",
+      "exit"
+    ]
+  },
+  "art": {
+    "source": "Godot native layered geometry and drawing; same renderer in the scene, field guide, and exported portraits",
+    "transparent_portraits": 21,
+    "scene_postcards": 29,
+    "postcard_source": "Native rendering of the actual layered scene in 8 weather states and 21 wonder events"
+  },
+  "checks": [
+    {
+      "suite": "habitat_route_test.gd",
+      "checks": 102,
+      "failures": 0
+    },
+    {
+      "suite": "habitat_occlusion_test.gd",
+      "checks": 12,
+      "failures": 0,
+      "method": "Native pixel comparison with identical foreground cover; visible idle art and occluded entry/exit endpoints"
+    },
+    {
+      "suite": "creature_animation_test.gd",
+      "checks": 416,
+      "failures": 0
+    },
+    {
+      "suite": "creature_lab_test.gd",
+      "checks": 156,
+      "failures": 0
+    },
+    {
+      "suite": "scene_test.gd",
+      "checks": 398,
+      "failures": 0
+    },
+    {
+      "suite": "creature_render_test.gd",
+      "drawings": 4032,
+      "species_phase_pixel_variation_checks": 63,
+      "failures": 0
+    },
+    {
+      "suite": "creature_art_test.gd",
+      "drawings": 2304,
+      "runtime_errors": 0
+    },
+    {
+      "suite": "fieldkit_test.gd",
+      "checks": 33,
+      "failures": 0,
+      "normal_save": "byte-identical before and after"
+    },
+    {
+      "suite": "atmosphere_test.gd",
+      "checks": 154,
+      "failures": 0
+    },
+    {
+      "suite": "gm_test.gd",
+      "checks": 364,
+      "failures": 0
+    },
+    {
+      "suite": "fieldkit_gm_test.gd",
+      "checks": 216,
+      "failures": 0
+    },
+    {
+      "suite": "main.gd UI smoke",
+      "result": "UI_SMOKE_OK"
+    },
+    {
+      "suite": "editor import",
+      "result": "clean"
+    }
+  ],
+  "previews": {
+    "window": "window.png",
+    "field_guide": "field-guide.png",
+    "wonders": "wonder-guide.png",
+    "all_species": "all-creatures.png",
+    "birds": "birds-detail.png",
+    "animals_insects": "animals-and-insects.png",
+    "wing_motion_closeup": "bird-flight.gif",
+    "sparrow_full_motion": {
+      "file": "sparrow-flight-cycle.gif",
+      "native_frames": 133,
+      "fps": 10
+    },
+    "squirrel_full_motion": {
+      "file": "squirrel-tree-cycle.gif",
+      "native_frames": 196,
+      "fps": 10
+    },
+    "painted_contact_routes": "habitat-routes.png"
+  },
+  "save_policy": "All capture/review runs use --capture; animation lab also uses --ui-lab. Normal save schema unchanged."
+}
