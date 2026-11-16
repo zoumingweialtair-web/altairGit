@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## Optional global developer console. Hidden by default; all commands are whitelisted.
 const Commands = preload("res://scripts/gm_commands.gd")
+const Styles = preload("res://scripts/ui_lab_styles.gd")
 const PAPER: Color = Color("eef2e8")
 const MUTED: Color = Color("acb8b2")
 const ACCENT: Color = Color("a4d8b7")
@@ -258,7 +259,10 @@ func _build_quick_actions() -> void:
  visitor.name = "VisitorPicker"
  _button("邀请",Rect2(514,468,84,34),func() -> void: submit_command("spawn "+visitor_ids[visitor.selected]))
  _label("UI",Rect2(620,468,46,34),15,MUTED)
- var styles: Array[String] = ["01 自然手账","02 留白玻璃","03 像素掌机","04 森间来信","05 月光观测","06 植物标本","07 雨夜电台","08 剪纸剧场","09 水墨留白","10 星象档案"]
+ var styles: Array[String] = []
+ var scheme_definitions: Array[Dictionary] = Styles.all_styles()
+ for index in range(scheme_definitions.size()):
+  styles.append("%02d %s" % [index + 1, scheme_definitions[index].name])
  var style: OptionButton = _picker(styles,Rect2(670,468,160,34))
  style.name = "StylePicker"
  _button("应用",Rect2(840,468,76,34),func() -> void: submit_command("style "+str(style.selected+1)))

@@ -31,8 +31,8 @@ func catalog() -> Array[Dictionary]:
         _entry("layers", "layers", "列出十二个独立场景图层及显示状态。", "美术", "layers"),
         _entry("layer", "layer <layer_name> <on|off>", "独立显示或隐藏一个图层；名称不区分大小写。", "美术", "layer NearRainSnow off"),
         _entry("guide", "guide [id]", "打开图鉴；UI 方案中只提供六项独立样册。", "界面", "guide sparrow"),
-        _entry("ui", "ui <game|lab>", "切换主游戏或十套 UI 方案，存档模式沿用本次启动参数。", "界面", "ui lab"),
-        _entry("style", "style <1..10|style_id>", "在 UI 演示中切换方案。", "界面", "style quiet_glass"),
+        _entry("ui", "ui <game|lab>", "切换主游戏或 UI 方案预览；包含可交互方案与静态原画提案。", "界面", "ui lab"),
+        _entry("style", "style <1..%d|style_id>" % Styles.all_styles().size(), "在 UI 演示中切换方案。", "界面", "style quiet_glass"),
         _entry("screenshot", "screenshot", "由控制台保存当前画面截图。", "美术", "screenshot"),
         _entry("save", "save <status|now|backup|reload|reset CONFIRM>", "查看、保存、备份、重读或重置当前存档；重置必须确认且先备份。", "存档", "save backup")
     ]
@@ -58,6 +58,9 @@ func _defs() -> Dictionary:
 
 func _is_lab(scene: Node) -> bool:
     return is_instance_valid(scene) and scene.has_method("_change_style") and scene.has_method("_set_weather")
+
+func _is_concept(scene: Node) -> bool:
+    return _is_lab(scene) and scene.has_method("get_active_style_kind") and str(scene.call("get_active_style_kind")) == "concept"
 
 func _state(scene: Node) -> Node:
     return scene.get_node_or_null("/root/DiaryState") if is_instance_valid(scene) and scene.is_inside_tree() else null
@@ -130,6 +133,8 @@ func execute(line: String, scene: Node) -> Dictionary:
     if not is_instance_valid(scene) or not scene.is_inside_tree(): return _error("当前游戏场景尚未准备好。")
     var state: Node = _state(scene)
     if state == null: return _error("当前场景没有 DiaryState。")
+    if _is_concept(scene) and command in ["weather","time","spawn","event","focus","guide","layer","layers","clear"]:
+        return _error("当前是静态 UI 原画提案，画中控件不执行动态操作。请用 style 1 到 style 10 切回可交互方案体验天气、来客和图鉴。")
     match command:
         "status":
             if args.size() != 1: return _usage(command)
@@ -137,7 +142,8 @@ func execute(line: String, scene: Node) -> Dictionary:
             var world: Node = _world(scene)
             var actor_count: int = world.get("actors").size() if world != null else 0
             var event_count: int = world.get("spectacles").size() if world != null else 0
-            return _ok("%s\n场景：%s · 天气：%s · 倍速：%.2f · 暂停：%s\n收录：%d / %d · 来客：%d · 奇遇：%d\n独立图层：%s" % [_mode(state), "UI Lab" if _is_lab(scene) else "Game", WEATHER_NAMES[clampi(_weather_of(scene),0,7)], Engine.time_scale, "是" if scene.get_tree().paused else "否", state.call("get_count"), _defs().size(), actor_count, event_count, "可用" if stage != null else "不可用"])
+            var visual_note: String = "当前展示：静态原画提案；以下天气与来客为后台状态，不会改变原画。\n" if _is_concept(scene) else ""
+            return _ok(visual_note + "%s\n场景：%s · 天气：%s · 倍速：%.2f · 暂停：%s\n收录：%d / %d · 来客：%d · 奇遇：%d\n独立图层：%s" % [_mode(state), "UI Lab" if _is_lab(scene) else "Game", WEATHER_NAMES[clampi(_weather_of(scene),0,7)], Engine.time_scale, "是" if scene.get_tree().paused else "否", state.call("get_count"), _defs().size(), actor_count, event_count, "可用" if stage != null else "不可用"])
         "weather":
             if args.size() != 2: return _usage(command)
             var index: int = _weather_index(args[1])
@@ -267,9 +273,9 @@ func execute(line: String, scene: Node) -> Dictionary:
                 var styles: Array[Dictionary] = Styles.all_styles()
                 for i in range(styles.size()):
                     if str(styles[i].id) == args[1].to_lower(): index = i
-            if index < 0 or index >= 10: return _usage(command)
+            if index < 0 or index >= Styles.all_styles().size(): return _usage(command)
             scene.call("_change_style",index)
-            return _ok("已切到方案 %02d · %s。" % [index + 1, Styles.all_styles()[index].name])
+            return _ok("已切到方案 %02d · %s%s。" % [index + 1, Styles.all_styles()[index].name, " · 静态原画提案" if _is_concept(scene) else ""])
         "screenshot":
             if args.size() != 1: return _usage(command)
             return _ok("正在准备当前画面截图。",{"screenshot":true})
@@ -554,6 +560,7 @@ func complete(prefix: String) -> Array[String]:
     for option in ["status","now","backup","reload","reset"]: candidates.append("save " + option)
     for channel in ["master","music","rain","forest","river"]: candidates.append("volume " + channel + " -22")
     for style in Styles.all_styles(): candidates.append("style " + str(style.id))
+    for style_index in range(Styles.all_styles().size()): candidates.append("style " + str(style_index + 1))
     candidates.append_array(["ui game","ui lab","speed 1","offline 24","screenshot"])
     var result: Array[String] = []
     for candidate in candidates:

@@ -1,0 +1,112 @@
+[
+  {
+    "art_path": "res://assets/ui_concepts_v2/11-mossbound_storybook.png",
+    "english": "Mossbound Storybook",
+    "guide": "",
+    "hud": "11-mossbound_storybook-concept.png",
+    "id": "mossbound_storybook",
+    "index": 11,
+    "kind": "concept",
+    "name": "苔庭绘本",
+    "tagline": "藤蔓木雕、蘑菇书签与翻页鸟类绘本"
+  },
+  {
+    "art_path": "res://assets/ui_concepts_v2/12-papercut_conservatory.png",
+    "english": "Papercut Conservatory",
+    "guide": "",
+    "hud": "12-papercut_conservatory-concept.png",
+    "id": "papercut_conservatory",
+    "index": 12,
+    "kind": "concept",
+    "name": "立体纸庭",
+    "tagline": "叠层剪纸、折纸花叶与立体卡册"
+  },
+  {
+    "art_path": "res://assets/ui_concepts_v2/13-nordic_quilt.png",
+    "english": "Nordic Quilt",
+    "guide": "",
+    "hud": "13-nordic_quilt-concept.png",
+    "id": "nordic_quilt",
+    "index": 13,
+    "kind": "concept",
+    "name": "北欧织锦",
+    "tagline": "亚麻针脚、编织飞鸟与拼布图鉴"
+  },
+  {
+    "art_path": "res://assets/ui_concepts_v2/14-cyanotype_herbarium.png",
+    "english": "Cyanotype Herbarium",
+    "guide": "",
+    "hud": "14-cyanotype_herbarium-concept.png",
+    "id": "cyanotype_herbarium",
+    "index": 14,
+    "kind": "concept",
+    "name": "蓝晒标本",
+    "tagline": "蓝晒植物负片、晒印纸与标本索引"
+  },
+  {
+    "art_path": "res://assets/ui_concepts_v2/15-moon_stained_glass.png",
+    "english": "Moon Stained Glass",
+    "guide": "",
+    "hud": "15-moon_stained_glass-concept.png",
+    "id": "moon_stained_glass",
+    "index": 15,
+    "kind": "concept",
+    "name": "月影彩窗",
+    "tagline": "月蛾彩玻璃、铅条曲线与拱形收藏窗"
+  },
+  {
+    "art_path": "res://assets/ui_concepts_v2/16-wooden_theatre.png",
+    "english": "Wooden Theatre",
+    "guide": "",
+    "hud": "16-wooden_theatre-concept.png",
+    "id": "wooden_theatre",
+    "index": 16,
+    "kind": "concept",
+    "name": "木偶窗剧场",
+    "tagline": "木版玩具舞台、幕布与来客戏票"
+  },
+  {
+    "art_path": "res://assets/ui_concepts_v2/17-riso_ramble.png",
+    "english": "Riso Ramble",
+    "guide": "",
+    "hud": "17-riso_ramble-concept.png",
+    "id": "riso_ramble",
+    "index": 17,
+    "kind": "concept",
+    "name": "孔版游记",
+    "tagline": "三色错版、粗颗粒刻印与撕纸游记"
+  },
+  {
+    "art_path": "res://assets/ui_concepts_v2/18-graphite_fieldwork.png",
+    "english": "Graphite Fieldwork",
+    "guide": "",
+    "hud": "18-graphite_fieldwork-concept.png",
+    "id": "graphite_fieldwork",
+    "index": 18,
+    "kind": "concept",
+    "name": "铅笔野录",
+    "tagline": "石墨速写、手写圈线与活页观察册"
+  },
+  {
+    "art_path": "res://assets/ui_concepts_v2/19-night_signal.png",
+    "english": "Night Signal",
+    "guide": "",
+    "hud": "19-night_signal-concept.png",
+    "id": "night_signal",
+    "index": 19,
+    "kind": "concept",
+    "name": "深夜讯号",
+    "tagline": "琥珀点阵、复古旋钮与观测仪表"
+  },
+  {
+    "art_path": "res://assets/ui_concepts_v2/20-tideglass_atlas.png",
+    "english": "Tideglass Atlas",
+    "guide": "",
+    "hud": "20-tideglass_atlas-concept.png",
+    "id": "tideglass_atlas",
+    "index": 20,
+    "kind": "concept",
+    "name": "潮汐图仪",
+    "tagline": "铜质罗盘、航海刻线与海图鸟类图鉴"
+  }
+]

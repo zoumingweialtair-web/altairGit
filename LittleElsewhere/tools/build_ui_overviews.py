@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 from PIL import Image, ImageDraw, ImageFont
 root = Path(__file__).resolve().parents[1] / 'docs' / 'ui-concepts'
-styles = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+styles = [item for item in json.loads((root / 'manifest.json').read_text(encoding='utf-8')) if item.get('kind', 'interactive') == 'interactive']
 font_path = r'C:\Windows\Fonts\msyh.ttc'
 font = ImageFont.truetype(font_path, 23)
 small = ImageFont.truetype(font_path, 17)

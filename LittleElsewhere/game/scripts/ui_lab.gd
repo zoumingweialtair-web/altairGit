@@ -3,6 +3,7 @@ extends Control
 const Styles = preload("res://scripts/ui_lab_styles.gd")
 const Hud = preload("res://scripts/ui_lab_hud.gd")
 const Guide = preload("res://scripts/ui_lab_guide.gd")
+const ArtGallery = preload("res://scripts/ui_art_gallery.gd")
 const WEATHER_NAMES = ["晴日", "听雨", "月夜", "夕照", "落雪", "晨雾", "风雨", "晨曦"]
 const EVENTS = ["aurora_crown", "ember_clouds", "meteor_shower", "deep_one", "sunken_city", "sky_jellyfish", "twin_moons", "floating_isles", "bioluminescent_tide", "constellation_stag"]
 const EVENT_WEATHERS = [2, 3, 2, 5, 5, 2, 2, 0, 2, 2]
@@ -14,6 +15,10 @@ var sound_on: bool = false
 var guide: Control
 var _guide_state: Dictionary = {}
 var hud: Control
+var art_view: Control
+var event_button: Button
+var sound_button: Button
+var visitor_button: Button
 var footer: Control
 var scheme_picker: OptionButton
 var weather_picker: OptionButton
@@ -49,6 +54,10 @@ func _ready() -> void:
     hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
     hud.action.connect(_on_action)
     add_child(hud)
+    art_view = ArtGallery.new()
+    art_view.name = "ArtGallery"
+    add_child(art_view)
+    art_view.hide()
     _build_footer()
     music = AudioStreamPlayer.new()
     music.stream = load("res://assets/audio/lofi_loop.wav")
@@ -60,7 +69,7 @@ func _ready() -> void:
     _change_style(0)
     for arg in OS.get_cmdline_user_args():
         if arg.begins_with("--style="):
-            _change_style(clampi(int(arg.trim_prefix("--style=")) - 1, 0, 9))
+            _change_style(clampi(int(arg.trim_prefix("--style=")) - 1, 0, styles.size() - 1))
     if OS.get_cmdline_user_args().has("--ui-lab-test"):
         _run_checks.call_deferred()
     else:
@@ -127,12 +136,10 @@ func _build_footer() -> void:
     weather_picker.item_selected.connect(func(index): _set_weather(index))
     footer.add_child(weather_picker)
     guide_button = _footer_button("图鉴样册", 638, 126, _toggle_guide)
-    _footer_button("奇遇回放", 778, 126, func(): _on_action("event"))
+    event_button = _footer_button("奇遇回放", 778, 126, func(): _on_action("event"))
     focus_button = _footer_button("体验陪伴", 918, 126, func(): _on_action("focus"))
-    _footer_button("音乐开关", 1058, 126, func(): _on_action("sound"))
-    _footer_button("随机来客", 1198, 216, func():
-        world.trigger(["sparrow", "robin", "squirrel", "woodpecker", "owl", "kingfisher"].pick_random(), false)
-        message.text = "新来客正在树上停留")
+    sound_button = _footer_button("音乐开关", 1058, 126, func(): _on_action("sound"))
+    visitor_button = _footer_button("随机来客", 1198, 216, _visitor_action)
     message = Label.new()
     message.position = Vector2(974, 817)
     message.size = Vector2(440, 21)
@@ -142,17 +149,58 @@ func _build_footer() -> void:
     message.text = "← → 方案 · G 图鉴 · F1 调试 · 示例数据"
     footer.add_child(message)
 
+func get_active_style_kind() -> String:
+    if styles.is_empty(): return "interactive"
+    return str(styles[style_index].get("kind", "interactive"))
+
+func _is_concept() -> bool:
+    return get_active_style_kind() == "concept"
+
+func _visitor_action() -> void:
+    if _is_concept():
+        art_view.open_original()
+        return
+    world.trigger(["sparrow", "robin", "squirrel", "woodpecker", "owl", "kingfisher"].pick_random(), false)
+    message.text = "新来客正在树上停留"
+
+func _configure_proposal_controls() -> void:
+    var concept: bool = _is_concept()
+    weather_picker.disabled = concept
+    guide_button.text = "适应窗口" if concept else ("返回窗边" if is_instance_valid(guide) else "图鉴样册")
+    event_button.text = "放大原画" if concept else "奇遇回放"
+    focus_button.text = "缩小原画" if concept else ("结束陪伴" if quiet else "体验陪伴")
+    visitor_button.text = "打开原图" if concept else "随机来客"
+    message.text = "原画提案 · 滚轮缩放 / 拖动查看 · 双击复位" if concept else "← → 方案 · G 图鉴 · F1 调试 · 示例数据"
+
 func _change_style(index: int) -> void:
     style_index = clampi(index, 0, styles.size() - 1)
     scheme_picker.select(style_index)
-    hud.build(styles[style_index], WEATHER_NAMES[weather_index], quiet)
-    if is_instance_valid(guide): guide.build(styles[style_index])
-    caption.text = "%02d / 10   %s  ·  %s" % [style_index + 1, styles[style_index].name, styles[style_index].tagline]
-    if not _exporting:
+    var concept: bool = _is_concept()
+    if concept:
+        _close_guide()
+        quiet = false
+        world.set_quiet(false)
+        stage.set_quiet(false)
+        hud.hide()
+        world.hide()
+        stage.hide()
+        art_view.show()
+        art_view.build(styles[style_index])
+    else:
+        art_view.hide()
+        world.show()
+        stage.show()
+        hud.show()
+        hud.build(styles[style_index], WEATHER_NAMES[weather_index], quiet)
+        if is_instance_valid(guide): guide.build(styles[style_index])
+    _configure_proposal_controls()
+    caption.text = "%02d / %02d   %s  ·  %s%s" % [style_index + 1, styles.size(), styles[style_index].name, "原画提案 / " if concept else "", styles[style_index].tagline]
+    if not _exporting and not concept:
         hud.modulate.a = 0.0
         create_tween().tween_property(hud, "modulate:a", 1.0, 0.18)
 
 func _set_weather(index: int, immediate: bool = false) -> void:
+    if _is_concept(): return
     weather_index = clampi(index, 0, 7)
     world.clear_atmosphere_events()
     world.set_weather(weather_index)
@@ -162,6 +210,7 @@ func _set_weather(index: int, immediate: bool = false) -> void:
         hud.build(styles[style_index], WEATHER_NAMES[weather_index], quiet)
 
 func _set_quiet(value: bool) -> void:
+    if _is_concept(): return
     quiet = value
     _close_guide()
     world.set_quiet(quiet)
@@ -171,6 +220,12 @@ func _set_quiet(value: bool) -> void:
     message.text = "陪伴中 · 界面收起，来客与风景继续变化" if quiet else "← → 方案 · G 图鉴 · F1 调试 · 示例数据"
 
 func _on_action(action_id: String) -> void:
+    if _is_concept() and action_id in ["guide","focus","event","weather"]:
+        match action_id:
+            "guide": art_view.reset_view()
+            "event": art_view.zoom_by(1.25)
+            "focus": art_view.zoom_by(0.8)
+        return
     match action_id:
         "guide": _toggle_guide()
         "focus": _set_quiet(not quiet)
@@ -192,10 +247,14 @@ func _open_bird(id: String) -> void:
     guide.select_entry(id)
 
 func _toggle_guide() -> void:
+    if _is_concept():
+        art_view.reset_view()
+        return
     if is_instance_valid(guide): _close_guide()
     else: _open_guide()
 
 func _open_guide() -> void:
+    if _is_concept(): return
     if quiet: _set_quiet(false)
     if is_instance_valid(guide): return
     guide = Guide.new()
@@ -235,7 +294,7 @@ func _process(delta: float) -> void:
         world.trigger("sparrow", false)
         world.trigger("squirrel", false)
 
-func _shortcut_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
     var gm = get_node_or_null("/root/GMConsole")
     if gm != null and gm.is_open(): return
     if scheme_picker.get_popup().visible or weather_picker.get_popup().visible: return
@@ -250,49 +309,58 @@ func _shortcut_input(event: InputEvent) -> void:
         KEY_ESCAPE:
             if is_instance_valid(guide): _close_guide()
             elif quiet: _set_quiet(false)
+            elif _is_concept(): art_view.reset_view()
+        _: return
     get_viewport().set_input_as_handled()
 
 func _export_samples(directory: String) -> void:
     _exporting = true
+    var new_only: bool = OS.get_cmdline_user_args().has("--ui-lab-export-new-only")
     DirAccess.make_dir_recursive_absolute(directory)
     hud.modulate.a = 1.0
+    _change_style(0)
     _set_weather(7, true)
     await get_tree().create_timer(1.2).timeout
     var manifest: Array[Dictionary] = []
     for index in range(styles.size()):
+        var concept: bool = str(styles[index].get("kind", "interactive")) == "concept"
+        if new_only and not concept: continue
         _close_guide()
         _change_style(index)
-        await get_tree().create_timer(0.20).timeout
+        await get_tree().create_timer(0.15).timeout
         await RenderingServer.frame_post_draw
         var stem: String = "%02d-%s" % [index + 1, styles[index].id]
-        var main_path = directory.path_join(stem + "-hud.png")
-        var result = get_viewport().get_texture().get_image().save_png(main_path)
+        var main_file: String = stem + ("-concept.png" if concept else "-hud.png")
+        var main_path: String = directory.path_join(main_file)
+        var result: Error = get_viewport().get_texture().get_image().save_png(main_path)
         if result != OK:
             push_error("Unable to export " + main_path)
             get_tree().quit(1)
             return
-        _open_guide()
-        await get_tree().create_timer(0.20).timeout
-        await RenderingServer.frame_post_draw
-        var guide_path = directory.path_join(stem + "-guide.png")
-        result = get_viewport().get_texture().get_image().save_png(guide_path)
-        if result != OK:
-            push_error("Unable to export " + guide_path)
-            get_tree().quit(1)
-            return
-        manifest.append({"index":index + 1,"id":styles[index].id,"name":styles[index].name,"english":styles[index].english,"tagline":styles[index].tagline,"hud":stem + "-hud.png","guide":stem + "-guide.png"})
+        var guide_file: String = ""
+        if not concept:
+            _open_guide()
+            await get_tree().create_timer(0.15).timeout
+            await RenderingServer.frame_post_draw
+            guide_file = stem + "-guide.png"
+            result = get_viewport().get_texture().get_image().save_png(directory.path_join(guide_file))
+            if result != OK:
+                get_tree().quit(1)
+                return
+        manifest.append({"index":index + 1,"id":styles[index].id,"name":styles[index].name,"english":styles[index].english,"tagline":styles[index].tagline,"kind":"concept" if concept else "interactive","hud":main_file,"guide":guide_file,"art_path":str(styles[index].get("art_path",""))})
         print("UI_EXPORT_OK ", stem)
     _close_guide()
-    _change_style(4)
-    _set_weather(2, true)
-    _set_quiet(true)
-    await get_tree().create_timer(0.25).timeout
-    await RenderingServer.frame_post_draw
-    get_viewport().get_texture().get_image().save_png(directory.path_join("quiet-night.png"))
-    var file = FileAccess.open(directory.path_join("manifest.json"), FileAccess.WRITE)
+    if not new_only:
+        _change_style(4)
+        _set_weather(2, true)
+        _set_quiet(true)
+        await get_tree().create_timer(0.25).timeout
+        await RenderingServer.frame_post_draw
+        get_viewport().get_texture().get_image().save_png(directory.path_join("quiet-night.png"))
+    var file: FileAccess = FileAccess.open(directory.path_join("manifest.json"), FileAccess.WRITE)
     file.store_string(JSON.stringify(manifest, "  "))
     file.close()
-    print("UI_EXPORT_COMPLETE 10 HUD + 10 guides + quiet mode")
+    print("UI_EXPORT_COMPLETE ",manifest.size()," schemes")
     get_tree().quit()
 
 func _run_checks() -> void:
@@ -300,11 +368,23 @@ func _run_checks() -> void:
     var failures: Array[String] = []
     var normal_path = "user://window_diary_demo_save.json"
     var normal_before = FileAccess.get_sha256(normal_path) if FileAccess.file_exists(normal_path) else "MISSING"
-    if styles.size() != 10: failures.append("style count")
+    if styles.size() != 20: failures.append("style count")
     var ids: Dictionary = {}
     for index in range(styles.size()):
         _change_style(index)
         ids[styles[index].id] = true
+        if _is_concept():
+            if not bool(art_view.get_snapshot().get("loaded",false)): failures.append("missing proposal " + str(index))
+            if hud.visible or world.visible or stage.visible: failures.append("concept must own its presentation")
+            art_view.zoom_by(1.5)
+            if float(art_view.get_snapshot().get("zoom",1.0)) <= 1.0: failures.append("concept zoom")
+            _toggle_guide()
+            if float(art_view.get_snapshot().get("zoom",0.0)) != 1.0: failures.append("concept fit-to-window")
+            var before_weather: int = weather_index
+            _on_action("weather")
+            if weather_index != before_weather: failures.append("concept picture cannot simulate weather controls")
+            print("UI_LAB_CHECK art ", index + 1, " ", styles[index].id)
+            continue
         _open_guide()
         guide.select_entry("sparrow")
         var known: Dictionary = guide.get_snapshot()
@@ -332,7 +412,8 @@ func _run_checks() -> void:
         if not world.quiet: failures.append("quiet world")
         _set_quiet(false)
         print("UI_LAB_CHECK style ", index + 1, " ", styles[index].id)
-    if ids.size() != 10: failures.append("unique styles")
+    if ids.size() != 20: failures.append("unique styles")
+    _change_style(0)
     _set_weather(1, true)
     if stage.weather != 1 or world.weather != 1: failures.append("weather synchronization")
     _replay("aurora_crown")

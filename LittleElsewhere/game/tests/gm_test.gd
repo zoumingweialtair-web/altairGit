@@ -2,6 +2,7 @@ extends SceneTree
 ## Run: --headless --path game --script res://tests/gm_test.gd -- --test-mode --capture
 ## A unique override file exercises real persistence; --capture protects the autoload before/after it.
 const Commands = preload("res://scripts/gm_commands.gd")
+const Styles = preload("res://scripts/ui_lab_styles.gd")
 const NORMAL_PATH: String = "user://window_diary_demo_save.json"
 const WEATHER_IDS: Array[String] = ["sun","rain","night","dusk","snow","fog","storm","dawn"]
 const CATEGORY_COUNTS: Dictionary = {"birds":10,"animals":4,"insects":7,"scenery":8,"wonders":21}
@@ -320,8 +321,26 @@ func _test_preview_mode() -> void:
     command("style quiet_glass")
     check(scene.style_index==1,"style accepts a named scheme")
     command("style 0",false)
-    command("style 11",false)
+    var style_count: int = Styles.all_styles().size()
+    command("style "+str(style_count+1),false)
     check(scene.style_index==1,"invalid styles keep the current scheme")
+    check(style_count==20,"ten original schemes and ten concept-art proposals are available")
+    var style_picker: OptionButton=root.get_node("GMConsole").find_child("StylePicker",true,false) as OptionButton
+    check(style_picker!=null and style_picker.item_count==style_count,"GM picker includes every registered scheme")
+    command("style "+str(style_count))
+    check(scene.style_index==style_count-1 and scene.get_active_style_kind()=="concept","GM selects proposal 20 as static concept art")
+    var old_weather: int=scene.weather_index
+    var old_actor_count: int=scene.world.actors.size()
+    var old_event_count: int=scene.world.spectacles.size()
+    var old_sky_visible: bool=scene.stage.get_node("Sky").visible
+    for blocked: String in ["weather rain","time dusk","spawn squirrel","event aurora_crown","focus on","guide sparrow","layer Sky off","layers","clear actors"]:
+        var rejected: Dictionary=command(blocked,false)
+        check(str(rejected.get("message","")).contains("原画"),"concept command explains the static proposal boundary")
+    check(scene.weather_index==old_weather and scene.world.actors.size()==old_actor_count and scene.world.spectacles.size()==old_event_count and scene.stage.get_node("Sky").visible==old_sky_visible,"blocked visual commands leave live-scene state unchanged")
+    check(backend.complete("style 2").has("style 20"),"numeric completion includes the last proposal")
+    command("style mossbound_storybook")
+    check(scene.style_index==10,"GM accepts a new concept art ID")
+    command("style quiet_glass")
     command("collect all")
     check(state.get_count()==50 and state._save_path().is_empty(),"preview collection commands remain in memory")
     command("guide twin_moons")

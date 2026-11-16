@@ -1,8 +1,9 @@
 extends RefCounted
-## Ten distinct visual directions for the native UI laboratory.
+## Ten interactive UI prototypes and ten illustrated art-direction proposals.
+const ArtStyles = preload("res://scripts/ui_art_styles.gd")
 
 static func all_styles() -> Array[Dictionary]:
- return [
+ var result: Array[Dictionary] = [
   {"id":"field_notes","name":"自然手账","english":"Field Notes","tagline":"暖纸、索引签与观察笔记，让收集像一本慢慢写满的手账。","paper":Color("f1ead8"),"ink":Color("37453b"),"accent":Color("627957"),"muted":Color("66745e"),"border":Color("b8b99e"),"font":"Microsoft YaHei","title_font":"Georgia","corner":3},
   {"id":"quiet_glass","name":"留白玻璃","english":"Quiet Glass","tagline":"轻透悬浮的控件，给窗外留出最多呼吸空间。","paper":Color(0.93,0.97,0.94,0.93),"ink":Color("284840"),"accent":Color("3d766a"),"muted":Color("55766c"),"border":Color("bcd5ca"),"font":"Microsoft YaHei UI","title_font":"Segoe UI Light","corner":25},
   {"id":"pocket_pixels","name":"像素掌机","english":"Pocket Pixels","tagline":"四阶绿、方角与明确按键，像一台放在窗边的小掌机。","paper":Color("d9dfaf"),"ink":Color("2c4936"),"accent":Color("4f6d43"),"muted":Color("5c704c"),"border":Color("384e31"),"font":"Microsoft YaHei","title_font":"Consolas","corner":0},
@@ -14,3 +15,5 @@ static func all_styles() -> Array[Dictionary]:
   {"id":"ink_stillness","name":"水墨留白","english":"Ink & Stillness","tagline":"墨色、印章与疏朗留白，适合长时间安静陪伴。","paper":Color(0.95,0.93,0.87,0.95),"ink":Color("343f39"),"accent":Color("8c5148"),"muted":Color("6e7870"),"border":Color("b5b8a7"),"font":"KaiTi","title_font":"Georgia","corner":0},
   {"id":"celestial_archive","name":"星象档案","english":"Celestial Archive","tagline":"黄铜边框与几何刻线，把奇遇保存成一份珍贵档案。","paper":Color(0.12,0.25,0.26,0.97),"ink":Color("eee2bf"),"accent":Color("d5b77a"),"muted":Color("b5c5b4"),"border":Color("859981"),"font":"Microsoft YaHei","title_font":"Georgia","corner":0}
  ]
+ result.append_array(ArtStyles.all_styles())
+ return result

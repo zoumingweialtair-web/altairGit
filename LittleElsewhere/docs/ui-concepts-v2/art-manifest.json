@@ -1,0 +1,112 @@
+[
+  {
+    "index": 11,
+    "id": "mossbound_storybook",
+    "name": "苔庭绘本",
+    "english": "Mossbound Storybook",
+    "tagline": "藤蔓木雕、蘑菇书签与翻页鸟类绘本",
+    "image": "../../game/assets/ui_concepts_v2/11-mossbound_storybook.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  },
+  {
+    "index": 12,
+    "id": "papercut_conservatory",
+    "name": "立体纸庭",
+    "english": "Papercut Conservatory",
+    "tagline": "叠层剪纸、折纸花叶与立体卡册",
+    "image": "../../game/assets/ui_concepts_v2/12-papercut_conservatory.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  },
+  {
+    "index": 13,
+    "id": "nordic_quilt",
+    "name": "北欧织锦",
+    "english": "Nordic Quilt",
+    "tagline": "亚麻针脚、编织飞鸟与拼布图鉴",
+    "image": "../../game/assets/ui_concepts_v2/13-nordic_quilt.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  },
+  {
+    "index": 14,
+    "id": "cyanotype_herbarium",
+    "name": "蓝晒标本",
+    "english": "Cyanotype Herbarium",
+    "tagline": "蓝晒植物负片、晒印纸与标本索引",
+    "image": "../../game/assets/ui_concepts_v2/14-cyanotype_herbarium.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  },
+  {
+    "index": 15,
+    "id": "moon_stained_glass",
+    "name": "月影彩窗",
+    "english": "Moon Stained Glass",
+    "tagline": "月蛾彩玻璃、铅条曲线与拱形收藏窗",
+    "image": "../../game/assets/ui_concepts_v2/15-moon_stained_glass.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  },
+  {
+    "index": 16,
+    "id": "wooden_theatre",
+    "name": "木偶窗剧场",
+    "english": "Wooden Theatre",
+    "tagline": "木版玩具舞台、幕布与来客戏票",
+    "image": "../../game/assets/ui_concepts_v2/16-wooden_theatre.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  },
+  {
+    "index": 17,
+    "id": "riso_ramble",
+    "name": "孔版游记",
+    "english": "Riso Ramble",
+    "tagline": "三色错版、粗颗粒刻印与撕纸游记",
+    "image": "../../game/assets/ui_concepts_v2/17-riso_ramble.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  },
+  {
+    "index": 18,
+    "id": "graphite_fieldwork",
+    "name": "铅笔野录",
+    "english": "Graphite Fieldwork",
+    "tagline": "石墨速写、手写圈线与活页观察册",
+    "image": "../../game/assets/ui_concepts_v2/18-graphite_fieldwork.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  },
+  {
+    "index": 19,
+    "id": "night_signal",
+    "name": "深夜讯号",
+    "english": "Night Signal",
+    "tagline": "琥珀点阵、复古旋钮与观测仪表",
+    "image": "../../game/assets/ui_concepts_v2/19-night_signal.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  },
+  {
+    "index": 20,
+    "id": "tideglass_atlas",
+    "name": "潮汐图仪",
+    "english": "Tideglass Atlas",
+    "tagline": "铜质罗盘、航海刻线与海图鸟类图鉴",
+    "image": "../../game/assets/ui_concepts_v2/20-tideglass_atlas.png",
+    "width": 1672,
+    "height": 941,
+    "kind": "concept"
+  }
+]
