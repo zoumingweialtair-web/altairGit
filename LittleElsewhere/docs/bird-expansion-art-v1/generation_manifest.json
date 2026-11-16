@@ -1,0 +1,90 @@
+{
+  "project": "Little Elsewhere",
+  "date": "2026-11-16",
+  "type": "Bird expansion character concept art",
+  "tool": "Built-in image_gen",
+  "artifact": "character-sheet-v2.png",
+  "status": "Concept artwork for review; not runtime sprites or an implemented expansion",
+  "style_reference_reviewed": "../goofy-birds/characters.png",
+  "scope": {
+    "species_count": 16,
+    "proposal_total": 50,
+    "description": "15 first-batch candidates plus 蒲团鸟; covers all 13 highlighted brainstorm birds"
+  },
+  "layout": "4 columns × 4 rows",
+  "species": [
+    "鸽子",
+    "乌鸦",
+    "玄凤",
+    "面团鸟",
+    "蒲团鸟",
+    "纸团鸟",
+    "云兜鸟",
+    "毛线鸟",
+    "咔哒鸟",
+    "信号不好鸟",
+    "两口子鸟",
+    "没看见鸟",
+    "影影鸟",
+    "倒着鸟",
+    "一口星河鸟",
+    "缺一口鸟"
+  ],
+  "steps": [
+    {
+      "operation": "generate",
+      "source_file": "exec-dba58739-3658-4896-ac71-32185fdad726.png",
+      "prompt": "Use case: stylized-concept.\nCreate a polished ORIGINAL 2D game character concept art sheet for \"Little Elsewhere\", a quiet whimsical balcony birdwatching game. This is a roster of 16 NEW goofy bird characters, not a UI screenshot. Square high-resolution composition, 4 columns x 4 rows, ALL 16 birds large, fully visible, with plenty of ivory-paper space, consistent scale and consistent art direction. No panels, boxes or busy decorative frame. A small elegant Chinese title at top: \"窗边的怪可爱邻居\". Tiny clear Chinese character names underneath each bird, exact labels listed below. Characters are the main content, not text.\n\nART DIRECTION: charming Japanese indie-game hand-drawn character design, refined pixel-friendly contours with subtle stepped edges and delicate pencil/grain texture, simple readable 2D color shapes, beautiful restrained flat shading with 3-5 tones per character. Light warm ivory background. Muted sage, dusty teal, cream, oatmeal, clay brown, pale lavender, a little tarnished brass. Bright and airy, with clear light/shadow separation, never oversaturated. All birds have round pudding/mochi/bean bodies, short stubby wings, tiny feet, TWO small black bead eyes and a tiny beak, broad blank forehead, deadpan slightly stupid face. The joke should come from silhouette, pose and body material, not written captions. Three-quarter front view for most, facing gently toward the viewer; each character has a distinctive shape. Slight asymmetry and innocent unearned confidence. NO huge shiny anime eyes, realistic bird anatomy, intricate feather hatching, oil painting, thick impasto, glossy 3D render, plastic toy aesthetic, aggressive monsters, neon rainbow effects, generic hats or armor, photographic lighting, gradients all over the page. This must be beautiful original character concept art with the simple charm of a bird-shaped doodle brought to life.\n\nRead order left to right, top to bottom. Exactly these 16 separate characters, one in each of 16 positions:\nROW 1\n1 label \"鸽子\": plump gray pigeon like a loaf of bread, tiny beady eyes, thick silly neck craning slightly forward while body stays round, two little pink toes, extremely earnest.\n2 label \"乌鸦\": soft charcoal ball crow, small cream cheek/eye area and black dot pupils, tiny blunt beak, proudly presenting one polished pebble next to a seed, not menacing.\n3 label \"玄凤\": pale cream cockatiel dumpling with two muted peach cheek marks and a three-feather crest shooting up in mild surprise, tiny dot eyes, short wing.\n4 label \"面团鸟\": very soft warm cream dough bird, three subtle folds on crown, belly inflated so its tiny feet almost disappear, serene blank expression, a single seed nearby.\nROW 2\n5 label \"蒲团鸟\": puffball bird made of dandelion down, two tiny dot eyes, a few floating fluff tufts leaving its body after a sneeze; one stubby wing reaching to catch a tuft. Elegant delicate fluff, not noisy fuzzy realism.\n6 label \"纸团鸟\": bird entirely made from a crumpled piece of warm off-white paper, simple folded paper beak and wings, visible clean fold planes, comically trying to round itself back up; keep paper texture understated.\n7 label \"云兜鸟\": drooping soft small cloud bird with skinny little legs; its own miniature drizzly patch releases three blue raindrops beside its face, it looks confused upward. Rounded readable silhouette, not an ordinary bird wearing a cloud.\n8 label \"毛线鸟\": one loose sage-colored yarn ball shaped like a bird, beady eyes, tiny knit wings, trailing thread tail caught around a very small twig, one foot awkwardly stepping backwards, a few elegant yarn curves not dense texture.\nROW 3\n9 label \"咔哒鸟\": retro mechanical bird with rotund cream and tarnished-brass tin body, teal rounded wing plates, a little visible slow gear in its belly, winding-key tail. One tiny mechanical foot reaching back to wind itself while it freezes in a baffled eating pose. Endearing simple toy mechanism, flat 2D, not a complex robot.\n10 label \"信号不好鸟\": gentle extraterrestrial bird, dusty mint pear-shaped round body, two soft antennae pointing in different directions, TWO black bead eyes, exactly THREE tiny feet; studying five seeds arranged in a circle. Clearly alien but birdlike and adorable.\n11 label \"两口子鸟\": EXACTLY ONE plump oatmeal bird body with TWO distinct round heads on TWO very short necks, each head has its own TWO black bead eyes and tiny beak; four eyes total. One head sleepy, the other earnest. Both reaching for the SAME seed. One pair of wings and exactly two feet. Make the double-headed silhouette unmistakable, not two separate birds.\n12 label \"没看见鸟\": invisible bird whose COMPLETE rotund body and two stubby wings are faintly revealed by pale mint glass-like refractive edges and tiny raindrops. Two visible dot eyes, a single ochre seed suspended in the belly, visible small footprints. It is turning one wing over its belly to hide the seed. Body interior mostly matches the ivory page, but full silhouette must remain easy to understand.\nROW 4\n13 label \"影影鸟\": a FLAT smoky charcoal bird-shaped shadow peeled partly up from a small soft ground shadow. Two tiny cream eye patches containing dark dot pupils, tiny beak. Pecks at the flat shadow of a seed instead of the actual seed just beside it. Distinct from a normal black crow; show the paper-thin curled edge.\n14 label \"倒着鸟\": a round pale-lavender goofy bird hanging UPSIDE DOWN UNDER a short horizontal natural twig, BOTH tiny feet gripping the UNDERSIDE of the twig above its body. Head and body below branch, tail floating upward, dot eyes looking sideways at two falling raindrops. Clear inverted gravity pose, full body visible, gentle silly face.\n15 label \"一口星河鸟\": compact deep dusty-indigo round bird with a clear circular belly-window showing a tiny tasteful star field and ONE gold seed orbiting inside, small wings, tiny black dot eyes on a light cream face patch. Looking down at its own belly, slightly dizzy, subtle soft glow only, no scene background or large halo.\n16 label \"缺一口鸟\": a thick soft buttery-cream CRESCENT-MOON shaped bird body, the open crescent is physically missing from its side. Two small black bead eyes together near upper crescent tip, a tiny beak, stubby wing and two little feet, looking down for its feet, holding one seed. Clearly a moon-shaped bird, not a round bird wearing a moon.\n\nAll names spelled cleanly in small warm dark-gray handwritten Chinese text below the matching bird, no extra paragraphs or invented labels. Keep a little breathing space between the four rows. Do not include rarity UI or percentages. Every bird should feel like part of the same goofy family, with crisp readable faces and material-specific silhouettes. High quality concept art suitable for choosing game characters."
+    },
+    {
+      "operation": "edit double-headed silhouette and label",
+      "source_file": "exec-86c87de4-d3a6-4175-826c-25acbfb2e934.png",
+      "prompt": "Edit this existing 4x4 bird character concept sheet with ONLY two precise corrections. Preserve the entire composition, the paper background, the beautiful light muted hand-drawn art style, the title, all 15 other characters, every other label and every grid position exactly.\n\nCorrection 1: The third row, third column, labelled \"两口子鸟\", must read unmistakably as ONE two-headed bird, not two little faces tucked into the breast of a larger bird. Redesign ONLY that character. Give it ONE single round oatmeal/cream pudding body with exactly ONE pair of small brown wings and TWO feet. From the TOP of that same body grow TWO short separate little necks and TWO distinct round bird heads, side by side above the body. Their heads protrude beyond the top shoulder silhouette, with a small visible gap between the necks. Each head has two small dark bead eyes and a tiny beak. The LEFT head sleepily looks sideways with one blink; the RIGHT head earnestly looks down toward the same seed on the ground. Cute, goofy, gentle, not grotesque. No third head, no face on the torso, no parent bird containing baby birds, no extra feet. Keep this character inside its existing cell and at the same overall visual scale and art quality. Keep label \"两口子鸟\" unchanged.\n\nCorrection 2: Third row fourth column, under the transparent invisible bird: change the label to EXACTLY \"没看见鸟\" (four characters: 没 看 见 鸟). Keep the invisible bird itself unchanged.\n\nDo not change anything else."
+    },
+    {
+      "operation": "edit flat shadow silhouette",
+      "source_file": "exec-d229f20e-1b01-44fb-bf98-55bcc3057474.png",
+      "prompt": "Make ONE targeted correction to this completed bird concept sheet. Preserve the exact 4x4 layout, paper background, title, all labels, every color, all other 15 birds including the corrected double-headed bird, and the existing light charming hand-drawn style.\n\nChange ONLY the bottom-left character labelled \"影影鸟\". It currently looks too much like a three-dimensional furry crow. Replace it with a genuinely FLAT bird-shaped ink SHADOW lying almost horizontally along the page surface. The body should be a broad, low, smoky charcoal silhouette resembling a soft little bird-shaped paper cutout viewed diagonally from above, about half the current vertical height and roughly the same width. Its outline can have a stubby tail and two flat wing lobes, but NO layered feather texture, NO fluffy volume, NO round chest bulge, NO cast shadow from an upright animal. Give the flat silhouette two tiny cream eye spots with black dot pupils near the front and a tiny beak. ONLY the very front edge curls up a few millimeters, like the edge of a thin soft paper sticker, to peck at the flat gray shadow of one seed lying just to the right; the real ochre seed sits beyond its shadow. This is a cute deadpan living shadow, not another normal crow and not a frightening ghost. Keep the surrounding cell airy, don't enlarge neighboring characters, keep exact label \"影影鸟\" below it.\n\nEverything else must remain unchanged."
+    },
+    {
+      "operation": "text-only correction to the clear label 隐形鸟",
+      "source_file": "exec-a981a3c8-4cd5-4ec4-84cf-73ff0e1fafa1.png",
+      "prompt": "Correct ONE small text caption on the provided finished bird character sheet. Change ONLY the caption directly beneath the transparent bird in ROW 3, COLUMN 4. Replace that entire caption with the THREE Chinese characters \"隐形鸟\", exactly 隐 形 鸟, meaning Invisible Bird. Use the same dark gray handwritten Chinese lettering and the same centered baseline. Render the three characters clearly and correctly. Do not retain any characters from the old four-character caption.\n\nPreserve absolutely all illustrations, the title, every other caption, the 4x4 arrangement, color, texture, and all character details unchanged. In particular preserve the two-necked bird and the flat shadow bird exactly. This is a text-only correction to one caption."
+    }
+  ],
+  "visual_review": [
+    "16 entries with distinct material and silhouettes",
+    "double-headed bird shares one body with two separate short necks",
+    "invisible bird has a full refractive body and suspended seed",
+    "shadow bird is flattened rather than a second crow",
+    "inverted bird grips underside of twig",
+    "alien has three feet; galaxy and crescent bodies legible"
+  ],
+  "runtime_changes": false,
+  "image_size": [
+    1254,
+    1254
+  ],
+  "sha256": "c597e04713f86dd85d1b073bab424cc5eff984989a6ca9c9fd761663573e269d",
+  "labels": [
+    "鸽子",
+    "乌鸦",
+    "玄凤",
+    "面团鸟",
+    "蒲团鸟",
+    "纸团鸟",
+    "云兜鸟",
+    "毛线鸟",
+    "咔哒鸟",
+    "信号不好鸟",
+    "两口子鸟",
+    "隐形鸟",
+    "影影鸟",
+    "倒着鸟",
+    "一口星河鸟",
+    "缺一口鸟"
+  ],
+  "label_aliases": {
+    "隐形鸟": "没看见鸟"
+  }
+}
