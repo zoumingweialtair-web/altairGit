@@ -69,6 +69,9 @@ func _render() -> void:
  for node: Node in get_children():
   remove_child(node)
   node.queue_free()
+ if bool(_style.get("lightweight",false)):
+  _compact_drawer()
+  return
  var shade: ColorRect = ColorRect.new()
  shade.size = size
  shade.color = Color(0.025,0.045,0.045,0.38)
@@ -364,3 +367,69 @@ func _star_archive() -> void:
  _line(Rect2(656,192,1,516),_accent)
  _detail(Rect2(698,190,592,520),160,31)
  _label("FILED UNDER: SMALL, EXTRAORDINARY THINGS",Rect2(152,712,1100,24),15,_muted,true)
+
+## Small, on-demand collection drawer. No scrim: the outdoor image stays untouched.
+func _compact_drawer() -> void:
+ var surface: Color = _paper
+ surface.a = 0.98
+ var panel: Panel = _box(Rect2(1064,82,346,626),surface,_border,_corner)
+ panel.name = "CompactGuidePanel"
+ panel.set_meta("ui_bounds",Rect2(1064,82,346,626))
+ var style_id: String = str(_style.get("id",""))
+ var title: String = "窗边图鉴"
+ if style_id in ["daily_margin","pocket_journal","pressed_leaf","pencil_day"]:
+  title = "观察手记"
+ elif style_id in ["pixel_breeze","pocket_cloud","starlit_pixel"]:
+  title = "来客图鉴"
+ _label(title,Rect2(1080,99,220,32),22,_ink)
+ _close(Rect2(1330,98,64,34))
+ _label("图鉴样册  ·  已见 4 / 6",Rect2(1080,137,314,24),14,_muted)
+ _line(Rect2(1080,164,314,1),_border)
+ for i: int in range(IDS.size()):
+  var id: String = IDS[i]
+  var known: bool = id in KNOWN
+  var tile: Rect2 = Rect2(1080+(i%3)*108,176+(i/3)*86,98,78)
+  var button: Button = _button("",tile,select_entry.bind(id),false)
+  button.name = "Entry_"+id
+  button.tooltip_text = str(SAMPLE[id]["name"]) if known else "尚未相遇的奇遇"
+  if id == _selected:
+   var selected_style: StyleBoxFlat = button.get_theme_stylebox("normal").duplicate() as StyleBoxFlat
+   selected_style.bg_color = _paper.lerp(_accent,0.12)
+   selected_style.border_color = _accent
+   button.add_theme_stylebox_override("normal",selected_style)
+  _illustration(id,Rect2(tile.position+Vector2(12,5),Vector2(74,43)))
+  _label(str(SAMPLE[id]["name"]) if known else "未相遇",Rect2(tile.position+Vector2(4,48),Vector2(90,25)),16,_ink,false,true)
+ _line(Rect2(1080,352,314,1),_border)
+ _compact_detail()
+ _label("小小的相遇，慢慢记下。",Rect2(1080,672,314,20),13,_muted)
+
+func _compact_detail() -> void:
+ var data: Dictionary = SAMPLE[_selected]
+ var known: bool = _selected in KNOWN
+ _label(str(data.name) if known else "未见的奇遇",Rect2(1080,366,194,30),22,_ink)
+ _label(str(data.rarity)+" · "+str(data.type) if known else "等一次不期而遇",Rect2(1080,401,198,24),14,_muted)
+ _illustration(_selected,Rect2(1286,364,108,66),true)
+ _compact_paragraph(str(data.description) if known else str(data.hint),Rect2(1080,449,314,96),16,_ink)
+ _compact_paragraph("常停在 · "+str(data.habitat) if known else "留意线索，也许下次打开窗就会遇见。",Rect2(1080,550,314,42),14,_muted)
+ _line(Rect2(1080,604,314,1),_border)
+ var favorite: Button = _button("已珍藏" if _selected in _favorites else "加入珍藏",Rect2(1080,620,151,38),_toggle_favorite,_selected in _favorites)
+ favorite.name = "FavoriteButton"
+ favorite.disabled = not known
+ var replay: Button = _button("回到窗边" if known else "尚未发现",Rect2(1243,620,151,38),_replay,false)
+ replay.name = "ReplayButton"
+ replay.disabled = not known
+
+func _compact_paragraph(content: String, rect: Rect2, points: int, color: Color) -> Label:
+ # Enable wrapping before assigning text so its initial minimum width cannot expand the drawer.
+ var label: Label = Label.new()
+ label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+ label.add_theme_font_override("font",_font)
+ label.add_theme_font_size_override("font_size",points)
+ label.add_theme_color_override("font_color",color)
+ label.position = rect.position
+ label.size = rect.size
+ label.text = content
+ label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+ label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ add_child(label)
+ return label

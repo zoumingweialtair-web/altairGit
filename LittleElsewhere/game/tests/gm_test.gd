@@ -324,11 +324,11 @@ func _test_preview_mode() -> void:
     var style_count: int = Styles.all_styles().size()
     command("style "+str(style_count+1),false)
     check(scene.style_index==1,"invalid styles keep the current scheme")
-    check(style_count==20,"ten original schemes and ten concept-art proposals are available")
+    check(style_count==30,"original schemes, archived concept art and ten lightweight proposals are available")
     var style_picker: OptionButton=root.get_node("GMConsole").find_child("StylePicker",true,false) as OptionButton
     check(style_picker!=null and style_picker.item_count==style_count,"GM picker includes every registered scheme")
-    command("style "+str(style_count))
-    check(scene.style_index==style_count-1 and scene.get_active_style_kind()=="concept","GM selects proposal 20 as static concept art")
+    command("style 20")
+    check(scene.style_index==19 and scene.get_active_style_kind()=="concept","GM selects proposal 20 as static concept art")
     var old_weather: int=scene.weather_index
     var old_actor_count: int=scene.world.actors.size()
     var old_event_count: int=scene.world.spectacles.size()
@@ -340,6 +340,10 @@ func _test_preview_mode() -> void:
     check(backend.complete("style 2").has("style 20"),"numeric completion includes the last proposal")
     command("style mossbound_storybook")
     check(scene.style_index==10,"GM accepts a new concept art ID")
+    for light_index: int in range(20,30):
+        command("style " + str(light_index+1))
+        check(scene.style_index==light_index and scene.get_active_style_kind()=="interactive","lightweight style remains interactive")
+    check(backend.complete("style 3").has("style 30"),"numeric completion includes lightweight proposal 30")
     command("style quiet_glass")
     command("collect all")
     check(state.get_count()==50 and state._save_path().is_empty(),"preview collection commands remain in memory")

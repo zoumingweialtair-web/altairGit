@@ -134,7 +134,7 @@ func execute(line: String, scene: Node) -> Dictionary:
     var state: Node = _state(scene)
     if state == null: return _error("当前场景没有 DiaryState。")
     if _is_concept(scene) and command in ["weather","time","spawn","event","focus","guide","layer","layers","clear"]:
-        return _error("当前是静态 UI 原画提案，画中控件不执行动态操作。请用 style 1 到 style 10 切回可交互方案体验天气、来客和图鉴。")
+        return _error("当前是静态 UI 原画提案，画中控件不执行动态操作。请用 style 21 到 style 30 切到轻量交互方案，体验天气、来客和图鉴。")
     match command:
         "status":
             if args.size() != 1: return _usage(command)

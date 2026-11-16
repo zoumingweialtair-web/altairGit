@@ -1,5 +1,5 @@
 extends Control
-## A separate, non-persistent design showroom for ten native Godot interfaces.
+## Non-persistent UI showroom sharing the original animated scenery.
 const Styles = preload("res://scripts/ui_lab_styles.gd")
 const Hud = preload("res://scripts/ui_lab_hud.gd")
 const Guide = preload("res://scripts/ui_lab_guide.gd")
@@ -31,6 +31,7 @@ var event_index: int = 0
 var visitor_clock: float = 0.0
 var focus_seconds: float = 0.0
 var _exporting: bool = false
+var _light_preview: bool = false
 var _font: SystemFont
 @onready var stage = $WeatherStage
 @onready var world = $World
@@ -38,6 +39,11 @@ var _font: SystemFont
 func _ready() -> void:
     mouse_filter = Control.MOUSE_FILTER_IGNORE
     styles = Styles.all_styles()
+    _light_preview = OS.get_cmdline_user_args().has("--ui-light")
+    if _light_preview:
+        get_window().content_scale_size = Vector2i(1440,852)
+        get_window().size = Vector2i(1280,757)
+        get_window().title = "Little Elsewhere · 轻量界面 21–30"
     _font = SystemFont.new()
     _font.font_names = PackedStringArray(["Microsoft YaHei UI", "Microsoft YaHei", "Arial"])
     var ui_theme = Theme.new()
@@ -59,6 +65,7 @@ func _ready() -> void:
     add_child(art_view)
     art_view.hide()
     _build_footer()
+    if _light_preview: _compact_footer()
     music = AudioStreamPlayer.new()
     music.stream = load("res://assets/audio/lofi_loop.wav")
     music.volume_db = -19.0
@@ -66,7 +73,7 @@ func _ready() -> void:
     music.finished.connect(func():
         if sound_on: music.play())
     _set_weather(7, true)
-    _change_style(0)
+    _change_style(20 if _light_preview else 0)
     for arg in OS.get_cmdline_user_args():
         if arg.begins_with("--style="):
             _change_style(clampi(int(arg.trim_prefix("--style=")) - 1, 0, styles.size() - 1))
@@ -74,7 +81,9 @@ func _ready() -> void:
         _run_checks.call_deferred()
     else:
         for arg in OS.get_cmdline_user_args():
-            if arg.begins_with("--ui-lab-export="):
+            if arg.begins_with("--ui-light-export="):
+                _export_light_samples.call_deferred(arg.trim_prefix("--ui-light-export="))
+            elif arg.begins_with("--ui-lab-export="):
                 _export_samples.call_deferred(arg.trim_prefix("--ui-lab-export="))
 
 func _panel_style(fill: Color, border: Color, radius: int = 7) -> StyleBoxFlat:
@@ -117,17 +126,18 @@ func _build_footer() -> void:
     caption.add_theme_font_size_override("font_size", 14)
     caption.add_theme_color_override("font_color", Color("c0d2cb"))
     footer.add_child(caption)
-    _footer_button("‹", 24, 44, func(): _change_style(posmod(style_index - 1, styles.size())))
+    _footer_button("‹", 24, 44, func(): _step_style(-1))
     scheme_picker = OptionButton.new()
     scheme_picker.name = "SchemePicker"
     scheme_picker.position = Vector2(76, 838)
     scheme_picker.size = Vector2(350, 44)
     for index in range(styles.size()):
-        scheme_picker.add_item("%02d   %s  /  %s" % [index + 1, styles[index].name, styles[index].english])
+        if _light_preview and not bool(styles[index].get("lightweight",false)): continue
+        scheme_picker.add_item("%02d   %s  /  %s" % [index + 1, styles[index].name, styles[index].english],index)
     scheme_picker.add_theme_font_size_override("font_size", 16)
-    scheme_picker.item_selected.connect(_change_style)
+    scheme_picker.item_selected.connect(func(item: int): _change_style(scheme_picker.get_item_id(item)))
     footer.add_child(scheme_picker)
-    _footer_button("›", 434, 44, func(): _change_style((style_index + 1) % styles.size()))
+    _footer_button("›", 434, 44, func(): _step_style(1))
     weather_picker = OptionButton.new()
     weather_picker.name = "WeatherPicker"
     weather_picker.position = Vector2(496, 838)
@@ -174,7 +184,7 @@ func _configure_proposal_controls() -> void:
 
 func _change_style(index: int) -> void:
     style_index = clampi(index, 0, styles.size() - 1)
-    scheme_picker.select(style_index)
+    scheme_picker.select(scheme_picker.get_item_index(style_index))
     var concept: bool = _is_concept()
     if concept:
         _close_guide()
@@ -213,8 +223,9 @@ func _set_quiet(value: bool) -> void:
     if _is_concept(): return
     quiet = value
     _close_guide()
-    world.set_quiet(quiet)
-    stage.set_quiet(quiet)
+    if not _is_light_style():
+        world.set_quiet(quiet)
+        stage.set_quiet(quiet)
     focus_button.text = "结束陪伴" if quiet else "体验陪伴"
     hud.build(styles[style_index], WEATHER_NAMES[weather_index], quiet)
     message.text = "陪伴中 · 界面收起，来客与风景继续变化" if quiet else "← → 方案 · G 图鉴 · F1 调试 · 示例数据"
@@ -285,7 +296,7 @@ func _replay(id: String) -> void:
 
 func _process(delta: float) -> void:
     var atmosphere: Dictionary = world.get_atmosphere_state()
-    atmosphere["quiet"] = quiet
+    atmosphere["quiet"] = quiet and not _is_light_style()
     stage.set_atmosphere_state(atmosphere)
     visitor_clock += delta
     if quiet: focus_seconds += delta
@@ -300,8 +311,8 @@ func _input(event: InputEvent) -> void:
     if scheme_picker.get_popup().visible or weather_picker.get_popup().visible: return
     if not event is InputEventKey or not event.pressed or event.echo: return
     match event.keycode:
-        KEY_LEFT: _change_style(posmod(style_index - 1, styles.size()))
-        KEY_RIGHT: _change_style((style_index + 1) % styles.size())
+        KEY_LEFT: _step_style(-1)
+        KEY_RIGHT: _step_style(1)
         KEY_G: _toggle_guide()
         KEY_W: _on_action("weather")
         KEY_E: _on_action("event")
@@ -368,7 +379,7 @@ func _run_checks() -> void:
     var failures: Array[String] = []
     var normal_path = "user://window_diary_demo_save.json"
     var normal_before = FileAccess.get_sha256(normal_path) if FileAccess.file_exists(normal_path) else "MISSING"
-    if styles.size() != 20: failures.append("style count")
+    if styles.size() != 30: failures.append("style count")
     var ids: Dictionary = {}
     for index in range(styles.size()):
         _change_style(index)
@@ -409,10 +420,10 @@ func _run_checks() -> void:
         if bool(guide.get_snapshot().get("favorited", false)) != expected_favorite: failures.append("favorite retained after closing")
         _close_guide()
         _set_quiet(true)
-        if not world.quiet: failures.append("quiet world")
+        if not _is_light_style() and not world.quiet: failures.append("quiet world")
         _set_quiet(false)
         print("UI_LAB_CHECK style ", index + 1, " ", styles[index].id)
-    if ids.size() != 20: failures.append("unique styles")
+    if ids.size() != styles.size(): failures.append("unique styles")
     _change_style(0)
     _set_weather(1, true)
     if stage.weather != 1 or world.weather != 1: failures.append("weather synchronization")
@@ -427,4 +438,98 @@ func _run_checks() -> void:
     if DiaryState._save_path() != "": failures.append("preview persistence is not disabled")
     for failure in failures: push_error("UI_LAB_CHECK " + failure)
     print("UI_LAB_TEST styles=", styles.size(), " failures=", failures.size(), " save_unchanged=", normal_before == normal_after)
+    get_tree().quit(0 if failures.is_empty() else 1)
+
+func _is_light_style() -> bool:
+    return not styles.is_empty() and bool(styles[style_index].get("lightweight",false))
+
+func _step_style(direction: int) -> void:
+    if _light_preview:
+        var candidates: Array[int] = []
+        for index in range(styles.size()):
+            if bool(styles[index].get("lightweight",false)): candidates.append(index)
+        _change_style(candidates[posmod(candidates.find(style_index) + direction,candidates.size())])
+    else:
+        _change_style(posmod(style_index + direction,styles.size()))
+
+func _compact_footer() -> void:
+    # Preview controls live below the untouched 1440 x 810 game canvas.
+    caption.hide()
+    message.hide()
+    for child in footer.get_children():
+        if child is ColorRect:
+            child.size.y = 42
+            child.color = Color("e9ede7")
+        elif child is Button:
+            child.position.y = 816
+            child.add_theme_font_size_override("font_size",14)
+            child.add_theme_stylebox_override("normal",_panel_style(Color("f7f8f2"),Color("c6cec2"),4))
+            child.add_theme_stylebox_override("hover",_panel_style(Color("ffffff"),Color("879d8c"),4))
+            child.add_theme_stylebox_override("pressed",_panel_style(Color("dce6dc"),Color("879d8c"),4))
+            for key: String in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
+                child.add_theme_color_override(key,Color("354a41"))
+            child.size.y = 30
+            child.tooltip_text = "方案预览工具 · 左右切换 / G 图鉴 / W 天气 / E 奇遇 / F1 调试"
+
+func _export_light_samples(directory: String) -> void:
+    _exporting = true
+    get_window().size = Vector2i(1440,852)
+    get_window().content_scale_size = Vector2i(1440,852)
+    DirAccess.make_dir_recursive_absolute(directory)
+    _change_style(20)
+    _set_weather(7,true)
+    hud.modulate.a = 1.0
+    await get_tree().create_timer(1.2).timeout
+    set_process(false)
+    world.process_mode = Node.PROCESS_MODE_DISABLED
+    stage.process_mode = Node.PROCESS_MODE_DISABLED
+    await RenderingServer.frame_post_draw
+    get_viewport().get_texture().get_image().save_png(directory.path_join("preview-toolbar.png"))
+    footer.hide()
+    hud.hide()
+    await RenderingServer.frame_post_draw
+    var baseline: Image = get_viewport().get_texture().get_image().get_region(Rect2i(0,0,1440,810))
+    baseline.save_png(directory.path_join("background-reference.png"))
+    var manifest: Array[Dictionary] = []
+    var failures: Array[String] = []
+    for index in range(styles.size()):
+        if not bool(styles[index].get("lightweight",false)): continue
+        _close_guide()
+        _change_style(index)
+        hud.hide()
+        await RenderingServer.frame_post_draw
+        var backdrop: Image = get_viewport().get_texture().get_image().get_region(Rect2i(0,0,1440,810))
+        var unchanged: bool = baseline.get_data() == backdrop.get_data()
+        if not unchanged: failures.append("Background changed: " + str(styles[index].id))
+        hud.show()
+        await RenderingServer.frame_post_draw
+        var stem: String = "%02d-%s" % [index+1,styles[index].id]
+        var main_file: String = stem + "-hud.png"
+        var guide_file: String = stem + "-guide.png"
+        var main_image: Image = get_viewport().get_texture().get_image().get_region(Rect2i(0,0,1440,810))
+        var occupied: float = 0.0
+        for rect: Rect2 in hud.get_meta("ui_bounds",[]): occupied += rect.get_area()
+        var coverage: float = occupied / (1440.0 * 810.0) * 100.0
+        if coverage >= 2.0: failures.append("HUD exceeds 2%: " + stem)
+        if main_image.save_png(directory.path_join(main_file)) != OK:
+            failures.append("Cannot write " + main_file)
+        _open_guide()
+        await RenderingServer.frame_post_draw
+        var guide_image: Image = get_viewport().get_texture().get_image().get_region(Rect2i(0,0,1440,810))
+        var exterior_unchanged: bool = main_image.get_region(Rect2i(0,0,1040,810)).get_data() == guide_image.get_region(Rect2i(0,0,1040,810)).get_data()
+        if not exterior_unchanged: failures.append("Guide changes scenery outside drawer: " + stem)
+        if guide_image.save_png(directory.path_join(guide_file)) != OK:
+            failures.append("Cannot write " + guide_file)
+        manifest.append({"index":index+1,"id":styles[index].id,"name":styles[index].name,"english":styles[index].english,"tagline":styles[index].tagline,"hud":main_file,"guide":guide_file,"background_unchanged":unchanged,"hud_area_percent":snappedf(coverage,0.01),"guide_exterior_unchanged":exterior_unchanged})
+        print("LIGHT_EXPORT ",stem," background_unchanged=",unchanged)
+    _close_guide()
+    _change_style(20)
+    _set_quiet(true)
+    await RenderingServer.frame_post_draw
+    get_viewport().get_texture().get_image().get_region(Rect2i(0,0,1440,810)).save_png(directory.path_join("quiet-view.png"))
+    var file: FileAccess = FileAccess.open(directory.path_join("manifest.json"),FileAccess.WRITE)
+    file.store_string(JSON.stringify(manifest,"  "))
+    file.close()
+    for failure in failures: push_error(failure)
+    print("LIGHT_EXPORT_COMPLETE styles=",manifest.size()," failures=",failures.size())
     get_tree().quit(0 if failures.is_empty() else 1)

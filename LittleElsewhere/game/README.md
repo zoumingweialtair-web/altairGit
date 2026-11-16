@@ -8,9 +8,35 @@
 
 项目使用 **Godot 4.7.2 标准版 / Compatibility 渲染器**，不需要 .NET。中文使用 Windows 的 Microsoft YaHei 系统字体。启动脚本指向当前电脑的 Godot 安装位置；移动到其他电脑时，请用 Godot 4 导入工程，或修改脚本中的引擎路径。
 
+## 21–30：轻量 UI，同一幅窗景
+
+双击 **PreviewUILight.cmd** 查看最新十套可交互方案。日系清淡（21–23）、轻手账（24–27）、小像素（28–30）只改变界面控件，沿用原有树、鸟、河流、弯曲岸线、城镇、雪山及所有动态天气。常驻控件的矩形面积不到窗景的 2%，没有额外画框或常驻图鉴面板。
+
+左右键或下方选择器在这十套内切换。G 打开六条目图鉴样册，W 切换天气，E 回放奇遇，空格收起 UI，F1 打开 GM。图鉴按需展开为右侧小抽屉，不给风景加全屏遮罩；轻量方案的陪伴模式仅收起控件，保留原有天气运动和来客。下方 42px 工具条是选型工具，位于 1440×810 游戏画面之外。
+
+| 编号 | 方案 | 方向 |
+| --- | --- | --- |
+| 21 | Komorebi · 木漏れ日 | 日系，小白签和分散按钮 |
+| 22 | Shiro Note · 白纸日和 | 日系，薄纸签和轻线条 |
+| 23 | Mizu Letter · 水色来信 | 日系，水色小签与留白 |
+| 24 | Daily Margin · 日常页边 | 手账，窗台边的一行记录 |
+| 25 | Pocket Journal · 口袋手帖 | 手账，小页签与装订细线 |
+| 26 | Pressed Leaf · 一叶书签 | 手账，一枚叶色索引签 |
+| 27 | Pencil Day · 铅笔日记 | 手账，铅笔细线与纸白按钮 |
+| 28 | Pixel Breeze · 像素微风 | 像素，细边与小方钮 |
+| 29 | Pocket Cloud · 口袋云朵 | 像素，天蓝标签与阶梯小云 |
+| 30 | Starlit Pixel · 星点窗边 | 像素，米白方钮与一点星色 |
+
+`../docs/ui-concepts-light/overview.jpg` 是十套同景总览，同目录保存每套主界面与图鉴截图。截图直接由 Godot 渲染：固定同一帧风景，逐套隐藏 UI 比对背景像素，十套均与 `background-reference.png` 完全一致；检查结果记录在 `manifest.json`。这是 UI 选型预览，不修改正式收藏存档，01–20 历史方向继续保留。
+
+```text
+godot --headless --path <项目目录> --script res://tests/ui_light_test.gd -- --ui-lab --ui-light
+godot --path <项目目录> res://scenes/ui_lab.tscn -- --ui-lab --ui-light --ui-light-export=<输出目录>
+```
+
 ## 01–10：交互 UI 原型
 
-双击 **PreviewUI.cmd** 打开独立的 Godot 方案预览，也可在编辑器中打开 `scenes/ui_lab.tscn` 后按 F6。底部选择器或左右方向键可切换全部二十种方案。01–10 是现有交互原型，每种都包含主界面与可交互图鉴；11–20 是下节介绍的完整原画提案。G 打开图鉴、W 切换天气、E 回放奇遇、空格体验陪伴、Esc 返回。下拉选择菜单打开时，方向键用于菜单导航。
+双击 **PreviewUI.cmd** 打开独立的 Godot 方案预览，也可在编辑器中打开 `scenes/ui_lab.tscn` 后按 F6。底部选择器或左右方向键可切换全部三十种方案。01–10 是现有交互原型，每种都包含主界面与可交互图鉴；11–20 是下节介绍的完整原画提案。G 打开图鉴、W 切换天气、E 回放奇遇、空格体验陪伴、Esc 返回。下拉选择菜单打开时，方向键用于菜单导航。
 
 | 编号 | 方案 | 视觉方向 |
 | --- | --- | --- |
@@ -55,7 +81,7 @@ godot --path <项目目录> res://scenes/ui_lab.tscn -- --ui-lab --ui-lab-export
 
 新增十套总览保存在 `../docs/ui-concepts-v2/overview.png`；高清原图位于 `assets/ui_concepts_v2/`，同目录的制作清单记录提示词与图像来源。它们由内置图像生成工具制作，作为美术方向选型保存。
 
-GM 的 `style` 命令支持 1–20，例如 `style 17` 或 `style riso_ramble`。在原画模式中，天气、来客、奇遇和图层等实景操作会提示返回交互方案；原画与正式存档保持分离。
+GM 的 `style` 命令支持 1–30，例如 `style 17` 或 `style riso_ramble`。在原画模式中，天气、来客、奇遇和图层等实景操作会提示返回交互方案；原画与正式存档保持分离。
 ## GM 调试台
 
 游戏与 UI 方案预览中按 **F1** 或 **反引号** 打开调试台，Esc 关闭。左侧按类别浏览命令并查看用法，中部保留执行日志，右侧可直接选择天气、来客、奇遇等常用操作。输入后按 Enter 执行；上下方向键回看命令历史，Tab 补全命令与条目 ID。
@@ -78,7 +104,7 @@ GM 的 `style` 命令支持 1–20，例如 `style 17` 或 `style riso_ramble`�
 | 轻音乐开关 | `audio music on` |
 | 查看和开关独立图层 | `layers` / `layer FarClouds off` |
 | 调整运行速度 / 暂停 | `speed 2` / `pause on` / `pause off` |
-| 打开 UI 方案预览 / 选择 1–20 套 | `ui lab` / `style 4` |
+| 打开 UI 方案预览 / 选择 1–30 套 | `ui lab` / `style 4` |
 | 截取当前画面 | `screenshot` |
 | 备份当前进度 | `save backup` |
 

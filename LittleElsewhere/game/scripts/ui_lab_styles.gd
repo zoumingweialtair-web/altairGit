@@ -1,6 +1,7 @@
 extends RefCounted
-## Ten interactive UI prototypes and ten illustrated art-direction proposals.
+## Native UI previews, archived art proposals, and lightweight overlays.
 const ArtStyles = preload("res://scripts/ui_art_styles.gd")
+const LightStyles = preload("res://scripts/ui_light_styles.gd")
 
 static func all_styles() -> Array[Dictionary]:
  var result: Array[Dictionary] = [
@@ -16,4 +17,5 @@ static func all_styles() -> Array[Dictionary]:
   {"id":"celestial_archive","name":"星象档案","english":"Celestial Archive","tagline":"黄铜边框与几何刻线，把奇遇保存成一份珍贵档案。","paper":Color(0.12,0.25,0.26,0.97),"ink":Color("eee2bf"),"accent":Color("d5b77a"),"muted":Color("b5c5b4"),"border":Color("859981"),"font":"Microsoft YaHei","title_font":"Georgia","corner":0}
  ]
  result.append_array(ArtStyles.all_styles())
+ result.append_array(LightStyles.all_styles())
  return result

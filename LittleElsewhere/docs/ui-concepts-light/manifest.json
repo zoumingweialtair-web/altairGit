@@ -1,0 +1,122 @@
+[
+  {
+    "background_unchanged": true,
+    "english": "Komorebi",
+    "guide": "21-komorebi-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "21-komorebi-hud.png",
+    "hud_area_percent": 1.61,
+    "id": "komorebi",
+    "index": 21,
+    "name": "木漏れ日",
+    "tagline": "日系 · 小白签与分散按钮"
+  },
+  {
+    "background_unchanged": true,
+    "english": "Shiro Note",
+    "guide": "22-shiro_note-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "22-shiro_note-hud.png",
+    "hud_area_percent": 1.66,
+    "id": "shiro_note",
+    "index": 22,
+    "name": "白纸日和",
+    "tagline": "日系 · 薄纸签与轻线条"
+  },
+  {
+    "background_unchanged": true,
+    "english": "Mizu Letter",
+    "guide": "23-mizu_letter-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "23-mizu_letter-hud.png",
+    "hud_area_percent": 1.23,
+    "id": "mizu_letter",
+    "index": 23,
+    "name": "水色来信",
+    "tagline": "日系 · 水色小签与留白"
+  },
+  {
+    "background_unchanged": true,
+    "english": "Daily Margin",
+    "guide": "24-daily_margin-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "24-daily_margin-hud.png",
+    "hud_area_percent": 1.72,
+    "id": "daily_margin",
+    "index": 24,
+    "name": "日常页边",
+    "tagline": "手账 · 窗台边的一行记录"
+  },
+  {
+    "background_unchanged": true,
+    "english": "Pocket Journal",
+    "guide": "25-pocket_journal-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "25-pocket_journal-hud.png",
+    "hud_area_percent": 1.71,
+    "id": "pocket_journal",
+    "index": 25,
+    "name": "口袋手帖",
+    "tagline": "手账 · 小页签与轻装订线"
+  },
+  {
+    "background_unchanged": true,
+    "english": "Pressed Leaf",
+    "guide": "26-pressed_leaf-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "26-pressed_leaf-hud.png",
+    "hud_area_percent": 1.57,
+    "id": "pressed_leaf",
+    "index": 26,
+    "name": "一叶书签",
+    "tagline": "手账 · 一枚叶色索引签"
+  },
+  {
+    "background_unchanged": true,
+    "english": "Pencil Day",
+    "guide": "27-pencil_day-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "27-pencil_day-hud.png",
+    "hud_area_percent": 1.62,
+    "id": "pencil_day",
+    "index": 27,
+    "name": "铅笔日记",
+    "tagline": "手账 · 铅笔细线与纸白按钮"
+  },
+  {
+    "background_unchanged": true,
+    "english": "Pixel Breeze",
+    "guide": "28-pixel_breeze-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "28-pixel_breeze-hud.png",
+    "hud_area_percent": 1.44,
+    "id": "pixel_breeze",
+    "index": 28,
+    "name": "像素微风",
+    "tagline": "像素 · 一像素细边与小方钮"
+  },
+  {
+    "background_unchanged": true,
+    "english": "Pocket Cloud",
+    "guide": "29-pocket_cloud-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "29-pocket_cloud-hud.png",
+    "hud_area_percent": 1.25,
+    "id": "pocket_cloud",
+    "index": 29,
+    "name": "口袋云朵",
+    "tagline": "像素 · 天蓝小标签与阶梯线"
+  },
+  {
+    "background_unchanged": true,
+    "english": "Starlit Pixel",
+    "guide": "30-starlit_pixel-guide.png",
+    "guide_exterior_unchanged": true,
+    "hud": "30-starlit_pixel-hud.png",
+    "hud_area_percent": 1.65,
+    "id": "starlit_pixel",
+    "index": 30,
+    "name": "星点窗边",
+    "tagline": "像素 · 米白方钮与一点星色"
+  }
+]

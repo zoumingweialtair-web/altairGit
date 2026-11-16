@@ -2,6 +2,7 @@ extends Control
 ## Ten native HUD compositions. All values are preview-only.
 signal action(action_id: String)
 const Illustration = preload("res://scripts/guide_illustration.gd")
+const LightHUD = preload("res://scripts/ui_light_hud.gd")
 var palette: Dictionary = {}
 var body_font: SystemFont
 var display_font: SystemFont
@@ -17,6 +18,15 @@ func build(style: Dictionary, weather_label: String, quiet: bool = false) -> voi
  size = Vector2(1440,810)
  body_font = _font(str(style.font))
  display_font = _font(str(style.title_font))
+ if bool(style.get("lightweight",false)):
+  var light_hud = LightHUD.new()
+  light_hud.name = "LightHUD"
+  light_hud.action.connect(_emit_action)
+  add_child(light_hud)
+  light_hud.build(style,weather_label,quiet)
+  set_meta("ui_bounds",light_hud.get_meta("ui_bounds",[]))
+  return
+ remove_meta("ui_bounds")
  if quiet:
   _panel(Rect2(32,28,270,66),Color(0.10,0.16,0.17,0.84),Color(0,0,0,0),12)
   _text("Little Elsewhere",Rect2(48,38,238,29),23,Color("f0ecd8"),true)
