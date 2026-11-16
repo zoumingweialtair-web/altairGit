@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+context='LittleElsewhere/docs/HANDOFF.md'
+changes=$(git diff --cached --name-only --diff-filter=ACDMRT)
+project_changes=$(printf '%s\n' "$changes" | grep '^LittleElsewhere/' | grep -v -E '^LittleElsewhere/(AGENTS\.md|docs/(HANDOFF|DEVELOPMENT_LOG|CROSS_DEVICE_WORKFLOW)\.md)$' || true)
+if [ -z "$project_changes" ]; then
+    exit 0
+fi
+if ! git diff --cached --name-only --diff-filter=AM -- "$context" | grep -Fqx "$context"; then
+    echo 'Commit blocked: game changes require an updated LittleElsewhere/docs/HANDOFF.md in the same commit.' >&2
+    echo 'Record requirements, decisions, actual checks and next steps, then stage the context file and retry.' >&2
+    exit 1
+fi
+if ! git show ":$context" | grep -q '[^[:space:]]'; then
+    echo 'Commit blocked: HANDOFF.md must not be empty.' >&2
+    exit 1
+fi
