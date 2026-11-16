@@ -48,7 +48,9 @@ func run() -> void:
                 preview.actors[0]["pos"] = Vector2.ZERO
                 preview.actors[0]["motion_age"] = frame * PI / 24.0
                 preview.queue_redraw()
-            await RenderingServer.frame_post_draw
+            # Draw explicitly: a minimized native preview must not stall this verifier.
+            await process_frame
+            RenderingServer.force_draw(false)
             if frame in [0,5,13,21,32,39,49,61]:
                 var frame_image: Image = root.get_texture().get_image()
                 if frame_image == null or frame_image.is_empty():

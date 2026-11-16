@@ -23,7 +23,7 @@ static func draw_actor(canvas: Node2D, data: Dictionary, environment: Dictionary
  else:Creatures.draw_creature(canvas,data,environment)
 
 static func portrait_actor(id: String, clock: float=0.0) -> Dictionary:
- var fly: bool=id in ["swallow","bat","butterfly","luna_moth","fireflies","dragonfly"]
+ var fly: bool=id in ["bat","butterfly","luna_moth","fireflies","dragonfly"]
  var poses: Dictionary={"squirrel":"nibble","cat":"sit","hedgehog":"sniff","owl":"watch","woodpecker":"listen","jewel_beetle":"crawl","ladybug":"crawl","stag_beetle":"crawl","egret":"wade"}
  return {"id":id,"pos":Vector2.ZERO,"age":clock+12.0,"motion_age":clock,"idle_age":clock,
   "phase":"idle","phase_progress":0.4,"fly":fly,"facing":1.0,"alpha":1.0,

@@ -1,0 +1,62 @@
+{
+  "project": "Little Elsewhere",
+  "date": "2026-11-16T17:19:58.396917+08:00",
+  "direction": "User selected goofy deadpan birds: bead eyes, blank faces and exaggerated small gestures",
+  "engine": "Godot 4.7.2 Compatibility",
+  "species": 10,
+  "integration": [
+    "live scenery",
+    "animated field guide portraits",
+    "visitor avatars"
+  ],
+  "design": [
+    "round pudding silhouettes",
+    "two bead eyes and tiny beaks",
+    "species-specific plumage color blocks",
+    "head tilts, blinks and neck tucks",
+    "rounded connected flight wings"
+  ],
+  "checks": [
+    {
+      "suite": "bird_art_test.gd",
+      "species": 10,
+      "displayed_poses": 20,
+      "frames": 64,
+      "runtime_errors": 0
+    },
+    {
+      "suite": "review_bird_characters.gd",
+      "species": 10,
+      "poses": 30,
+      "frames": 48,
+      "failures": 0
+    },
+    {
+      "suite": "creature_render_test.gd",
+      "species": 21,
+      "phases": 3,
+      "drawings": 4032,
+      "pixel_animation_checks": 63,
+      "failures": 0
+    },
+    {
+      "suite": "fieldkit_test.gd",
+      "checks": 33,
+      "failures": 0,
+      "formal_save": "byte-identical before and after"
+    }
+  ],
+  "previews": {
+    "characters": "characters.png",
+    "flight": "flight.png",
+    "expressions": {
+      "file": "bird-personalities.gif",
+      "native_frames": 48,
+      "seconds": 6
+    },
+    "scene": "window.png",
+    "guide": "field-guide.png"
+  },
+  "changes_to_other_species": "none",
+  "capture_save_policy": "--capture and isolated test state; formal collection retained"
+}
