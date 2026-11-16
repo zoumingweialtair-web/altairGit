@@ -28,6 +28,7 @@ default_bus_layout="res://default_bus_layout.tres"
 [autoload]
 
 DiaryState="*res://scripts/diary_state.gd"
+GMConsole="*res://scripts/gm_console.gd"
 
 [display]
 

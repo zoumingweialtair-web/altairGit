@@ -189,7 +189,7 @@ func _build_interface() -> void:
  strip.size = Vector2(1440,90)
  normal_ui.add_child(strip)
  _label(normal_ui,"留一点时间给窗外",Vector2(28,824),Vector2(240,30),20)
- _label(normal_ui,"访客已加速 · 收藏自动保存",Vector2(29,859),Vector2(240,23),14,DIM)
+ _label(normal_ui,"收藏自动保存 · F1 调试",Vector2(29,859),Vector2(240,23),14,DIM)
  collection_button = _button(normal_ui,"观察图鉴",Vector2(292,831),Vector2(154,46),_show_collection)
  _button(normal_ui,"观察记录",Vector2(460,831),Vector2(148,46),_show_records)
  music_button = _button(normal_ui,"音乐  开",Vector2(622,831),Vector2(138,46),_toggle_music)
@@ -591,6 +591,8 @@ func _sound_preset(mode: int) -> void:
  _toast("声音与景色已切换，可以开始陪伴了。",4.0)
 
 func _unhandled_key_input(event: InputEvent) -> void:
+ var gm = get_node_or_null("/root/GMConsole")
+ if gm != null and gm.is_open(): return
  if not event is InputEventKey or not event.pressed or event.echo:return
  if event.keycode==KEY_ESCAPE:
   if is_instance_valid(modal):_close_modal()

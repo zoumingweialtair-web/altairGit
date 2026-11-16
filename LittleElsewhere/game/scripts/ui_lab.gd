@@ -139,7 +139,7 @@ func _build_footer() -> void:
     message.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
     message.add_theme_font_size_override("font_size", 13)
     message.add_theme_color_override("font_color", Color("a8beb6"))
-    message.text = "← → 切换方案 · G 图鉴 · 空格陪伴 · 示例数据"
+    message.text = "← → 方案 · G 图鉴 · F1 调试 · 示例数据"
     footer.add_child(message)
 
 func _change_style(index: int) -> void:
@@ -168,7 +168,7 @@ func _set_quiet(value: bool) -> void:
     stage.set_quiet(quiet)
     focus_button.text = "结束陪伴" if quiet else "体验陪伴"
     hud.build(styles[style_index], WEATHER_NAMES[weather_index], quiet)
-    message.text = "陪伴中 · 界面收起，来客与风景继续变化" if quiet else "← → 切换方案 · G 图鉴 · 空格陪伴 · 示例数据"
+    message.text = "陪伴中 · 界面收起，来客与风景继续变化" if quiet else "← → 方案 · G 图鉴 · F1 调试 · 示例数据"
 
 func _on_action(action_id: String) -> void:
     match action_id:
@@ -236,6 +236,8 @@ func _process(delta: float) -> void:
         world.trigger("squirrel", false)
 
 func _shortcut_input(event: InputEvent) -> void:
+    var gm = get_node_or_null("/root/GMConsole")
+    if gm != null and gm.is_open(): return
     if scheme_picker.get_popup().visible or weather_picker.get_popup().visible: return
     if not event is InputEventKey or not event.pressed or event.echo: return
     match event.keycode:

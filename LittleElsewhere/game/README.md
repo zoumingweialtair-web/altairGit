@@ -33,6 +33,37 @@
 godot --headless --path <项目目录> res://scenes/ui_lab.tscn -- --ui-lab --ui-lab-test
 godot --path <项目目录> res://scenes/ui_lab.tscn -- --ui-lab --ui-lab-export=<输出目录>
 ```
+## GM 调试台
+
+游戏与十套 UI 演示中按 **F1** 或 **反引号** 打开调试台，Esc 关闭。左侧按类别浏览命令并查看用法，中部保留执行日志，右侧可直接选择天气、来客、奇遇等常用操作。输入后按 Enter 执行；上下方向键回看命令历史，Tab 补全命令与条目 ID。
+
+推荐用 **DebugGame.cmd** 开始反复调试：它使用独立调试进度，顶部标明「独立调试存档」。正常 `Play.cmd` 中打开 GM 则操作当前正式进度；`PreviewUI.cmd` 仍是临时预览。控制台顶部始终显示当前模式。
+
+| 调试目标 | 示例命令 |
+| --- | --- |
+| 全部帮助 / 当前状态 | `help` / `status` |
+| 查询所有奇遇 ID | `ids wonders` |
+| 切换天气 | `weather rain` |
+| 召唤松鼠 | `spawn squirrel` |
+| 回放流星雨 | `event meteor_shower` |
+| 收录所有图鉴条目 | `collect all` |
+| 测试来访次数与纪念物 | `visits sparrow 5` |
+| 收藏指定条目 | `favorite sparrow on` |
+| 模拟离线一天 | `offline 24` |
+| 切换窗边布置 | `decor flowers` |
+| 体验陪伴 | `focus on` |
+| 轻音乐开关 | `audio music on` |
+| 查看和开关独立图层 | `layers` / `layer FarClouds off` |
+| 调整运行速度 / 暂停 | `speed 2` / `pause on` / `pause off` |
+| 打开十套 UI 演示 / 选择方案 | `ui lab` / `style 4` |
+| 截取当前画面 | `screenshot` |
+| 备份当前进度 | `save backup` |
+
+天气和奇遇回放不会自动解锁对应收藏；需要测试收录时使用 `collect`。`time` 选择的是游戏的晨、昼、暮、夜氛围，不改电脑时钟。UI 样册的六条示例与正式五十项图鉴分开，GM 修改游戏状态不会伪装成样册的真实进度。
+
+清空当前进度必须手动完整输入 **`save reset CONFIRM`**。正式或独立调试存档会先生成备份，备份失败就停止重置；临时预览仅重置内存里的数据。截图和备份保存在 Godot 用户目录的 `gm_screenshots` 与 `gm_backups` 子目录中，执行结果会显示完整位置。
+
+从 UI 预览进程用 `ui game` 切回主场景，仍保持临时预览模式；需要正式游玩时使用 `Play.cmd`，需要持久保存独立调试进度时使用 `DebugGame.cmd`。
 ## 先体验这几个地方
 
 1. 在右上角切换「晴日 / 听雨 / 月夜 / 夕照 / 落雪 / 晨雾 / 风雨 / 晨曦」。天空、云、远山、水面、岸边建筑、树和前景分别组成独立图层；天气会改变整体光色、粒子、来客行为与声音。
@@ -189,3 +220,13 @@ godot --headless --path <项目目录> --script res://tests/atmosphere_test.gd -
 ```
 
 分层测试检查真实独立节点、透明素材、水云材质时间、雨雪粒子位置和奇遇主体运动，同时确认前景位置固定、旧整景图片没有运行时引用，以及 60 秒退场、快速切换、回放不重复计数与陪伴模式下旧神静默记录。构图、岸线、山坡双塔与整体光色仍通过实际画面检查。
+
+GM 命令回归与真实输入检查（临时进度，正式存档保持不变）：
+
+```text
+godot --headless --path <项目目录> --script res://tests/gm_test.gd -- --test-mode --capture
+godot --headless --path <项目目录> --script res://tests/gm_ui_test.gd -- --capture
+godot --path <项目目录> --script res://tests/gm_ui_test.gd -- --capture --at=25 --native-screenshot
+```
+
+命令回归覆盖全部访客与奇遇、参数边界、收集与熟客、天气和图层、存档备份与重置，以及游戏和 UI 演示往返的状态恢复；输入检查覆盖鼠标快捷按钮、F1 暂停时开关、输入不触发游戏快捷键、历史和补全。原生截图检查需要正常图形窗口。

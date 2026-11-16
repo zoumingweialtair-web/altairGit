@@ -1196,6 +1196,8 @@ func _date_label(timestamp: float) -> String:
  return "%02d月%02d日 %02d:%02d" % [d.month, d.day, d.hour, d.minute]
 
 func _save_path() -> String:
+ if bool(get_meta("gm_preview_only", false)):
+  return ""
  if not storage_path_override.is_empty():
   return storage_path_override
  var args: PackedStringArray = OS.get_cmdline_user_args()
@@ -1206,6 +1208,8 @@ func _save_path() -> String:
    return ""
  if args.has("--capture"):
   return ""
+ if args.has("--gm-sandbox"):
+  return "user://window_diary_gm_save.json"
  if args.has("--test-mode") or args.has("--ui-test"):
   return "user://window_diary_demo_test_save.json"
  return "user://window_diary_demo_save.json"
