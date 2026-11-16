@@ -174,8 +174,8 @@ func _build_interface() -> void:
  normal_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
  add_child(normal_ui)
  _panel(normal_ui,Vector2(26,22),Vector2(310,74),Color(0.08,0.16,0.17,0.91))
- _label(normal_ui,"窗 边 日 记",Vector2(46,29),Vector2(240,32),24)
- _label(normal_ui,"像素观察室  /  可交互演示",Vector2(47,64),Vector2(270,24),14,DIM)
+ _label(normal_ui,"Little Elsewhere",Vector2(46,29),Vector2(270,32),23)
+ _label(normal_ui,"窗外小世界  /  观察与陪伴",Vector2(47,64),Vector2(270,24),14,DIM)
  _panel(normal_ui,Vector2(574,22),Vector2(840,64),Color(0.08,0.16,0.17,0.91))
  for i: int in range(WEATHER_NAMES.size()):
   var b: Button = _button(normal_ui,WEATHER_NAMES[i],Vector2(586+i*88,33),Vector2(80,42),_change_weather.bind(i))

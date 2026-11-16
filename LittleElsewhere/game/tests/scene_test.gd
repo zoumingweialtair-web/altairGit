@@ -1,5 +1,5 @@
 extends SceneTree
-## Native scene regression: --headless --path WindowDiaryDemo --script res://tests/scene_test.gd -- --capture
+## Native scene regression: --headless --path game --script res://tests/scene_test.gd -- --capture
 ## --capture keeps normal demo save paths out of test runs.
 
 const VISITORS: Array[String] = ["squirrel", "woodpecker", "owl", "luna_moth", "jewel_beetle", "fireflies", "kingfisher", "swallow", "magpie", "white_eye", "egret", "hedgehog", "cat", "bat", "dragonfly", "ladybug", "stag_beetle"]
