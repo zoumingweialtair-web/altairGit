@@ -1,0 +1,92 @@
+[
+  {
+    "english": "Field Notes",
+    "guide": "01-field_notes-guide.png",
+    "hud": "01-field_notes-hud.png",
+    "id": "field_notes",
+    "index": 1,
+    "name": "自然手账",
+    "tagline": "暖纸、索引签与观察笔记，让收集像一本慢慢写满的手账。"
+  },
+  {
+    "english": "Quiet Glass",
+    "guide": "02-quiet_glass-guide.png",
+    "hud": "02-quiet_glass-hud.png",
+    "id": "quiet_glass",
+    "index": 2,
+    "name": "留白玻璃",
+    "tagline": "轻透悬浮的控件，给窗外留出最多呼吸空间。"
+  },
+  {
+    "english": "Pocket Pixels",
+    "guide": "03-pocket_pixels-guide.png",
+    "hud": "03-pocket_pixels-hud.png",
+    "id": "pocket_pixels",
+    "index": 3,
+    "name": "像素掌机",
+    "tagline": "四阶绿、方角与明确按键，像一台放在窗边的小掌机。"
+  },
+  {
+    "english": "Woodland Post",
+    "guide": "04-woodland_post-guide.png",
+    "hud": "04-woodland_post-hud.png",
+    "id": "woodland_post",
+    "index": 4,
+    "name": "森间来信",
+    "tagline": "邮票、明信片与邮戳，把每次来访收成一封信。"
+  },
+  {
+    "english": "Moon Observatory",
+    "guide": "05-moon_observatory-guide.png",
+    "hud": "05-moon_observatory-hud.png",
+    "id": "moon_observatory",
+    "index": 5,
+    "name": "月光观测",
+    "tagline": "深蓝、细金线与观测刻度，让夜空奇遇更神秘。"
+  },
+  {
+    "english": "Botanical Cabinet",
+    "guide": "06-botanical_cabinet-guide.png",
+    "hud": "06-botanical_cabinet-hud.png",
+    "id": "botanical_cabinet",
+    "index": 6,
+    "name": "植物标本",
+    "tagline": "标本标签与分类抽屉，强调自然观察和图鉴收藏。"
+  },
+  {
+    "english": "Rain Radio",
+    "guide": "07-rain_radio-guide.png",
+    "hud": "07-rain_radio-hud.png",
+    "id": "rain_radio",
+    "index": 7,
+    "name": "雨夜电台",
+    "tagline": "暖琥珀的收音机面板，让声音和专注成为主角。"
+  },
+  {
+    "english": "Paper Theatre",
+    "guide": "08-paper_theatre-guide.png",
+    "hud": "08-paper_theatre-hud.png",
+    "id": "paper_theatre",
+    "index": 8,
+    "name": "剪纸剧场",
+    "tagline": "叠纸、错位阴影与彩色票签，轻巧而有童话感。"
+  },
+  {
+    "english": "Ink & Stillness",
+    "guide": "09-ink_stillness-guide.png",
+    "hud": "09-ink_stillness-hud.png",
+    "id": "ink_stillness",
+    "index": 9,
+    "name": "水墨留白",
+    "tagline": "墨色、印章与疏朗留白，适合长时间安静陪伴。"
+  },
+  {
+    "english": "Celestial Archive",
+    "guide": "10-celestial_archive-guide.png",
+    "hud": "10-celestial_archive-hud.png",
+    "id": "celestial_archive",
+    "index": 10,
+    "name": "星象档案",
+    "tagline": "黄铜边框与几何刻线，把奇遇保存成一份珍贵档案。"
+  }
+]

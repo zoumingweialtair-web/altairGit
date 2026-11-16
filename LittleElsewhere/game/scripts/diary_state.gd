@@ -1199,6 +1199,11 @@ func _save_path() -> String:
  if not storage_path_override.is_empty():
   return storage_path_override
  var args: PackedStringArray = OS.get_cmdline_user_args()
+ if args.has("--ui-lab"):
+  return ""
+ for engine_arg in OS.get_cmdline_args():
+  if engine_arg.replace("\\", "/").ends_with("/ui_lab.tscn"):
+   return ""
  if args.has("--capture"):
   return ""
  if args.has("--test-mode") or args.has("--ui-test"):

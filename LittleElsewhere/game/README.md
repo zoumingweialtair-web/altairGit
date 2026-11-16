@@ -8,6 +8,31 @@
 
 项目使用 **Godot 4.7.2 标准版 / Compatibility 渲染器**，不需要 .NET。中文使用 Windows 的 Microsoft YaHei 系统字体。启动脚本指向当前电脑的 Godot 安装位置；移动到其他电脑时，请用 Godot 4 导入工程，或修改脚本中的引擎路径。
 
+## 十套 UI 风格演示
+
+双击 **PreviewUI.cmd** 打开独立的 Godot 方案预览，也可在编辑器中打开 `scenes/ui_lab.tscn` 后按 F6。底部选择器或左右方向键可切换全部十种方案；每种都包含主界面与可交互图鉴。G 打开图鉴、W 切换天气、E 回放奇遇、空格体验陪伴、Esc 返回。下拉选择菜单打开时，方向键用于菜单导航。
+
+| 编号 | 方案 | 视觉方向 |
+| --- | --- | --- |
+| 01 | Field Notes · 自然手账 | 暖纸、索引签与双页观察笔记 |
+| 02 | Quiet Glass · 留白玻璃 | 轻透悬浮控件与侧边图鉴抽屉 |
+| 03 | Pocket Pixels · 像素掌机 | 四阶绿、方角边框与掌机式列表 |
+| 04 | Woodland Post · 森间来信 | 邮票、邮戳、明信片与来访信件 |
+| 05 | Moon Observatory · 月光观测 | 深蓝、细金线与观测台目录 |
+| 06 | Botanical Cabinet · 植物标本 | 标本标签、分类抽屉与自然收藏 |
+| 07 | Rain Radio · 雨夜电台 | 琥珀刻度、收音机面板与电台日志 |
+| 08 | Paper Theatre · 剪纸剧场 | 叠纸、错位投影与剪纸收藏册 |
+| 09 | Ink & Stillness · 水墨留白 | 墨色、印章、竖签与疏朗长卷 |
+| 10 | Celestial Archive · 星象档案 | 黄铜刻线、几何框与奇遇档案 |
+
+这些方案复用真实动态风景、天气、鸟类与奇遇；图鉴提供六条示例资料，前四条可收藏及回放，后两条展示未发现状态。界面的 `12/50` 和 `25:00` 是视觉样例。预览不加载或修改正式收藏存档，音乐开关也只作用于本次预览。
+
+主界面对照与图鉴对照保存在 `../docs/ui-concepts/overview.png` 和 `../docs/ui-concepts/guide-overview.png`，同目录保留二十张单方案截图。截图统一使用晨曦，便于比较 UI；实时预览可切换八种天气。
+
+```text
+godot --headless --path <项目目录> res://scenes/ui_lab.tscn -- --ui-lab --ui-lab-test
+godot --path <项目目录> res://scenes/ui_lab.tscn -- --ui-lab --ui-lab-export=<输出目录>
+```
 ## 先体验这几个地方
 
 1. 在右上角切换「晴日 / 听雨 / 月夜 / 夕照 / 落雪 / 晨雾 / 风雨 / 晨曦」。天空、云、远山、水面、岸边建筑、树和前景分别组成独立图层；天气会改变整体光色、粒子、来客行为与声音。
