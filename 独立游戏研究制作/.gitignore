@@ -1,0 +1,16 @@
+# Local previews, validation output and temporary working files
+/.work/
+*.tmp
+*.log
+~$*
+
+# Godot regenerates this cache; keep .uid and .import source settings
+**/.godot/
+
+# Preserve the pre-existing empty repository locally, outside the main history
+/altairGit/
+
+# Operating-system metadata
+Thumbs.db
+Desktop.ini
+.DS_Store

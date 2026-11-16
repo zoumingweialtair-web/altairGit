@@ -1,0 +1,68 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-11-16",
+  "edit_target": "assets/art/v4/sun.png",
+  "base_prompt": "Use case: lighting-weather / stylized-concept. EDIT TARGET: the supplied game background. Create ONE full-screen background painting for a Godot pixel-art window observation game, 1672x941 landscape, same exact camera and landmark geometry. Preserve the left tree trunk, branch perches, nest and hollow; right asymmetrical neighbor house and all window positions; natural curved shoreline, coves and central-right rocky peninsula; layered distant snowy mountains; foreground window frame, railing, two flowerpots, feeding bowl, mug and green book positions and silhouettes. Entire image must be repainted in the event lighting including foreground wood, leaves, pottery, architecture, water and mountains. Strong unmistakable cohesive atmosphere across ALL depth layers, not a sticker or illustration card on a normal daytime scene. Restrained beautiful hand-drawn pixel art, crisp clustered pixels, clear light/dark values, matte surfaces, no oily painting texture, no photorealism, no rainbow oversaturation. Preserve calm cozy sheltered foreground while the outer world feels wondrous. Do not add birds or animals on the tree, people, UI, text, border panels or towers (two animated towers are handled separately). Keep the same frame edge and full canvas composition. Important spectacular details must sit below the top 10 percent HUD region, above the waterline as appropriate. ",
+  "assets": [
+    {
+      "id": "aurora_crown",
+      "detail": "EVENT: AURORA CORONATION. Transform the WHOLE scene into a luminous arctic emerald and muted lavender night. Vast layered flowing aurora curtains crown the sky behind the branches and above the snow peaks, luminous pale mint folds sweeping across most of the visible sky. The mountain snow catches cool mint edges, forested hills become deep blue-green silhouettes; aurora reflects in wide flowing emerald ribbons across the river. Town windows are small warm amber refuge lights. Green-violet sky illumination visibly washes the tree bark, leaves, railing, pots, mug, book and right house walls, with deep indigo shadows. Rich but restrained supernatural northern-light atmosphere, graceful curtains not geometric segmented graphs. No additional moons.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-3a213822-5d23-4880-ba6a-846148b06fd6.png",
+      "destination": "assets/art/encounters_v1/aurora_crown.png"
+    },
+    {
+      "id": "ember_clouds",
+      "detail": "EVENT: CRIMSON CLOUD SEA / EXTRAORDINARY SUNSET. Transform the entire scene into a rare overwhelming late sunset: broad layered glowing coral and dusty rose clouds sweep across the whole sky, with luminous pale gold undersides and violet negative spaces. Snow peaks blush rose-gold, forest hills alternate dusty plum and warm russet. The river becomes a broad copper-pink mirror of cloud ribbons. Towns have warm peach walls and first amber lamps. Foreground wood, tree, leaves, railing and pottery are strongly side-lit by orange-pink sunset with long cool plum shadows. Richly atmospheric airy hand-pixel-painted sunset, no round extra suns, no neon red, no black horror.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-9abf3997-c698-4d22-b8df-b148bfe113b6.png",
+      "destination": "assets/art/encounters_v1/ember_clouds.png"
+    },
+    {
+      "id": "meteor_shower",
+      "detail": "EVENT: METEOR NIGHT. Transform the whole landscape into a midnight cobalt/periwinkle celestial observatory atmosphere. A broad pale indigo Milky Way crosses the open sky; many thin luminous warm-white and muted icy-blue meteor streaks descend at staggered angles and distances, a rare meteor shower filling the sky. The snowy peaks and roof tiles catch starlit silver rims; broad river reflects broken silver streaks and faint cosmic blue. Near leaves and tree branches are blue-black with silver edges; window sill, mug and pots receive dim blue celestial light with tiny warm amber comfort from neighboring windows. Strong contrast, crisp stars, beautiful sense of immense depth. No huge moon, no aurora.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-197d7a49-ae9c-4539-a7f9-b84db6b52614.png",
+      "destination": "assets/art/encounters_v1/meteor_shower.png"
+    },
+    {
+      "id": "deep_one",
+      "detail": "EVENT: THE OLD ONE BENEATH THE TIDE, cosmic Cthulhu atmosphere. Transform the whole scene into an eerie muted petrol-green and bruised charcoal-violet storm twilight. Above the far valley a colossal ancient tentacled silhouette is half hidden in low curling clouds and mist, enormous distant scale, only a few dim jade eye lights; several huge shadowy tendrils blend into cloud and water far beyond the peninsula. The broad river is dark jade with slow concentric tidal patterns and thin pale green reflections. Snow mountains fade into looming fog, town windows become isolated warm amber pinpoints. Every foreground material catches cold green ambient light and deep long shadows, but the indoor sill and mug remain a safe subtly warm refuge. Atmospheric mystery and awe, non-gory, no attack, no jumpscare, no foreground cartoon octopus, no symbols/text, no eyeball closeups.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-c5f17d53-6ab6-423e-adb0-368727f7d66d.png",
+      "destination": "assets/art/encounters_v1/deep_one.png"
+    },
+    {
+      "id": "sunken_city",
+      "detail": "EVENT: THE SUNKEN CITY RETURNS. Transform the whole scene into still opaline jade and silver mist, an uncanny drowned dawn. In the central broad river, behind the foreground railing and ahead of the far town, an ancient monumental stepped temple city emerges: layered weathered stone terraces, tall slender broken spires, dark archways with faint old gold light, all partially veiled in thin drifting fog, realistic distant scale and matching perspective. Reflections extend across pale sage water; existing natural banks and peninsula remain intact. Snow peaks and forest hills dissolve into soft desaturated layers. Diffused sea-green light subtly illuminates every leaf, house wall, pot, window sill and mug with cool muted shadows. A quiet immense archaeological apparition, not a small flat icon or blocky board game token.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-779a9d24-b84e-4274-adf6-5eec5bc8cd22.png",
+      "destination": "assets/art/encounters_v1/sunken_city.png"
+    },
+    {
+      "id": "sky_jellyfish",
+      "detail": "EVENT: THE SKY BECOMES AN OCEAN. Transform the entire scene into a soft amethyst, indigo and pearly lilac cosmic night. Several enormous translucent jellyfish of different depths drift through the sky above and between the snowy peaks, with delicately glowing pale lavender bells and long luminous threadlike tentacles fading into cloud; one gracefully large jellyfish in the open central-right sky and smaller distant ones. The river echoes their violet and silver light as subtle streaming trails. Mountain ridges and rooftop edges glow lilac; tree leaves and bark, pots, sill, feeding dish and mug are all touched by pearl-purple bioluminescence. Retain sparse amber window lights for cozy contrast. Dreamy weightless atmosphere, muted palette, no neon candy colors.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-df5aac86-ddb0-408d-aaec-a01704d7f89d.png",
+      "destination": "assets/art/encounters_v1/sky_jellyfish.png"
+    },
+    {
+      "id": "twin_moons",
+      "detail": "EVENT: TWO MOONS / SILVER WORLD. Transform the whole scene into an extraordinary serene lunar conjunction night. Exactly TWO moons occupy the open sky below the top HUD margin: a larger pale pearl full moon to the right of center and a smaller muted gold moon left of it, different depths, softly detailed craters, no planet rings. Sky deep slate-blue with few stars, mountains crisp silver and pale dusty ochre edges. Two distinct broad moonlight paths shimmer through the dark blue river. Tree foliage, white flowers, mug and right house plaster receive strong moon-silver edging and long blue shadows; small amber windows stay warm. Emphasize entire-scene luminous nocturne, not merely adding two circles to a day scene.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-c7d42ae3-54e6-4c31-bb8a-53c6cf09a70b.png",
+      "destination": "assets/art/encounters_v1/twin_moons.png"
+    },
+    {
+      "id": "floating_isles",
+      "detail": "EVENT: THE VALLEY FLOATS. Transform the whole scene into airy pale turquoise and warm pale-gold dawn with low cream clouds flowing through the mountain valley. Several beautifully hand-pixel-painted floating forested rock islands hang above the snowy ridges and across the open sky at different scales: layered rocky undercuts, tiny trees and grass, a few very thin waterfalls evaporating into the luminous mist. Large distant island around the center-right open sky, smaller far ones to create depth. River glows misty aquamarine, mountains and existing town silhouettes separate into mint, blue and light gold layers. Entire foreground tree canopy, house, pots, railing, sill and mug share soft mint-gold atmospheric illumination. Natural rocky islands, not geometric triangular icons. Preserve original shore and foreground geometry.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-bbc76ec0-5168-4d9b-b838-ec2ddaedfde1.png",
+      "destination": "assets/art/encounters_v1/floating_isles.png"
+    },
+    {
+      "id": "bioluminescent_tide",
+      "detail": "EVENT: THE BLUE TIDE WRITES. Transform the entire scene into a deep midnight navy and luminous cyan bioluminescent estuary. The WHOLE river becomes the major light source: sweeping organic bands of dense tiny blue-white plankton lights trace the curved natural banks and eddies, intense but tasteful luminous turquoise foam-like ribbons and scattered sparkles fading into navy water. The forest and mountains are subdued dark silhouettes under a quiet deep blue sky. Blue light from below visibly illuminates underside of leaves, tree bark, railing, right building wall, flower pots, feeding dish, mug and wood sill. Town retains a few warm amber lights. Strong magical underwater glow across all layers, natural water currents rather than perfectly parallel neon lines, no aurora or giant creature.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-c74dc4fd-6102-45ea-9622-28478191cb5e.png",
+      "destination": "assets/art/encounters_v1/bioluminescent_tide.png"
+    },
+    {
+      "id": "constellation_stag",
+      "detail": "EVENT: THE ANTLERED CONSTELLATION. Transform the whole scene into a sacred woodland night of deep desaturated spruce-green, charcoal blue and pale star-gold. A vast translucent celestial stag formed of luminous star clusters and mist stands in the sky just above the snowy mountain ridge, elegant full anatomy with branching antlers spreading through the open central-right sky; body softly filled with delicate cosmic haze, star points connected subtly, not a simple line icon. Fine drifting golden star dust extends into the valley; mountains have pale gold star-rimmed snow. River reflects delicate branching gold patterns, nearby leaves and white flowers take pale sage and warm star-gold edges, all foreground materials visibly relit. Tiny warm town windows anchor the scale. Quiet mysterious enchanted night, no literal land animal in foreground.",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-d119a6e7-0965-453e-a636-d567b575d747.png",
+      "destination": "assets/art/encounters_v1/constellation_stag.png"
+    }
+  ]
+}

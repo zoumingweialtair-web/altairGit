@@ -1,0 +1,94 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/weather_stage.gd" id="1_stage"]
+[ext_resource type="Script" path="res://scripts/weather_layers.gd" id="2_layers"]
+[ext_resource type="Shader" path="res://shaders/layered_sky.gdshader" id="3_sky"]
+[ext_resource type="Shader" path="res://shaders/layered_terrain.gdshader" id="4_terrain"]
+[ext_resource type="Shader" path="res://shaders/layered_water.gdshader" id="5_water"]
+[ext_resource type="Shader" path="res://shaders/layered_mist.gdshader" id="6_mist"]
+
+[sub_resource type="ShaderMaterial" id="SkyMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("3_sky")
+
+[sub_resource type="ShaderMaterial" id="MountainMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("4_terrain")
+
+[sub_resource type="ShaderMaterial" id="TownMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("4_terrain")
+shader_parameter/town_layer = 1.0
+
+[sub_resource type="ShaderMaterial" id="TreeMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("4_terrain")
+shader_parameter/leaf_layer = 1.0
+shader_parameter/sway_pixels = 2.4
+
+[sub_resource type="ShaderMaterial" id="ForegroundMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("4_terrain")
+shader_parameter/foreground_layer = 1.0
+
+[sub_resource type="ShaderMaterial" id="WaterMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("5_water")
+
+[sub_resource type="ShaderMaterial" id="MistMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("6_mist")
+
+[node name="WeatherStage" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_stage")
+
+[node name="Sky" type="ColorRect" parent="."]
+material = SubResource("SkyMaterial")
+offset_right = 1440.0
+offset_bottom = 810.0
+mouse_filter = 2
+
+[node name="Stars" type="Node2D" parent="."]
+script = ExtResource("2_layers")
+role = "stars"
+
+[node name="FarClouds" type="Node2D" parent="."]
+script = ExtResource("2_layers")
+role = "clouds"
+
+[node name="EventSky" type="Node2D" parent="."]
+
+[node name="Mountains" type="Sprite2D" parent="."]
+material = SubResource("MountainMaterial")
+centered = false
+
+[node name="FarMist" type="ColorRect" parent="."]
+material = SubResource("MistMaterial")
+offset_right = 1440.0
+offset_bottom = 810.0
+mouse_filter = 2
+
+[node name="Water" type="ColorRect" parent="."]
+material = SubResource("WaterMaterial")
+offset_right = 1440.0
+offset_bottom = 810.0
+mouse_filter = 2
+
+[node name="EventWater" type="Node2D" parent="."]
+
+[node name="TownShore" type="Sprite2D" parent="."]
+material = SubResource("TownMaterial")
+centered = false
+
+[node name="Tree" type="Sprite2D" parent="."]
+material = SubResource("TreeMaterial")
+centered = false
+
+[node name="NearRainSnow" type="Node2D" parent="."]
+script = ExtResource("2_layers")
+role = "precipitation"
+
+[node name="Foreground" type="Sprite2D" parent="."]
+material = SubResource("ForegroundMaterial")
+centered = false

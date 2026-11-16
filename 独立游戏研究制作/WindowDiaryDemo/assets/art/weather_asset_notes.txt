@@ -1,0 +1,36 @@
+窗边日记 Demo — 天气背景素材记录
+
+用途：五张对齐的晴日、细雨、静夜、黄昏、飘雪景色，由原生 Godot Sprite2D 场景承载。
+说明：四张天气变体由 OpenAI ImageGen 根据既有晴天画面生成。此处仅复制生成图，不做像素重绘、裁切或图像滤镜。
+原始生成图保留在原位置。项目素材与原文件逐字节一致。
+画面均为 1672 × 941 PNG；Sprite2D 按宽高独立缩放至 1440 × 810，使用最近邻采样。
+
+晴天既有素材：C:\Users\zoumingwei\Documents\ChatGPT\独立游戏研究制作\WindowDiaryDemo\assets\art\window_background.png
+晴天既有素材的更早生成来源未在本次操作中核实。
+
+rain:
+  项目文件：assets/art/weather_rain.png
+  原始 sourcepath：C:\Users\zoumingwei\.codex\generated_images\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\exec-cd1539b4-6bd4-44ae-84fe-3fcae0be55c1.png
+  来源：本次会话 OpenAI ImageGen 生成的天气变体。
+
+night:
+  项目文件：assets/art/weather_night.png
+  原始 sourcepath：C:\Users\zoumingwei\.codex\generated_images\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\exec-88e17dfb-7b0f-445b-9d3d-5619bc7064f0.png
+  来源：本次会话 OpenAI ImageGen 生成的天气变体。
+
+dusk:
+  项目文件：assets/art/weather_dusk.png
+  原始 sourcepath：C:\Users\zoumingwei\.codex\generated_images\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\exec-74e07106-c618-4aa3-9b64-4685ed4530d7.png
+  来源：本次会话 OpenAI ImageGen 生成的天气变体。
+
+snow:
+  项目文件：assets/art/weather_snow.png
+  原始 sourcepath：C:\Users\zoumingwei\.codex\generated_images\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\exec-03b6fed3-8854-405c-89b2-d409ed0da078.png
+  来源：本次会话 OpenAI ImageGen 生成的天气变体。
+
+场景：res://scenes/weather_stage.tscn
+脚本：res://scripts/weather_stage.gd
+编号：0 Sunny / 1 Rain / 2 Night / 3 Dusk / 4 Snow
+接口：set_weather(mode: int, immediate: bool = false)；get_weights() -> Array[float]
+默认：编辑器中 Sunny 可见，其余四个图层透明。
+过渡：2 秒平行缓入缓出；快速切换会中止旧过渡，从当前透明度继续。

@@ -1,0 +1,72 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-11-16",
+  "assets": [
+    {
+      "id": "sun",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-5a34613d-bf59-4bd1-b58d-82b456dc77c3.png"
+    },
+    {
+      "id": "rain",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-94d519ec-4112-4df9-85c3-3fb644a9d9e8.png"
+    },
+    {
+      "id": "night",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-82417fa7-68b6-4576-accc-170bda9034ca.png"
+    },
+    {
+      "id": "dusk",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-c14715dd-e6c5-4280-8d5d-4f56e0a38044.png"
+    },
+    {
+      "id": "snow",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-4a9ef257-662c-4afd-a676-1a1d8b477ed2.png"
+    },
+    {
+      "id": "fog",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-3f480ffb-7eda-4712-9930-6176befd350a.png"
+    },
+    {
+      "id": "storm",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-83a20e07-0842-49cc-badb-65ab0a4cf726.png"
+    },
+    {
+      "id": "dawn",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-2dca7332-bb5c-4f9d-a565-85bcea27029b.png"
+    }
+  ],
+  "prompts": [
+    {
+      "id": "sun",
+      "prompt": "Use case: precise-object-edit.\nAsset type: a production background painting for the native Godot cozy pixel-art game Window Diary.\nInput image 1 is the EDIT TARGET, the existing sunny window scene. Keep its exact camera, aspect ratio, window frame, sill, mug/books, pots, railing, bird food dish, entire left foreground tree trunk with hollow and nest, and all its important bare branches in exactly the same positions. Preserve the near right building facade and its windows. No animals, birds, insects or boat baked in.\nCHANGE THE DISTANT LANDSCAPE: widen the river into a generous open river basin / small lake, with substantially more visible water across the central lower outdoor view. Replace much of the near shore grass at center-left with water. The far bank runs broadly across the scene about halfway down the outdoor view, and a legible long strip of small asymmetric waterfront town houses, tiny roofs, piers and low trees sits along that far shore, in front of the distant snow mountains. It should be clear we can look across the broad water to a real town, not only along a narrow stream. Keep the snow mountain and layered hills but compress the midground land to reveal more water. Water should occupy about 40% of the outdoor visible opening and continue behind the balcony railing. Maintain clear depth between room, balcony, tree, broad river, opposite town, hills, snowy mountains and sky. Leave open skyline space above the opposite town where 3 thin signal towers will be drawn by the game (DO NOT paint any towers or lights in the sky; those are animated code assets).\nStyle: restrained handsome handmade pixel art exactly consistent with reference. Crisp blocky edges, softly limited sage/blue/cream palette, bright mild daylight, expressive shadow values, no oily shine, no painterly smearing, no new UI, no lettering, no decorative border, no logos. Fully opaque. The bird feeder and branch coordinates must not move."
+    },
+    {
+      "id": "rain",
+      "prompt": "Use case: lighting-weather. Edit target: image 1, the NEW wide-water Window Diary scene. Keep EXACTLY the same framing, all tree branches, tree hollow, nest, sill, pots, books, mug, feeder, railing, houses, wide water coverage, opposite-town skyline and snow mountain peaks. Do not change the geometry, add buildings or move objects. The broad river basin and long strip of town on its opposite shore must remain clear. Fully opaque clean handmade pixel art with restrained colors, crisp pixel edges and nuanced shadows. No interface, words, humans, birds, animals, insects, boats, towers, lanterns or fantasy events: these are animated separately. No painted falling precipitation; the game supplies moving particles. Change the whole physical landscape and illumination consistently for this atmosphere: Overcast gentle rain. Layered low gray clouds, hazy snow mountains, wet dark leaves, damp building walls and slate blue broad water with fine ripple texture. Opposite town windows glow in scattered warm small points and weak reflections. Indoor sill stays dry and cozy."
+    },
+    {
+      "id": "night",
+      "prompt": "Use case: lighting-weather. Edit target: image 1, the NEW wide-water Window Diary scene. Keep EXACTLY the same framing, all tree branches, tree hollow, nest, sill, pots, books, mug, feeder, railing, houses, wide water coverage, opposite-town skyline and snow mountain peaks. Do not change the geometry, add buildings or move objects. The broad river basin and long strip of town on its opposite shore must remain clear. Fully opaque clean handmade pixel art with restrained colors, crisp pixel edges and nuanced shadows. No interface, words, humans, birds, animals, insects, boats, towers, lanterns or fantasy events: these are animated separately. No painted falling precipitation; the game supplies moving particles. Change the whole physical landscape and illumination consistently for this atmosphere: Deep blue clear moonlit night. Indigo sky and small crescent moon with restrained stars. Snow peaks softly silver blue. Broad water shows a narrow moon path and many tiny amber reflections from scattered lights along the ENTIRE opposite-town waterfront. Right neighboring windows warm golden, foliage dark teal. Preserve readable dark values; restful lofi mood."
+    },
+    {
+      "id": "dusk",
+      "prompt": "Use case: lighting-weather. Edit target: image 1, the NEW wide-water Window Diary scene. Keep EXACTLY the same framing, all tree branches, tree hollow, nest, sill, pots, books, mug, feeder, railing, houses, wide water coverage, opposite-town skyline and snow mountain peaks. Do not change the geometry, add buildings or move objects. The broad river basin and long strip of town on its opposite shore must remain clear. Fully opaque clean handmade pixel art with restrained colors, crisp pixel edges and nuanced shadows. No interface, words, humans, birds, animals, insects, boats, towers, lanterns or fantasy events: these are animated separately. No painted falling precipitation; the game supplies moving particles. Change the whole physical landscape and illumination consistently for this atmosphere: Restrained soft apricot and lilac sunset. Low warm sun above right distant hills, rose snow peaks and violet shadows. Wide water reflects a narrow golden path and quiet pink-lavender ripples; a few opposite-town windows have just lit. Golden edges on tree branches, cozy warm sill. Not oversaturated."
+    },
+    {
+      "id": "snow",
+      "prompt": "Use case: lighting-weather. Edit target: image 1, the NEW wide-water Window Diary scene. Keep EXACTLY the same framing, all tree branches, tree hollow, nest, sill, pots, books, mug, feeder, railing, houses, wide water coverage, opposite-town skyline and snow mountain peaks. Do not change the geometry, add buildings or move objects. The broad river basin and long strip of town on its opposite shore must remain clear. Fully opaque clean handmade pixel art with restrained colors, crisp pixel edges and nuanced shadows. No interface, words, humans, birds, animals, insects, boats, towers, lanterns or fantasy events: these are animated separately. No painted falling precipitation; the game supplies moving particles. Change the whole physical landscape and illumination consistently for this atmosphere: Quiet pearl gray winter day. Pale hazy mountains, roof snow, snow resting on exact existing branches and railing and feeder rim, a dusting around outdoor pots. Broad river remains flowing icy blue, far town roofs white with amber window lights. Thin out leaf masses gently while preserving all important branches and geometry. Indoors warm and dry."
+    },
+    {
+      "id": "fog",
+      "prompt": "Use case: lighting-weather. Edit target: image 1, the NEW wide-water Window Diary scene. Keep EXACTLY the same framing, all tree branches, tree hollow, nest, sill, pots, books, mug, feeder, railing, houses, wide water coverage, opposite-town skyline and snow mountain peaks. Do not change the geometry, add buildings or move objects. The broad river basin and long strip of town on its opposite shore must remain clear. Fully opaque clean handmade pixel art with restrained colors, crisp pixel edges and nuanced shadows. No interface, words, humans, birds, animals, insects, boats, towers, lanterns or fantasy events: these are animated separately. No painted falling precipitation; the game supplies moving particles. Change the whole physical landscape and illumination consistently for this atmosphere: Mist-filled early morning, muted gray jade and pearl palette. Visible near tree and balcony, broad water like pale silver glass with low wisps of mist, opposite town partially veiled yet still readable as a long shore. Snow mountains ghosted behind fog, a few softly glowing town lights. Strong atmospheric depth, calm and slightly mysterious, no rain or snow."
+    },
+    {
+      "id": "storm",
+      "prompt": "Use case: lighting-weather. Edit target: image 1, the NEW wide-water Window Diary scene. Keep EXACTLY the same framing, all tree branches, tree hollow, nest, sill, pots, books, mug, feeder, railing, houses, wide water coverage, opposite-town skyline and snow mountain peaks. Do not change the geometry, add buildings or move objects. The broad river basin and long strip of town on its opposite shore must remain clear. Fully opaque clean handmade pixel art with restrained colors, crisp pixel edges and nuanced shadows. No interface, words, humans, birds, animals, insects, boats, towers, lanterns or fantasy events: these are animated separately. No painted falling precipitation; the game supplies moving particles. Change the whole physical landscape and illumination consistently for this atmosphere: Windy rainy late afternoon, heavier layered charcoal clouds with faint slate teal horizon light. Wind-exposed leaves darker, wet roofs, choppy blue-gray broad water and obscured mountain ridges. Opposite town and right windows glow warmly against cold storm air. Powerful atmosphere but no lightning bolts or full-screen flash baked in; the room still sheltered and restful."
+    },
+    {
+      "id": "dawn",
+      "prompt": "Use case: lighting-weather. Edit target: image 1, the NEW wide-water Window Diary scene. Keep EXACTLY the same framing, all tree branches, tree hollow, nest, sill, pots, books, mug, feeder, railing, houses, wide water coverage, opposite-town skyline and snow mountain peaks. Do not change the geometry, add buildings or move objects. The broad river basin and long strip of town on its opposite shore must remain clear. Fully opaque clean handmade pixel art with restrained colors, crisp pixel edges and nuanced shadows. No interface, words, humans, birds, animals, insects, boats, towers, lanterns or fantasy events: these are animated separately. No painted falling precipitation; the game supplies moving particles. Change the whole physical landscape and illumination consistently for this atmosphere: Clear quiet dawn, pale peach horizon and powder blue upper sky, subtle lilac shadow on snow mountains. Soft early rays touch town rooftops and the tree edges. Broad water silvery turquoise with a soft coral path; a few opposite-town lights still glowing as morning arrives. Pale yellow cream indoor sill highlights, fresh rather than sunset-orange."
+    }
+  ]
+}

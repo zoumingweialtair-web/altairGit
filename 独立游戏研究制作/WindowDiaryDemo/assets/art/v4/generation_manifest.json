@@ -1,0 +1,80 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-11-16",
+  "assets": [
+    {
+      "id": "sun",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-3410821e-c6a7-47a0-9763-a84f9659ed92.png",
+      "destination": "assets/art/v4/sun.png"
+    },
+    {
+      "id": "rain",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-cb113832-00b2-4ffc-919c-5c3104b7f894.png",
+      "destination": "assets/art/v4/rain.png"
+    },
+    {
+      "id": "night",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-53e0f516-ba2d-49c3-be2e-067f1792c97d.png",
+      "destination": "assets/art/v4/night.png"
+    },
+    {
+      "id": "dusk",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-f9725308-01b3-4cbc-a370-f698f84f7e6e.png",
+      "destination": "assets/art/v4/dusk.png"
+    },
+    {
+      "id": "snow",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-6225b247-1747-4e9f-b7dd-c4d7c3f60442.png",
+      "destination": "assets/art/v4/snow.png"
+    },
+    {
+      "id": "fog",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-13c47ca5-da39-40c6-9fff-39063b220152.png",
+      "destination": "assets/art/v4/fog.png"
+    },
+    {
+      "id": "storm",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-d1192f4e-5724-4487-b329-35f1fd307568.png",
+      "destination": "assets/art/v4/storm.png"
+    },
+    {
+      "id": "dawn",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1d8ec-00c9-7c51-bc8d-8379bb18b8b1\\exec-efa71d73-a189-4bfa-806e-e0e74153dddb.png",
+      "destination": "assets/art/v4/dawn.png"
+    }
+  ],
+  "prompts": [
+    {
+      "id": "sun",
+      "prompt": "Use case: precise-object-edit. Image 1 is the exact EDIT TARGET for an existing Godot pixel art window game.\nPreserve the EXACT image size, camera and all foreground geometry: left window frame and large tree trunk, hollow, bird nest, important bare tree branches/perches, balcony pots, railing and feeder, right neighboring facades, sill, mug and books. No animals, boats, towers, UI or text. Keep the generous open water, snow mountain backdrop, and restrained hand-crafted pixel-art palette.\nMAJOR REQUIRED EDIT: The opposite shore is unnaturally ruler-straight and its buildings form one evenly repeated row. Redesign the land-water boundary with OBVIOUS NATURAL UNEVEN CURVES and real layered depth. A wooded rocky headland comes forward on the left side from behind the tree, then the shoreline sweeps deeply back around an open crescent bay in the middle, then a second smaller irregular green peninsula protrudes toward the viewer at center-right, then recedes around another sheltered cove before disappearing behind the near right houses. The waterline must not sit at the same y coordinate across the scene: create at least 80-100 pixels of depth variation at this resolution, smooth irregular S-shaped curves, rocky edges, reeds and broken small beaches. Keep at least the lower middle third as broad uninterrupted water for moving reflections and events.\nREARRANGE THE DISTANT TOWN to follow those bends: two or three asymmetrical clusters on rising terrain, some buildings higher/lower and partly hidden by trees, sparse waterfront piers, natural gaps between clusters, no continuous straight retaining wall, no evenly lined-up roof row. Preserve a small church/chimney for orientation but integrate it into one cluster. Foreground objects MUST remain in their exact old positions.\nKeep hills behind the town layered from nearer muted green to far misty blue; later TWO small animated signal towers will be placed on separate hillside ridges, NOT on the town waterfront. DO NOT paint any tower or beacon into this bitmap.\nSunny soft daylight, nuanced light and shadow, crisp hand-drawn PIXEL ART with clear block shapes, not oily, no extra saturated color, not a flat vector map. The result must read as a believable naturally winding river/lake shore seen from this cozy window."
+    },
+    {
+      "id": "rain",
+      "prompt": "Use case: lighting-weather. Edit target: Image 1, the version 4 natural curved river shoreline background of Window Diary. KEEP ALL GEOMETRY EXACT: the new curved left rocky headland, deeply receding central bay, green center-right peninsula, coves, reeds and beaches; the irregular clustered town rising with land; the layer silhouettes of mountains; foreground tree with hollow/nest/branches, pots, railing, food dish, right facade, window frame, sill and books/mug. Do NOT straighten the shoreline or line up the buildings. Do NOT add towers (two hillside towers are animated separately), boats, animals, creatures, UI, words or events. KEEP this natural asymmetrical composition unchanged, and only change environmental lighting and surface conditions. Render crisp, restrained handmade pixel art, with deliberate light/shadow values. No oily glossy painting. Do not paint fixed falling rain or snow streaks, those are animated code layers. The sheltered indoor sill and books always stay DRY. Fully opaque.\nAtmosphere: Soft overcast rainy afternoon. Low gray clouds, misty snowy peaks, subdued gray-blue broad water and darker wet rocks/leaves. Buildings clustered along the curved shores have a few warm windows, with short reflections positioned beneath those specific clusters, not in a straight row. Cozy sheltered indoor warmth."
+    },
+    {
+      "id": "night",
+      "prompt": "Use case: lighting-weather. Edit target: Image 1, the version 4 natural curved river shoreline background of Window Diary. KEEP ALL GEOMETRY EXACT: the new curved left rocky headland, deeply receding central bay, green center-right peninsula, coves, reeds and beaches; the irregular clustered town rising with land; the layer silhouettes of mountains; foreground tree with hollow/nest/branches, pots, railing, food dish, right facade, window frame, sill and books/mug. Do NOT straighten the shoreline or line up the buildings. Do NOT add towers (two hillside towers are animated separately), boats, animals, creatures, UI, words or events. KEEP this natural asymmetrical composition unchanged, and only change environmental lighting and surface conditions. Render crisp, restrained handmade pixel art, with deliberate light/shadow values. No oily glossy painting. Do not paint fixed falling rain or snow streaks, those are animated code layers. The sheltered indoor sill and books always stay DRY. Fully opaque.\nAtmosphere: Deep indigo clear moonlit night, a small crescent and subtle stars. Snow ridges readable pale blue, all three irregular waterfront village clusters show scattered warm window lights following the contours of the land, and localized amber reflections curve with the shoreline in the dark water. Dark blue-green leaves, warm right windows and dry indoor sill. Keep open sky for animated aurora and other events."
+    },
+    {
+      "id": "dusk",
+      "prompt": "Use case: lighting-weather. Edit target: Image 1, the version 4 natural curved river shoreline background of Window Diary. KEEP ALL GEOMETRY EXACT: the new curved left rocky headland, deeply receding central bay, green center-right peninsula, coves, reeds and beaches; the irregular clustered town rising with land; the layer silhouettes of mountains; foreground tree with hollow/nest/branches, pots, railing, food dish, right facade, window frame, sill and books/mug. Do NOT straighten the shoreline or line up the buildings. Do NOT add towers (two hillside towers are animated separately), boats, animals, creatures, UI, words or events. KEEP this natural asymmetrical composition unchanged, and only change environmental lighting and surface conditions. Render crisp, restrained handmade pixel art, with deliberate light/shadow values. No oily glossy painting. Do not paint fixed falling rain or snow streaks, those are animated code layers. The sheltered indoor sill and books always stay DRY. Fully opaque.\nAtmosphere: Quiet restrained lilac/apricot dusk, softly rosy snow peaks and long cool-violet shadows. A narrow warm reflection in the naturally winding water. Some clustered village windows just lit. Tree branch edges warm, foreground comfortable. Leave broad sky readable for separate animated sunset clouds; do not over-saturate."
+    },
+    {
+      "id": "snow",
+      "prompt": "Use case: lighting-weather. Edit target: Image 1, the version 4 natural curved river shoreline background of Window Diary. KEEP ALL GEOMETRY EXACT: the new curved left rocky headland, deeply receding central bay, green center-right peninsula, coves, reeds and beaches; the irregular clustered town rising with land; the layer silhouettes of mountains; foreground tree with hollow/nest/branches, pots, railing, food dish, right facade, window frame, sill and books/mug. Do NOT straighten the shoreline or line up the buildings. Do NOT add towers (two hillside towers are animated separately), boats, animals, creatures, UI, words or events. KEEP this natural asymmetrical composition unchanged, and only change environmental lighting and surface conditions. Render crisp, restrained handmade pixel art, with deliberate light/shadow values. No oily glossy painting. Do not paint fixed falling rain or snow streaks, those are animated code layers. The sheltered indoor sill and books always stay DRY. Fully opaque.\nAtmosphere: Quiet winter daylight. Soft pearl-gray sky, snowy mountain haze, settled snow on roofs, exact tree branches and railing, reeds/shore rock edges dusted white. The curving shoreline remains distinct and water remains flowing icy blue. Warm lights in distant scattered windows. Do not move any branches or change the peninsula geometry."
+    },
+    {
+      "id": "fog",
+      "prompt": "Use case: lighting-weather. Edit target: Image 1, the version 4 natural curved river shoreline background of Window Diary. KEEP ALL GEOMETRY EXACT: the new curved left rocky headland, deeply receding central bay, green center-right peninsula, coves, reeds and beaches; the irregular clustered town rising with land; the layer silhouettes of mountains; foreground tree with hollow/nest/branches, pots, railing, food dish, right facade, window frame, sill and books/mug. Do NOT straighten the shoreline or line up the buildings. Do NOT add towers (two hillside towers are animated separately), boats, animals, creatures, UI, words or events. KEEP this natural asymmetrical composition unchanged, and only change environmental lighting and surface conditions. Render crisp, restrained handmade pixel art, with deliberate light/shadow values. No oily glossy painting. Do not paint fixed falling rain or snow streaks, those are animated code layers. The sheltered indoor sill and books always stay DRY. Fully opaque.\nAtmosphere: Pale muted sage and silver early morning fog. Near tree and foreground remain legible, low mist flows visually over the water and around the curved wooded shore. Village clusters and layered mountains progressively fade into mist but retain all their positions. A few dim warm lights reflect near the curving shore. Quiet mysterious atmosphere."
+    },
+    {
+      "id": "storm",
+      "prompt": "Use case: lighting-weather. Edit target: Image 1, the version 4 natural curved river shoreline background of Window Diary. KEEP ALL GEOMETRY EXACT: the new curved left rocky headland, deeply receding central bay, green center-right peninsula, coves, reeds and beaches; the irregular clustered town rising with land; the layer silhouettes of mountains; foreground tree with hollow/nest/branches, pots, railing, food dish, right facade, window frame, sill and books/mug. Do NOT straighten the shoreline or line up the buildings. Do NOT add towers (two hillside towers are animated separately), boats, animals, creatures, UI, words or events. KEEP this natural asymmetrical composition unchanged, and only change environmental lighting and surface conditions. Render crisp, restrained handmade pixel art, with deliberate light/shadow values. No oily glossy painting. Do not paint fixed falling rain or snow streaks, those are animated code layers. The sheltered indoor sill and books always stay DRY. Fully opaque.\nAtmosphere: A dark but readable windy storm afternoon. Charcoal blue cloud masses, dim distant ridges, cool choppy water following the bay with shadowy teal waves, wet distant roofs and rocks, glowing golden windows. Maintain exact natural shoreline, town positions and foreground silhouette. No lightning, no painted precipitation streaks, NO wet glossy indoor sill: this room remains sheltered."
+    },
+    {
+      "id": "dawn",
+      "prompt": "Use case: lighting-weather. Edit target: Image 1, the version 4 natural curved river shoreline background of Window Diary. KEEP ALL GEOMETRY EXACT: the new curved left rocky headland, deeply receding central bay, green center-right peninsula, coves, reeds and beaches; the irregular clustered town rising with land; the layer silhouettes of mountains; foreground tree with hollow/nest/branches, pots, railing, food dish, right facade, window frame, sill and books/mug. Do NOT straighten the shoreline or line up the buildings. Do NOT add towers (two hillside towers are animated separately), boats, animals, creatures, UI, words or events. KEEP this natural asymmetrical composition unchanged, and only change environmental lighting and surface conditions. Render crisp, restrained handmade pixel art, with deliberate light/shadow values. No oily glossy painting. Do not paint fixed falling rain or snow streaks, those are animated code layers. The sheltered indoor sill and books always stay DRY. Fully opaque.\nAtmosphere: Fresh pale peach dawn under powder blue sky. Cool lavender shadow on snowy mountains, soft low golden light touches irregular hillside village roofs and tree edges. Silver turquoise water around the curved capes, a few remaining village lights, a faint pale coral water path. Clearly morning, not orange sunset; keep restrained color and dry warm indoor surfaces."
+    }
+  ]
+}

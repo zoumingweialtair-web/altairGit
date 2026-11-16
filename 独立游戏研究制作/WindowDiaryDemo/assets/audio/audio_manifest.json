@@ -1,0 +1,51 @@
+{
+  "origin": "Original procedural synthesis for Window Diary demo. No sampled music or field recordings.",
+  "music": "32 second loop, 60 BPM, original Dmaj9/Bmin/Gmaj/Asus-flavored voicings.",
+  "tracks": {
+    "lofi_loop.wav": {
+      "seconds": 32.0,
+      "sample_rate": 22050,
+      "peak": 0.48,
+      "rms_dbfs": -21.69,
+      "boundary_jump": 0.015217,
+      "maximum_adjacent_jump": 0.046856,
+      "bytes": 1411244
+    },
+    "rain_loop.wav": {
+      "seconds": 12.0,
+      "sample_rate": 22050,
+      "peak": 0.42,
+      "rms_dbfs": -21.21,
+      "boundary_jump": 0.027267,
+      "maximum_adjacent_jump": 0.166166,
+      "bytes": 529244
+    },
+    "forest_loop.wav": {
+      "seconds": 12.0,
+      "sample_rate": 22050,
+      "peak": 0.4,
+      "rms_dbfs": -21.79,
+      "boundary_jump": 0.008726,
+      "maximum_adjacent_jump": 0.055028,
+      "bytes": 529244
+    },
+    "river_loop.wav": {
+      "seconds": 12.0,
+      "sample_rate": 22050,
+      "peak": 0.4,
+      "rms_dbfs": -20.73,
+      "boundary_jump": 0.007809,
+      "maximum_adjacent_jump": 0.112216,
+      "bytes": 529244
+    },
+    "bird_chirp.wav": {
+      "seconds": 2.4,
+      "sample_rate": 22050,
+      "peak": 0.24,
+      "rms_dbfs": -26.85,
+      "boundary_jump": 0.0,
+      "maximum_adjacent_jump": 0.239802,
+      "bytes": 105884
+    }
+  }
+}

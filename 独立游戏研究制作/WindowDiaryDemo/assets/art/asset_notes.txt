@@ -1,0 +1,11 @@
+Background asset provenance
+
+File: window_background.png
+Tool: built-in image_gen image editing
+Reference: chosen brighter pixel-art composition with left tree and right staggered buildings.
+
+Final generation prompt:
+Edit this image for use as the static background layer of the actual 2D pixel-art game. Preserve the entire existing composition, tree, architecture, sunny lighting, restrained pixel style, window, balcony, flower pots, empty nest, natural tree cavity, mountains, blue sky, river, bridge, cup and notebook EXACTLY as closely as possible. REMOVE EVERY BIRD from tree branches and feeder; leave their branches and the empty seed dish intact. Remove any butterfly, moving boat on the river, and visible cat silhouette from a window. These animated characters will be added by game code later. Reconstruct clean background where those removed objects were. Keep the river otherwise the same, use no new characters. Do not add text, UI, watermark, icons, borders or new objects. Output one full wide background image same framing and aspect ratio as reference.
+
+Dynamic birds, boat, butterfly and celestial effects are drawn by native Godot code.
+Audio sources and measurements: ../audio/audio_manifest.json

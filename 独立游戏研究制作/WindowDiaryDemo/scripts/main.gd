@@ -1,0 +1,769 @@
+extends Control
+
+const INK = Color("203b3b")
+const PAPER = Color("f3eedf")
+const ACCENT = Color("d8c294")
+const DIM = Color("a1b7ab")
+const FieldGuide = preload("res://scenes/field_guide.tscn")
+const WEATHER_NAMES: Array[String] = ["晴日", "听雨", "月夜", "夕照", "落雪", "晨雾", "风雨", "晨曦"]
+const NEW_WONDERS: Array[String] = ["aurora_crown","ember_clouds","meteor_shower","deep_one","sunken_city","sky_jellyfish","twin_moons","floating_isles","bioluminescent_tide","constellation_stag"]
+const WEATHER_ENTRIES: Array[String] = ["scene_sun", "scene_rain", "scene_night", "scene_dusk", "scene_snow", "scene_fog", "scene_storm", "scene_dawn"]
+const WEATHER_CAPTIONS: Array[String] = ["晴光落在枝头，河面闪着细碎的光。","雨雾隐去远山，来客在树枝间避雨。","窗灯映着月色，树上的鸟慢慢安静下来。","雪山染上浅粉，晚归的鸟停在枝头。","雪覆上枝头与屋顶，窗内仍留着暖意。","晨雾浮在宽阔水面，对岸的塔灯隐约闪动。","风拂过河湾，远处城镇的灯依然亮着。","晨曦点亮对岸屋顶，河面开始苏醒。"]
+
+var scene_view: Node2D
+var backdrop: Node2D
+var normal_ui: Control
+var focus_ui: Control
+var focus_clock: Label
+var weather_buttons: Array[Button] = []
+var collection_button: Button
+var music_button: Button
+var sound_button: Button
+var status_label: Label
+var toast_panel: Panel
+var toast_text: Label
+var modal: Control
+var music_player: AudioStreamPlayer
+var rain_player: AudioStreamPlayer
+var forest_player: AudioStreamPlayer
+var river_player: AudioStreamPlayer
+var weather_mode: int = 0
+var focusing: bool = false
+var elapsed: float = 0.0
+var focus_elapsed: float = 0.0
+var focus_new_count: int = 0
+var next_visit: float = 3.0
+var visitor_index: int = 0
+var session_event: int = 0
+var next_save: float = 30.0
+var focus_start_count: int = 0
+var toast_until: float = 0.0
+var next_rare: float = 65.0
+var visitor_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var capture_mode: bool = false
+var screenshot_path: String = ""
+var screenshot_state: String = "sun"
+var screenshot_delay: float = 3.5
+var weather_observed: float = 0.0
+var scenery_recordable: bool = true
+var weather_recorded: bool = false
+var resume_observation_at: float = -1.0
+var audio_tween: Tween
+var small_font: SystemFont
+var running_tests: bool = false
+var _status_atmosphere_id: String = ""
+
+func _ready() -> void:
+ get_tree().auto_accept_quit = false
+ mouse_filter = Control.MOUSE_FILTER_IGNORE
+ visitor_rng.randomize()
+ _read_args()
+ _build_theme()
+ _build_scene()
+ _build_interface()
+ _build_audio()
+ DiaryState.changed.connect(_refresh_counts)
+ scene_view.encounter.connect(_encounter)
+ scene_view.bird_selected.connect(_bird_card)
+ _refresh_counts()
+ if not capture_mode:
+  _toast("欢迎来到窗边。点「演示」，看一场完整的窗外奇遇。", 7.0)
+  if not DiaryState.last_summary.is_empty():
+   status_label.text = DiaryState.last_summary
+ if running_tests:
+  _run_ui_smoke.call_deferred()
+ elif capture_mode:
+  _capture.call_deferred()
+
+func _read_args() -> void:
+ var args: PackedStringArray = OS.get_cmdline_user_args()
+ capture_mode = args.has("--capture")
+ running_tests = args.has("--ui-test")
+ for a: String in args:
+  if a.begins_with("--shot="):
+   screenshot_path = a.trim_prefix("--shot=")
+  if a.begins_with("--state="):
+   screenshot_state = a.trim_prefix("--state=")
+  if a.begins_with("--at="):
+   screenshot_delay = clampf(float(a.trim_prefix("--at=")),0.2,25.0)
+
+func _build_theme() -> void:
+ small_font = SystemFont.new()
+ small_font.font_names = PackedStringArray(["Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC"])
+ var t: Theme = Theme.new()
+ t.default_font = small_font
+ t.default_font_size = 18
+ t.set_color("font_color", "Label", PAPER)
+ t.set_color("font_color", "Button", PAPER)
+ t.set_color("font_hover_color", "Button", Color.WHITE)
+ t.set_color("font_pressed_color", "Button", Color.WHITE)
+ t.set_stylebox("normal", "Button", _style(Color("2c4847"), Color("526c60"), 9))
+ t.set_stylebox("hover", "Button", _style(Color("42645b"), ACCENT, 9))
+ t.set_stylebox("pressed", "Button", _style(Color("526f60"), ACCENT, 9))
+ t.set_stylebox("focus", "Button", _style(Color(0,0,0,0), ACCENT, 9))
+ theme = t
+
+func _style(color: Color, border: Color = Color(0,0,0,0), radius: int = 12) -> StyleBoxFlat:
+ var s: StyleBoxFlat = StyleBoxFlat.new()
+ s.bg_color = color
+ s.border_color = border
+ s.set_border_width_all(1)
+ s.set_corner_radius_all(radius)
+ s.content_margin_left = 14
+ s.content_margin_right = 14
+ s.content_margin_top = 8
+ s.content_margin_bottom = 8
+ return s
+
+func _label(parent: Node, content: String, pos: Vector2, sz: Vector2, font_size: int = 18, color: Color = PAPER) -> Label:
+ var l: Label = Label.new()
+ l.text = content
+ l.position = pos
+ l.size = sz
+ l.add_theme_font_size_override("font_size", font_size)
+ l.add_theme_color_override("font_color", color)
+ l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ parent.add_child(l)
+ return l
+
+func _button(parent: Node, content: String, pos: Vector2, sz: Vector2, action: Callable) -> Button:
+ var b: Button = Button.new()
+ b.text = content
+ b.position = pos
+ b.size = sz
+ b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+ b.pressed.connect(action)
+ parent.add_child(b)
+ return b
+
+func _panel(parent: Node, pos: Vector2, sz: Vector2, color: Color) -> Panel:
+ var panel: Panel = Panel.new()
+ panel.position = pos
+ panel.size = sz
+ panel.add_theme_stylebox_override("panel", _style(color))
+ panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ parent.add_child(panel)
+ return panel
+
+func _build_scene() -> void:
+ backdrop = $WeatherStage
+ scene_view = $World
+ scene_view.set_attraction(DiaryState.attraction)
+ scene_view.set_layered_weather_enabled(true)
+ backdrop.painted_atmospheres_changed.connect(_on_painted_atmospheres_changed)
+ _on_painted_atmospheres_changed(backdrop.get_painted_atmosphere_ids())
+
+func _on_painted_atmospheres_changed(ids: Array[String]) -> void:
+ scene_view.set_painted_atmospheres(ids)
+
+func _update_atmosphere() -> void:
+ var atmosphere_state: Dictionary=scene_view.get_atmosphere_state()
+ atmosphere_state["quiet"]=focusing
+ backdrop.set_atmosphere_state(atmosphere_state)
+ var id: String=backdrop.get_active_atmosphere_id()
+ if not id.is_empty():
+  var name_text: String=str(DiaryState.get_entry_defs().get(id,{}).get("name",id))
+  status_label.text="窗外奇遇 · "+name_text+"  /  静静看它变化"
+ elif not _status_atmosphere_id.is_empty():
+  status_label.text=WEATHER_CAPTIONS[weather_mode]
+ _status_atmosphere_id=id
+
+func _build_interface() -> void:
+ normal_ui = Control.new()
+ normal_ui.name = "Interface"
+ normal_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ add_child(normal_ui)
+ _panel(normal_ui,Vector2(26,22),Vector2(310,74),Color(0.08,0.16,0.17,0.91))
+ _label(normal_ui,"窗 边 日 记",Vector2(46,29),Vector2(240,32),24)
+ _label(normal_ui,"像素观察室  /  可交互演示",Vector2(47,64),Vector2(270,24),14,DIM)
+ _panel(normal_ui,Vector2(574,22),Vector2(840,64),Color(0.08,0.16,0.17,0.91))
+ for i: int in range(WEATHER_NAMES.size()):
+  var b: Button = _button(normal_ui,WEATHER_NAMES[i],Vector2(586+i*88,33),Vector2(80,42),_change_weather.bind(i))
+  weather_buttons.append(b)
+ _button(normal_ui,"演示",Vector2(1294,33),Vector2(108,42),_show_demo)
+ _panel(normal_ui,Vector2(26,736),Vector2(544,51),Color(0.08,0.16,0.17,0.86))
+ status_label = _label(normal_ui,"树枝、食盘与花盆，都值得留意。",Vector2(44,745),Vector2(510,32),17,PAPER)
+ var strip: ColorRect = ColorRect.new()
+ strip.color = Color("162d30")
+ strip.position = Vector2(0,810)
+ strip.size = Vector2(1440,90)
+ normal_ui.add_child(strip)
+ _label(normal_ui,"留一点时间给窗外",Vector2(28,824),Vector2(240,30),20)
+ _label(normal_ui,"访客已加速 · 收藏自动保存",Vector2(29,859),Vector2(240,23),14,DIM)
+ collection_button = _button(normal_ui,"观察图鉴",Vector2(292,831),Vector2(154,46),_show_collection)
+ _button(normal_ui,"观察记录",Vector2(460,831),Vector2(148,46),_show_records)
+ music_button = _button(normal_ui,"音乐  开",Vector2(622,831),Vector2(138,46),_toggle_music)
+ sound_button = _button(normal_ui,"自然声  开",Vector2(774,831),Vector2(148,46),_toggle_ambience)
+ _button(normal_ui,"窗边布置",Vector2(936,831),Vector2(148,46),_show_attractions)
+ var focus: Button = _button(normal_ui,"开始陪伴  →",Vector2(1112,827),Vector2(302,54),_start_focus)
+ focus.add_theme_stylebox_override("normal",_style(Color("d3bd88")))
+ focus.add_theme_color_override("font_color",INK)
+ focus.add_theme_font_size_override("font_size",20)
+ focus_ui = Control.new()
+ focus_ui.name = "CompanionUI"
+ focus_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ add_child(focus_ui)
+ var band: ColorRect = ColorRect.new()
+ band.position=Vector2(0,810)
+ band.size=Vector2(1440,90)
+ band.color=Color("162d30")
+ focus_ui.add_child(band)
+ _label(focus_ui,"安静陪伴",Vector2(32,829),Vector2(170,30),21)
+ _label(focus_ui,"发现会静默记录，回来再慢慢看。",Vector2(200,832),Vector2(550,28),17,DIM)
+ focus_clock=_label(focus_ui,"00:00",Vector2(1000,829),Vector2(160,36),27,ACCENT)
+ _button(focus_ui,"结束陪伴  Esc",Vector2(1195,830),Vector2(218,47),_end_focus)
+ focus_ui.hide()
+ toast_panel = _panel(self,Vector2(470,110),Vector2(500,58),Color(0.075,0.16,0.17,0.94))
+ toast_text = _label(toast_panel,"",Vector2(17,9),Vector2(465,40),17,PAPER)
+ toast_text.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+ toast_panel.hide()
+ _refresh_weather_buttons()
+
+func _build_audio() -> void:
+ music_player=_audio("res://assets/audio/lofi_loop.wav",-15.0)
+ forest_player=_audio("res://assets/audio/forest_loop.wav",-21.0)
+ river_player=_audio("res://assets/audio/river_loop.wav",-21.0)
+ rain_player=_audio("res://assets/audio/rain_loop.wav",-80.0)
+ _update_audio(false)
+
+func _audio(path: String, volume: float) -> AudioStreamPlayer:
+ var player: AudioStreamPlayer = AudioStreamPlayer.new()
+ if ResourceLoader.exists(path):
+  var wave: AudioStreamWAV = load(path) as AudioStreamWAV
+  wave.loop_mode=AudioStreamWAV.LOOP_FORWARD
+  wave.loop_begin=0
+  wave.loop_end=int(wave.get_length()*wave.mix_rate)
+  player.stream=wave
+ player.volume_db=volume
+ add_child(player)
+ if player.stream != null and not capture_mode and not running_tests:
+  player.play()
+ return player
+
+func _update_audio(fade: bool = true) -> void:
+ if music_player == null: return
+ if audio_tween != null and audio_tween.is_running(): audio_tween.kill()
+ audio_tween = create_tween().set_parallel(true)
+ var dur: float = 1.4 if fade else 0.01
+ var music_mix: Array[float] = [-15.0,-18.0,-19.0,-16.0,-18.0,-19.0,-20.0,-16.0]
+ var rain_mix: Array[float] = [-80.0,-17.0,-80.0,-80.0,-80.0,-80.0,-13.0,-80.0]
+ var forest_mix: Array[float] = [-22.0,-32.0,-37.0,-26.0,-34.0,-33.0,-25.0,-25.0]
+ var river_mix: Array[float] = [-24.0,-29.0,-30.0,-25.0,-35.0,-25.0,-28.0,-23.0]
+ var music_db: float = music_mix[weather_mode] if DiaryState.music_on else -80.0
+ var rain_db: float = rain_mix[weather_mode] if DiaryState.ambience_on else -80.0
+ var forest_db: float = forest_mix[weather_mode] if DiaryState.ambience_on else -80.0
+ var river_db: float = river_mix[weather_mode] if DiaryState.ambience_on else -80.0
+ audio_tween.tween_property(music_player,"volume_db",music_db,dur)
+ audio_tween.tween_property(rain_player,"volume_db",rain_db,dur)
+ audio_tween.tween_property(forest_player,"volume_db",forest_db,dur)
+ audio_tween.tween_property(river_player,"volume_db",river_db,dur)
+ music_button.text="音乐  开" if DiaryState.music_on else "音乐  关"
+ sound_button.text="自然声  开" if DiaryState.ambience_on else "自然声  关"
+
+func _toggle_music() -> void:
+ DiaryState.music_on=not DiaryState.music_on
+ DiaryState.save_state()
+ _update_audio()
+
+func _toggle_ambience() -> void:
+ DiaryState.ambience_on=not DiaryState.ambience_on
+ DiaryState.save_state()
+ _update_audio()
+
+func _change_weather(value: int, recordable: bool = true) -> void:
+ scene_view.clear_atmosphere_events()
+ backdrop.set_atmosphere_state({})
+ weather_mode=clampi(value,0,WEATHER_NAMES.size()-1)
+ weather_observed=0.0
+ weather_recorded=false
+ scenery_recordable=recordable
+ resume_observation_at=-1.0
+ scene_view.set_weather(weather_mode)
+ backdrop.set_weather(weather_mode)
+ _refresh_weather_buttons()
+ _update_audio()
+ status_label.text=WEATHER_CAPTIONS[weather_mode]
+
+func _refresh_weather_buttons() -> void:
+ for i: int in range(weather_buttons.size()):
+  weather_buttons[i].add_theme_stylebox_override("normal",_style(Color("506858") if i==weather_mode else Color("2c4847"),ACCENT if i==weather_mode else Color("526c60"),9))
+
+func _encounter(id: String,note: String) -> void:
+ session_event += 1
+ var fresh: bool = DiaryState.discover(id,note,"session_%s_%d" % [str(int(Time.get_unix_time_from_system()*1000000.0)),session_event])
+ DiaryState.record_context(id,WEATHER_NAMES[weather_mode])
+ var defs: Dictionary = DiaryState.get_entry_defs()
+ var name_text: String = str(defs.get(id,{}).get("name",id))
+ if focusing:
+  focus_new_count += 1
+ else:
+  if _status_atmosphere_id.is_empty():status_label.text=name_text+"来过这里，观察记录已保存。"
+  if fresh: _toast("新发现 · "+name_text+"  已收入图鉴",4.0)
+  elif int(DiaryState.collection.get(id,{}).get("count",0))==5:
+   var profile: Dictionary=DiaryState.get_profile(id)
+   if bool(profile.get("keepsake_unlocked",false)):
+    _toast(name_text+"留下了「"+str(profile.get("keepsake_name","小小纪念"))+"」",5.0)
+
+func _refresh_counts() -> void:
+ if is_instance_valid(collection_button):
+  collection_button.text="图鉴  %d / %d" % [DiaryState.get_count(),DiaryState.get_entry_defs().size()]
+
+func _toast(content: String, duration: float = 4.0) -> void:
+ if focusing:return
+ toast_text.text=content
+ toast_panel.show()
+ toast_until=elapsed+duration
+
+func _process(delta: float) -> void:
+ elapsed+=delta
+ if resume_observation_at>=0.0 and elapsed>=resume_observation_at:
+  _resume_observation()
+ if toast_panel != null and elapsed>toast_until:toast_panel.hide()
+ if focusing:
+  focus_elapsed+=delta
+  DiaryState.seconds_focused+=delta
+  var secs: int = int(focus_elapsed)
+  focus_clock.text="%02d:%02d" % [secs/60,secs%60]
+ if scenery_recordable and not weather_recorded and not capture_mode and not running_tests:
+  weather_observed+=delta
+  if weather_observed>=8.0:_record_scenery()
+ if elapsed>next_visit and not capture_mode and not running_tests:
+  var pool: Array[String]=_visitor_pool()
+  scene_view.trigger(pool[visitor_rng.randi_range(0,pool.size()-1)])
+  next_visit=elapsed+visitor_rng.randf_range(22.0,36.0)
+ if elapsed>next_rare and not capture_mode and not running_tests:
+  var pool: Array[String]=_rare_pool()
+  scene_view.trigger(pool[visitor_rng.randi_range(0,pool.size()-1)])
+  next_rare=elapsed+visitor_rng.randf_range(75.0,130.0)
+ if elapsed>next_save:
+  DiaryState.save_state()
+  next_save=elapsed+30.0
+ _update_atmosphere()
+
+func _visitor_pool() -> Array[String]:
+ return DiaryState.get_visit_pool(weather_mode)
+
+func _rare_pool() -> Array[String]:
+ return DiaryState.get_rare_pool(weather_mode)
+
+func _resume_observation() -> void:
+ resume_observation_at=-1.0
+ scenery_recordable=true
+ weather_recorded=false
+ weather_observed=0.0
+
+func _record_scenery() -> void:
+ weather_recorded=true
+ var id: String=WEATHER_ENTRIES[weather_mode]
+ var day: String=Time.get_date_string_from_system()
+ var fresh: bool=DiaryState.discover(id,"在窗边看了一会儿"+WEATHER_NAMES[weather_mode]+"。","scenery_"+day+"_"+id)
+ DiaryState.record_context(id,WEATHER_NAMES[weather_mode])
+ if fresh:_toast("风景入册 · "+str(DiaryState.get_entry_defs()[id]["name"]),4.0)
+
+func _observation_total() -> int:
+ var total: int=0
+ for entry: Dictionary in DiaryState.collection.values():
+  total+=int(entry.get("count",0))
+ return total
+
+func _start_focus() -> void:
+ _close_modal()
+ if not scenery_recordable:_resume_observation()
+ focusing=true
+ focus_elapsed=0.0
+ focus_new_count=0
+ focus_start_count=_observation_total()
+ normal_ui.hide()
+ toast_panel.hide()
+ focus_ui.show()
+ scene_view.set_quiet(true)
+
+func _end_focus() -> void:
+ if not focusing:return
+ focusing=false
+ focus_new_count=maxi(0,_observation_total()-focus_start_count)
+ normal_ui.show()
+ focus_ui.hide()
+ scene_view.set_quiet(false)
+ DiaryState.save_state()
+ _toast("这段陪伴 %d 分钟 · 留下了 %d 条观察记录" % [int(focus_elapsed/60),focus_new_count],7.0)
+
+func _new_modal(title: String, subtitle: String = "") -> Panel:
+ _close_modal()
+ modal=Control.new()
+ modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+ add_child(modal)
+ var shade: ColorRect=ColorRect.new()
+ shade.size=Vector2(1440,900)
+ shade.color=Color(0.025,0.06,0.065,0.55)
+ modal.add_child(shade)
+ var p: Panel=_panel(modal,Vector2(340,122),Vector2(760,646),Color("1c3538"))
+ p.mouse_filter=Control.MOUSE_FILTER_STOP
+ _label(p,title,Vector2(28,18),Vector2(650,38),26)
+ _label(p,subtitle,Vector2(29,59),Vector2(690,30),15,DIM)
+ _button(p,"关闭 ×",Vector2(640,20),Vector2(94,40),_close_modal)
+ return p
+
+func _close_modal() -> void:
+ if is_instance_valid(modal):
+  remove_child(modal)
+  modal.queue_free()
+ modal=null
+
+func _show_collection(selected_id: String = "") -> void:
+ _close_modal()
+ var guide: Control=FieldGuide.instantiate()
+ modal=guide
+ add_child(guide)
+ guide.close_requested.connect(_close_modal)
+ guide.replay_requested.connect(_replay)
+ guide.setup(DiaryState,selected_id)
+
+func _bird_card(id: String) -> void:
+ if focusing:return
+ if not DiaryState.collection.has(id):
+  DiaryState.discover(id,"你在窗边认出了这位来客。")
+  DiaryState.record_context(id,WEATHER_NAMES[weather_mode])
+ _show_collection(id)
+
+func _replay(id: String) -> void:
+ _close_modal()
+ scenery_recordable=false
+ if WEATHER_ENTRIES.has(id):
+  _change_weather(WEATHER_ENTRIES.find(id),false)
+ else:
+  _prepare_event_weather(id,false)
+  scene_view.trigger(id,false)
+  var replay_seconds: float=scene_view.get_event_duration(id) if scene_view.has_method("get_event_duration") else 36.0
+  resume_observation_at=elapsed+replay_seconds+2.0
+ _toast("正在重访 · 点天气按钮继续日常观察" if WEATHER_ENTRIES.has(id) else "正在回放 · 不会重复增加发现次数",4.0)
+
+func _show_records() -> void:
+ var panel: Panel=_new_modal("窗外发生了什么", "最近的观察记录会保留，长时间离开也可以回来慢慢看。")
+ var scroll: ScrollContainer=ScrollContainer.new()
+ scroll.position=Vector2(28,104)
+ scroll.size=Vector2(704,460)
+ panel.add_child(scroll)
+ var list: VBoxContainer=VBoxContainer.new()
+ list.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+ list.add_theme_constant_override("separation",10)
+ scroll.add_child(list)
+ if DiaryState.records.is_empty():
+  var empty: Label=Label.new()
+  empty.text="树上的第一位客人正在路上。也可以去「演示」邀请一位。"
+  empty.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+  list.add_child(empty)
+ for rec: Dictionary in DiaryState.records:
+  var row: Button=Button.new()
+  var stamp: String=str(rec.get("time",""))
+  if rec.get("time") is float or rec.get("time") is int:
+   stamp=Time.get_datetime_string_from_unix_time(int(rec["time"])).replace("T"," ")
+  row.text=str(rec.get("name","来客"))+"   ·   "+stamp+"\n"+str(rec.get("note","窗外的一次相遇"))
+  row.alignment=HORIZONTAL_ALIGNMENT_LEFT
+  row.custom_minimum_size=Vector2(680,74)
+  row.add_theme_font_size_override("font_size",16)
+  row.pressed.connect(_replay.bind(str(rec.get("id","sparrow"))))
+  list.add_child(row)
+ _button(panel,"模拟离开 24 小时",Vector2(28,580),Vector2(280,44),_simulate_offline)
+ _label(panel,"仅生成演示记录，不修改电脑时间。",Vector2(330,584),Vector2(380,40),14,DIM)
+
+func _simulate_offline() -> void:
+ var added: Array=DiaryState.simulate_offline(24)
+ _show_records()
+ _toast("离线演示已完成 · 新增 %d 条观察" % added.size(),4.0)
+
+func _show_demo(filter: String = "new") -> void:
+ var panel: Panel=_new_modal("窗外奇遇放映室", "看看天空、水面和远山正在发生什么。新相遇会收入图鉴。")
+ var filters: Array[String]=["new","wonders","visitors"]
+ var captions: Array[String]=["窗外奇遇 · 10","全部奇遇 · 21","来客 · 21"]
+ for i: int in range(3):
+  var tab: Button=_button(panel,captions[i],Vector2(28+i*238,103),Vector2(228,40),_show_demo.bind(filters[i]))
+  if filter==filters[i]:tab.add_theme_stylebox_override("normal",_style(Color("526f60"),ACCENT))
+ var scroll: ScrollContainer=ScrollContainer.new()
+ scroll.position=Vector2(28,155)
+ scroll.size=Vector2(704,376)
+ scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+ panel.add_child(scroll)
+ var grid: GridContainer=GridContainer.new()
+ grid.columns=2
+ grid.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+ grid.add_theme_constant_override("h_separation",12)
+ grid.add_theme_constant_override("v_separation",12)
+ scroll.add_child(grid)
+ var actions: Array=[]
+ var defs: Dictionary=DiaryState.get_entry_defs()
+ for id: String in defs:
+  var def: Dictionary=defs[id]
+  var category: String=str(def.get("category",""))
+  if filter=="new" and id not in NEW_WONDERS:continue
+  if filter=="wonders" and category!="wonders":continue
+  if filter=="visitors" and category not in ["birds","animals","insects"]:continue
+  var kind: String={"birds":"鸟类","animals":"动物","insects":"昆虫","wonders":"奇遇"}.get(category,"访客")
+  if id in NEW_WONDERS:kind="窗外奇遇"
+  actions.append([kind+" · "+str(def.get("name",id)),id])
+ for action: Array in actions:
+  var b: Button=Button.new()
+  b.text=str(action[0])
+  b.custom_minimum_size=Vector2(338,58)
+  b.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
+  b.pressed.connect(_demo_trigger.bind(str(action[1])))
+  grid.add_child(b)
+ _button(panel,"模拟离开 24 小时",Vector2(28,549),Vector2(280,44),_simulate_offline)
+ _label(panel,"1–8 切景 · B 来鸟 · U 飞碟 · 空格陪伴",Vector2(325,550),Vector2(405,44),15,DIM)
+ _label(panel,"奇遇约停留一分钟，再慢慢回到日常；图鉴可以再次观看。",Vector2(30,603),Vector2(700,28),14,ACCENT)
+
+func _prepare_event_weather(id: String, recordable: bool = true) -> void:
+ var def: Dictionary=DiaryState.get_entry_defs().get(id,{})
+ var allowed: Array=def.get("weather_ids",[0])
+ if not allowed.is_empty() and weather_mode not in allowed:
+  _change_weather(int(allowed[0]),recordable)
+
+func _demo_trigger(id: String) -> void:
+ _close_modal()
+ _prepare_event_weather(id)
+ if not scenery_recordable:
+  _resume_observation()
+ scene_view.trigger(id)
+
+func _show_attractions() -> void:
+ var panel: Panel=_new_modal("给窗边添一点心意", "不同的布置会让喜欢它的来客更常出现，偶尔也会遇见意外访客。")
+ var defs: Dictionary=DiaryState.get_attraction_defs()
+ var order: Array[String]=["seeds","fruit","flowers","lantern"]
+ for i: int in range(order.size()):
+  var id: String=order[i]
+  var item: Dictionary=defs[id]
+  var active: bool=DiaryState.attraction==id
+  var b: Button=_button(panel,("正在使用 · " if active else "布置 · ")+str(item.get("name",id)),Vector2(28,110+i*102),Vector2(704,58),_choose_attraction.bind(id))
+  b.alignment=HORIZONTAL_ALIGNMENT_LEFT
+  if active:b.add_theme_stylebox_override("normal",_style(Color("526f60"),ACCENT))
+  _label(panel,str(item.get("description","")),Vector2(41,172+i*102),Vector2(674,30),15,DIM)
+ _button(panel,"调整陪伴声音",Vector2(28,550),Vector2(280,46),_show_sound)
+ _label(panel,"熟客来访 5 次后，会留下一份小小纪念。",Vector2(331,548),Vector2(405,54),16,ACCENT)
+
+func _choose_attraction(id: String) -> void:
+ DiaryState.set_attraction(id)
+ scene_view.set_attraction(id)
+ _show_attractions()
+ _toast("布置已换好，等喜欢它的小邻居来访。",4.0)
+
+func _show_sound() -> void:
+ var panel: Panel=_new_modal("为自己留一段安静", "原创合成循环音乐与自然声 · 当前混音会随天气切换")
+ var presets: Array[String]=["清晨树影","雨天书桌","月下暖灯","河畔黄昏","静静落雪","晨雾微光","风雨来信","晨曦河湾"]
+ for i: int in range(8):
+  _button(panel,presets[i],Vector2(28+(i%4)*178,100+(i/4)*48),Vector2(166,42),_sound_preset.bind(i))
+ var names: Array[String]=["lofi 轻音乐","雨声","风与树叶","河水"]
+ var players: Array[AudioStreamPlayer]=[music_player,rain_player,forest_player,river_player]
+ for i: int in range(4):
+  _label(panel,names[i],Vector2(30,208+i*78),Vector2(170,34),19)
+  var slider: HSlider=HSlider.new()
+  slider.position=Vector2(210,211+i*78)
+  slider.size=Vector2(505,32)
+  slider.min_value=-50.0
+  slider.max_value=-5.0
+  slider.step=1.0
+  slider.value=maxf(players[i].volume_db,-50.0)
+  slider.value_changed.connect(_volume_change.bind(players[i]))
+  panel.add_child(slider)
+ _label(panel,"滑杆调节本次混音；切换预设会重新混音。关闭声音的选择会保存。",Vector2(30,548),Vector2(700,60),15,DIM)
+
+func _volume_change(value: float,player: AudioStreamPlayer) -> void:
+ if audio_tween != null and audio_tween.is_running():audio_tween.kill()
+ if not DiaryState.music_on:music_player.volume_db=-80.0
+ if not DiaryState.ambience_on:
+  rain_player.volume_db=-80.0
+  forest_player.volume_db=-80.0
+  river_player.volume_db=-80.0
+ player.volume_db=-80.0 if value<=-50.0 else value
+ if player==music_player:
+  DiaryState.music_on=value>-50.0
+  music_button.text="音乐  开" if DiaryState.music_on else "音乐  关"
+ elif value>-50.0:
+  DiaryState.ambience_on=true
+  sound_button.text="自然声  开"
+ DiaryState.save_state()
+
+func _sound_preset(mode: int) -> void:
+ DiaryState.music_on=true
+ DiaryState.ambience_on=true
+ _change_weather(mode)
+ DiaryState.save_state()
+ _close_modal()
+ _toast("声音与景色已切换，可以开始陪伴了。",4.0)
+
+func _unhandled_key_input(event: InputEvent) -> void:
+ if not event is InputEventKey or not event.pressed or event.echo:return
+ if event.keycode==KEY_ESCAPE:
+  if is_instance_valid(modal):_close_modal()
+  elif focusing:_end_focus()
+ elif event.keycode==KEY_SPACE:
+  if focusing:_end_focus()
+  elif not is_instance_valid(modal):_start_focus()
+ elif not focusing and not is_instance_valid(modal):
+  match event.keycode:
+   KEY_1:_change_weather(0)
+   KEY_2:_change_weather(1)
+   KEY_3:_change_weather(2)
+   KEY_4:_change_weather(3)
+   KEY_5:_change_weather(4)
+   KEY_6:_change_weather(5)
+   KEY_7:_change_weather(6)
+   KEY_8:_change_weather(7)
+   KEY_B:scene_view.trigger("sparrow")
+   KEY_U:scene_view.trigger("ufo")
+
+func _notification(what: int) -> void:
+ if what==NOTIFICATION_WM_CLOSE_REQUEST:
+  DiaryState.save_state()
+  get_tree().quit()
+
+func _capture() -> void:
+ scene_view.trigger("tit",false)
+ scene_view.trigger("robin",false)
+ scene_view.trigger("sparrow",false)
+ var names: Array[String]=["sun","rain","night","dusk","snow","fog","storm","dawn"]
+ if names.has(screenshot_state):_change_weather(names.find(screenshot_state))
+ if screenshot_state.begins_with("event_"):
+  var id: String=screenshot_state.trim_prefix("event_")
+  _prepare_event_weather(id,false)
+  scene_view.trigger(id,false)
+ if screenshot_state=="showcase":
+  _change_weather(2,false)
+  for id: String in ["owl","luna_moth","fireflies","star_whale"]:scene_view.trigger(id,false)
+ if screenshot_state=="demo" or screenshot_state=="new_events":_show_demo()
+ if screenshot_state=="attractions":_show_attractions()
+ if screenshot_state=="river_night":
+  _change_weather(2,false)
+  scene_view.trigger("lanterns",false)
+  scene_view.trigger("signal_echo",false)
+ if screenshot_state=="river_dawn":
+  _change_weather(7,false)
+  scene_view.trigger("kingfisher",false)
+  scene_view.trigger("egret",false)
+ if screenshot_state=="focus":
+  _change_weather(1)
+  _start_focus()
+ if screenshot_state.begins_with("collection"):
+  for id: String in ["sparrow","tit","scene_sun","scene_rain","scene_night","scene_dusk","scene_snow","ufo"]:
+   DiaryState.discover(id,"窗边的一次相遇")
+   DiaryState.record_context(id,"听雨" if id=="scene_rain" else "晴日")
+  DiaryState.toggle_favorite("sparrow")
+  _change_weather(3)
+  _show_collection("sparrow")
+  if screenshot_state=="collection_scenery":
+   modal.set_filter("scenery")
+   modal.select_entry("scene_rain")
+  if screenshot_state=="collection_unknown":
+   modal.set_filter("wonders")
+   modal.select_entry("supernova")
+  if screenshot_state=="collection_favorites":modal.set_filter("favorites")
+  if screenshot_state=="collection_new":
+   for id: String in ["squirrel","woodpecker","owl","luna_moth","jewel_beetle","fireflies","aurora","star_whale","time_ripple","tree_spirit"]:DiaryState.discover(id,"新的观察记录")
+   modal.set_filter("wonders")
+   modal.select_entry("star_whale")
+ if screenshot_state=="collection_v4":
+  for id: String in NEW_WONDERS:DiaryState.discover(id,"河湾新奇遇")
+  _show_collection("deep_one")
+  modal.set_filter("wonders")
+  modal.select_entry("deep_one")
+ if screenshot_state=="collection_profile":
+  for n: int in range(5):DiaryState.discover("kingfisher","熟悉的蓝色身影又来了")
+  _show_collection("kingfisher")
+ if screenshot_state=="collection_v3":
+  for id: String in DiaryState.get_entry_defs():DiaryState.discover(id,"窗边观察手记")
+  _show_collection("moon_gate")
+  modal.set_filter("wonders")
+ await get_tree().create_timer(screenshot_delay).timeout
+ await RenderingServer.frame_post_draw
+ if screenshot_path.is_empty():screenshot_path="user://demo_capture.png"
+ var err: Error=get_viewport().get_texture().get_image().save_png(screenshot_path)
+ print("SCREENSHOT ",screenshot_path," code=",err)
+ get_tree().quit(0 if err==OK else 1)
+
+func _check(ok: bool, message: String) -> bool:
+ if not ok:
+  push_error("UI_CHECK_FAILED "+message)
+  get_tree().quit(1)
+ else:print("UI_CHECK_OK "+message)
+ return ok
+
+func _run_ui_smoke() -> void:
+ DiaryState.collection.clear()
+ DiaryState.favorites.clear()
+ await get_tree().process_frame
+ scene_view.trigger("sparrow",false)
+ var motion: InputEventMouseMotion=InputEventMouseMotion.new()
+ motion.position=Vector2(458,290)
+ get_viewport().push_input(motion,true)
+ await get_tree().process_frame
+ var click: InputEventMouseButton=InputEventMouseButton.new()
+ click.position=Vector2(458,290)
+ click.button_index=MOUSE_BUTTON_LEFT
+ click.pressed=true
+ get_viewport().push_input(click,true)
+ await get_tree().process_frame
+ if not _check(is_instance_valid(modal),"viewport bird click opens illustrated guide"):return
+ _close_modal()
+ click.pressed=false
+ get_viewport().push_input(click,true)
+ _show_collection("supernova")
+ var unknown_before: int=DiaryState.get_count()
+ if not _check(not modal.get_detail_snapshot().replay_enabled,"unknown card cannot replay"):return
+ modal.select_entry("scene_snow")
+ if not _check(DiaryState.get_count()==unknown_before,"viewing unknown cards grants nothing"):return
+ var filters: Dictionary={"birds":10,"animals":4,"insects":7,"scenery":8,"wonders":21}
+ for category: String in filters:
+  modal.set_filter(category)
+  if not _check(modal.get_visible_entry_ids().size()==filters[category],"filter "+category):return
+ _close_modal()
+ for id: String in DiaryState.get_entry_defs():
+  if not id.begins_with("scene_"):scene_view.trigger(id)
+ for id: String in NEW_WONDERS:
+  _demo_trigger(id)
+  if not _check(weather_mode in DiaryState.get_entry_defs()[id]["weather_ids"],"new wonder weather "+id):return
+ for id: String in WEATHER_ENTRIES:DiaryState.discover(id,"测试风景")
+ if not _check(DiaryState.get_count()==50,"fifty entries discoverable"):return
+ DiaryState.toggle_favorite("sparrow")
+ _show_collection()
+ modal.set_filter("favorites")
+ if not _check(modal.get_visible_entry_ids()==["sparrow"],"favorite filter displays saved choice"):return
+ _close_modal()
+ _show_records()
+ _close_modal()
+ _show_demo()
+ _close_modal()
+ _show_sound()
+ _close_modal()
+ _show_attractions()
+ _choose_attraction("flowers")
+ if not _check(DiaryState.attraction=="flowers","arrangement choice reaches state"):return
+ _close_modal()
+ for mode: int in range(8):_change_weather(mode)
+ await get_tree().create_timer(2.2).timeout
+ var weights: Array=backdrop.get_weights()
+ if not _check(weights[7]>0.99 and weights[0]<0.01,"rapid weather changes end at dawn"):return
+ _start_focus()
+ if not _check(focusing and not normal_ui.visible,"quiet mode hides toolbar"):return
+ scene_view.trigger("ufo")
+ if not _check(focus_new_count==1 and not toast_panel.visible,"quiet mode records without toast"):return
+ _end_focus()
+ var before: int=int(DiaryState.collection["ufo"]["count"])
+ _replay("ufo")
+ if not _check(int(DiaryState.collection["ufo"]["count"])==before,"event replay never rewards"):return
+ if not _check(resume_observation_at>elapsed,"event replay schedules normal observation recovery"):return
+ _resume_observation()
+ if not _check(scenery_recordable and weather_observed==0.0,"observation recovery begins a fresh eight seconds"):return
+ before=int(DiaryState.collection["scene_snow"]["count"])
+ _replay("scene_snow")
+ if not _check(not scenery_recordable and int(DiaryState.collection["scene_snow"]["count"])==before,"scenery replay never rewards"):return
+ _change_weather(0)
+ _record_scenery()
+ before=int(DiaryState.collection["scene_sun"]["count"])
+ _change_weather(0)
+ _record_scenery()
+ if not _check(int(DiaryState.collection["scene_sun"]["count"])==before,"same day scenery cannot be farmed"):return
+ _demo_trigger("butterfly")
+ if not _check(weather_mode in DiaryState.get_entry_defs()["butterfly"].get("weather_ids",[]),"butterfly demo has compatible weather"):return
+ DiaryState.simulate_offline(24)
+ if not _check(DiaryState.records.size()>0,"offline observations available"):return
+ print("UI_SMOKE_OK weather/guide/favorites/unknown/focus/replay/offline")
+ get_tree().quit()
