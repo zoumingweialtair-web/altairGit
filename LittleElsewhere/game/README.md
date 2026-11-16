@@ -15,11 +15,11 @@
 底部工具栏提供观察、投喂、图鉴、奇遇和陪伴；左上气象牌切换八种天气并进入生物舞台、奇遇巡游与调试。奶油纸色、橄榄绿、像素图标与阶梯边角来自选定的 35 号设计。
 
 - **照料**：葵花籽、小米、浆果三种真实库存；每份增加 2% 余粮，食盘近满时只消耗需要的份数。鸟或动物自然来访消耗 2%，昆虫与奇遇不消耗。不同食物额外吸引对应来客；空食盘仍可观景和偶遇。每天可领取一次补给。
-- **观察图鉴**：鸟类 10、动物 4、昆虫 7、风景 8、奇遇 21，共 50 项。支持搜索、分类、已发现、收藏、翻页、来访次数、5 次纪念物、未知剪影和回放。点场景来客先显示小卡片，再点进入详细图鉴。回放不重复奖励。
+- **观察图鉴**：鸟类 26、动物 4、昆虫 7、风景 8、奇遇 21，共 66 项。支持搜索、分类、已发现、收藏、翻页、来访次数、5 次纪念物、未知剪影和回放。点场景来客先显示小卡片，再点进入详细图鉴。回放不重复奖励。
 - **学习陪伴**：25 / 45 / 60 分钟倒计时，可暂停与结束；暂停计时不会冻结风景。隐藏常驻工具栏，新发现静默排入本次记录；音乐、雨声、风声、河水四路混音会保存，天气仍影响环境声。
-- **全生物动画**：21 种来客都有入场、停留动作与离场；飞鸟/蝙蝠/飞虫展翅、降落与起飞，小动物行走或攀爬，虫类爬行、触角和翅部动作。安静模式减缓动作，生命周期仍会结束；切换天气与重复召唤平滑处理。
+- **全生物动画**：37 种来客都有入场、停留动作与离场；飞鸟/蝙蝠/飞虫展翅、降落与起飞，小动物行走或攀爬，虫类爬行、触角和翅部动作。安静模式减缓动作，生命周期仍会结束；切换天气与重复召唤平滑处理。
 
-**PreviewCreatures.cmd** 打开独立动画检视台，可选全部 21 种来客、放大观察、定位入场 / 停留 / 离场、播放整个周期、调整速度和天气。它不读取或修改正式收藏。
+**PreviewCreatures.cmd** 打开独立动画检视台，可选全部 37 种来客、放大观察、定位入场 / 停留 / 离场、播放整个周期、调整速度和天气。它不读取或修改正式收藏。
 
 快捷键：**1–5** 切换工具，**W** 打开天气，**空格** 开始 / 暂停陪伴，**Esc** 关闭面板或结束陪伴，**F1** 打开 GM；**B** 邀请麻雀，**U** 演示飞碟。
 
@@ -31,6 +31,31 @@
 godot --headless --path <项目目录> --script res://tests/fieldkit_test.gd -- --test-mode --capture --fieldkit-test
 godot --headless --path <项目目录> --script res://tests/creature_animation_test.gd -- --test-mode --capture
 godot --headless --path <项目目录> --script res://tests/fieldkit_gm_test.gd -- --test-mode --capture
+```
+
+## 新增16种手绘鸟与2D动画资产
+
+双击 **PreviewNewBirds.cmd** 直接进入这批鸟的动作检视台，默认鸽子，可切换全部16种，查看入场、停留、进食、离场、放大动作、调速与不同天气；演示不读取或修改正式收藏。**Play.cmd** 中这些鸟已能自然来访，图鉴支持详情、收藏、熟悉度、5次纪念品和观察回放。常驻图鉴总数为66。
+
+新增：鸽子、乌鸦、玄凤、面团鸟、蒲团鸟、纸团鸟、云兜鸟、毛线鸟、咔哒鸟、信号不好鸟、两口子鸟、隐形鸟、影影鸟、倒着鸟、一口星河鸟、缺一口鸟。保留原有10鸟与11种动物/昆虫，总计26鸟、37生物。
+
+每次**鸟类抽选**先抽稀有度：普通90%、罕见6.9%、稀有2%、神秘1%、传说0.1%。在线与离线使用同一抽选接口；天气、摆设和食物只影响档内物种，不改变档位概率。所有鸟均保留全天候基础权重。动物、昆虫和奇遇不进入鸟类概率分母，原奇遇补算机制独立保留。满场来访排队，不覆盖先到的稀有鸟；回放不会增加收藏。
+
+四张透明手绘部件图分别保存身体、近翼、远翼/特殊部件、脚。运行时独立关节连续运动，脚点对齐真实树枝、食盘或窗台；机械发条、双头各自转动、隐形种子、月牙呼吸、星河腹光都有专属表现。倒着鸟抓枝后绕脚点翻转，影影鸟沿窗台表面移动。
+
+- `scenes/expansion_bird.tscn`：可直接拖入Godot的连续动画角色；Inspector选择 `bird_id` 与 `idle / fly / feed / lifecycle`。节点原点为脚接触点，世界路线由实际游戏的VisitorMotion负责。
+- `assets/creatures/expansion/animations/<bird_id>.tres`：可赋给AnimatedSprite2D的SpriteFrames，每只6组×8帧，16只合计768帧。每帧192×192，透明背景；烘焙比例0.72，按游戏尺寸使用时缩放约1.389。脚原点在帧中心。
+- 动作名为 `idle / fly / feed / special / land / takeoff`。影影鸟对应的是地面滑行与出入动作，保持贴地。烘焙资源用于复用，正式场景采用连续部件动画及真实路线。
+- [实际动画与窗景预览](../docs/bird-expansion-demo/)；生成来源与完整提示词在 `assets/creatures/expansion/generation_manifest.json`。
+
+```text
+godot --path game --script res://tools/export_expansion_animations.gd -- --capture
+godot --path game --editor --import
+godot --path game --script res://tests/expansion_asset_test.gd -- --test-mode --capture
+godot --path game --script res://tools/capture_expansion_showcase.gd -- --capture
+godot --headless --path game --script res://tests/expansion_state_test.gd -- --test-mode --capture
+godot --headless --path game --script res://tests/bird_expansion_motion_test.gd -- --test-mode --capture
+godot --headless --path game --script res://tests/visitor_queue_test.gd -- --test-mode --capture
 ```
 
 ## 生物精修与贴景运动
@@ -49,7 +74,7 @@ godot --headless --path <项目目录> --script res://tests/fieldkit_gm_test.gd 
 
 - [visitor_art.gd](scripts/visitor_art.gd) 统一实景、图鉴与头像绘制；[bird_art.gd](scripts/bird_art.gd) 和 [creature_art.gd](scripts/creature_art.gd) 定义造型及身体动作。
 - [habitat_paths.gd](scripts/habitat_paths.gd) 保存实际枝条、树干、花茎接触路线；[visitor_motion.gd](scripts/visitor_motion.gd) 控制入场、停留、离场；[visitor_foreground_cover.gd](scripts/visitor_foreground_cover.gd) 使用原有前景素材实现遮挡。
-- [export_collection_art.gd](tools/export_collection_art.gd) 导出 21 张透明头像和 29 张场景收藏卡；[review_visitor_motion.gd](tools/review_visitor_motion.gd) 保存实景动画帧。两个工具都要求 `--capture`，不读取或修改正式收藏。
+- [export_collection_art.gd](tools/export_collection_art.gd) 导出 37 张透明头像和 29 张场景收藏卡；[review_visitor_motion.gd](tools/review_visitor_motion.gd) 保存实景动画帧。两个工具都要求 `--capture`，不读取或修改正式收藏。
 
 以下导出命令需要 Godot 的正常图形渲染；路线检查可无窗口运行：
 

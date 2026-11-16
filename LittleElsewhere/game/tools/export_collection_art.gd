@@ -26,18 +26,24 @@ func run() -> void:
  root.add_child(view)
  var portrait: Node2D=Art.new()
  view.add_child(portrait)
- for id: String in Art.BIRD_IDS+Art.OTHER_IDS:
+ var visitor_ids: Array[String]=Art.Expansion.IDS if OS.get_cmdline_user_args().has("--expansion-only") else Art.BIRD_IDS+Art.OTHER_IDS
+ for id: String in visitor_ids:
   portrait.actor=Art.portrait_actor(id,1.2)
   portrait.context={"light":Color.WHITE,"alpha":1.0,"activity":1.0}
-  var area: Rect2=Art.bounds(id,bool(portrait.actor.get("fly",false)))
+  var area: Rect2=Art.bounds_for_actor(portrait.actor)
   var zoom: float=minf(176.0/area.size.x,144.0/area.size.y)
   portrait.scale=Vector2.ONE*zoom
   portrait.position=Vector2(96,80)-area.get_center()*zoom
   portrait.queue_redraw()
-  await RenderingServer.frame_post_draw
+  await process_frame
+  RenderingServer.force_draw(false)
   if view.get_texture().get_image().save_png(portrait_dir.path_join(id+".png"))!=OK:failures+=1
  root.remove_child(view)
  view.queue_free()
+ if OS.get_cmdline_user_args().has("--expansion-only"):
+  print("COLLECTION_ART exported ",visitor_ids.size()," new portraits; failures=",failures)
+  quit(1 if failures else 0)
+  return
  var scene: Node2D=Node2D.new()
  root.add_child(scene)
  var stage: Node2D=StageScene.instantiate()
@@ -74,12 +80,13 @@ func run() -> void:
   stage.set_atmosphere_state(world.get_atmosphere_state())
   stage._process(3.0)
   world.queue_redraw()
-  await RenderingServer.frame_post_draw
+  await process_frame
+  RenderingServer.force_draw(false)
   var shot: Image=root.get_texture().get_image()
   if id in ["ufo","meteor","supernova"]:
    shot=shot.get_region(Rect2i(660,25,680,382))
   shot.resize(480,270,Image.INTERPOLATE_LANCZOS)
   if shot.save_png(scene_dir.path_join(id+".png"))!=OK:failures+=1
   shot_count+=1
- print("COLLECTION_ART exported 21 transparent creature portraits + ",shot_count," scene postcards; failures=",failures)
+ print("COLLECTION_ART exported %d transparent creature portraits + " % (Art.BIRD_IDS.size()+Art.OTHER_IDS.size()),shot_count," scene postcards; failures=",failures)
  quit(1 if failures else 0)

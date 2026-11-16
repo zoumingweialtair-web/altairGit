@@ -19,7 +19,7 @@ func run() -> void:
     root.add_child(world)
     world.set_process(false)
     world.encounter.connect(func(_id: String, _note: String): recordings += 1)
-    check(world.get_creature_ids().size() == 21, "exactly 21 creatures are exposed")
+    check(world.get_creature_ids().size() == 37, "exactly 37 creatures are exposed")
     var scenery: Rect2 = Rect2(0, 0, 1440, 810)
     for id in world.get_creature_ids():
         world.actors.clear()

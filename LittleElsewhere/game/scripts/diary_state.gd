@@ -12,17 +12,22 @@ const ATTRACTION_DEFS: Dictionary = {
  "flowers": {"name":"花草角", "description":"把花盆和绿叶摆在一起，为喜欢花叶与水光的访客留出安静角落。"},
  "lantern": {"name":"暖光小灯", "description":"一盏柔和的小灯，让暮色与月夜里的访客更愿意在附近停留。"}
 }
-const NORMAL_IDS: Array[String] = ["sparrow", "tit", "robin", "butterfly", "squirrel", "woodpecker", "swallow", "magpie", "white_eye", "hedgehog", "cat", "bat", "dragonfly", "ladybug"]
-const RARE_IDS: Array[String] = ["ufo", "meteor", "supernova", "owl", "luna_moth", "jewel_beetle", "fireflies", "aurora", "star_whale", "time_ripple", "tree_spirit", "kingfisher", "egret", "stag_beetle", "lanterns", "ghost_train", "moon_gate", "signal_echo", "aurora_crown", "ember_clouds", "meteor_shower", "deep_one", "sunken_city", "sky_jellyfish", "twin_moons", "floating_isles", "bioluminescent_tide", "constellation_stag"]
+const NORMAL_IDS: Array[String] = ["butterfly", "squirrel", "hedgehog", "cat", "bat", "dragonfly", "ladybug"]
+const RARE_IDS: Array[String] = ["ufo", "meteor", "supernova", "luna_moth", "jewel_beetle", "fireflies", "aurora", "star_whale", "time_ripple", "tree_spirit", "stag_beetle", "lanterns", "ghost_train", "moon_gate", "signal_echo", "aurora_crown", "ember_clouds", "meteor_shower", "deep_one", "sunken_city", "sky_jellyfish", "twin_moons", "floating_isles", "bioluminescent_tide", "constellation_stag"]
+## Bird tiers are rolled before species preferences; wonder pity never enters this path.
+const BIRD_TIER_NAMES: Array[String] = ["普通", "罕见", "稀有", "神秘", "传说"]
+const BIRD_TIER_WEIGHTS: Array[int] = [9000, 690, 200, 100, 10]
+const BIRD_IDS: Array[String] = ["sparrow", "tit", "robin", "woodpecker", "owl", "kingfisher", "swallow", "magpie", "white_eye", "egret", "pigeon", "crow", "cockatiel", "dough_bird", "dandelion_bird", "paper_bird", "cloud_bird", "yarn_bird", "clockwork_bird", "alien_bird", "twin_bird", "invisible_bird", "shadow_bird", "inverted_bird", "galaxy_bird", "crescent_bird"]
+const BIRD_TIER_IDS: Dictionary = {"普通": ["sparrow", "tit", "robin", "woodpecker", "swallow", "magpie", "white_eye", "egret", "pigeon", "crow", "cockatiel", "dough_bird", "dandelion_bird"], "罕见": ["owl", "kingfisher", "paper_bird", "cloud_bird", "yarn_bird"], "稀有": ["clockwork_bird", "alien_bird", "twin_bird"], "神秘": ["invisible_bird", "shadow_bird", "inverted_bird"], "传说": ["galaxy_bird", "crescent_bird"]}
 const ENTRY_DEFS: Dictionary = {
  "sparrow": {
   "name": "麻雀",
   "type": "阳台来客",
-  "rarity": "常见",
+  "rarity": "普通",
   "category": "birds",
   "habitat": "低枝与喂鸟食盘",
   "behavior": "张望、停歇、啄食",
-  "condition": "晴日、听雨、夕照、落雪、晨雾、风雨、晨曦时，留意低枝与喂鸟食盘。",
+  "condition": "全天候有机会来访；偏好天气：晴日、听雨、夕照、落雪、晨雾、风雨、晨曦。天气与食物只影响同稀有度内的种类。",
   "description": "先在树枝上张望，再落到食盘旁。熟悉的身影，也有新的小动作。",
   "hint": "看看树枝和喂鸟食盘。",
   "color": "bba184",
@@ -39,16 +44,17 @@ const ENTRY_DEFS: Dictionary = {
   "attraction_id": "seeds",
   "preference": "喜欢谷物食盘旁的熟悉角落。",
   "keepsake_name": "一根小羽毛",
-  "keepsake_description": "灰褐色的小羽毛落在食盘边，像一声轻轻的谢谢。"
+  "keepsake_description": "灰褐色的小羽毛落在食盘边，像一声轻轻的谢谢。",
+  "favorite_seed": "millet"
  },
  "tit": {
   "name": "山雀",
   "type": "树梢来客",
-  "rarity": "常见",
+  "rarity": "普通",
   "category": "birds",
   "habitat": "树冠边缘的高枝",
   "behavior": "停歇、梳羽、靠近食盘",
-  "condition": "晴日、听雨、夕照、落雪、晨雾、风雨、晨曦时，留意树冠边缘的高枝。",
+  "condition": "全天候有机会来访；偏好天气：晴日、听雨、夕照、落雪、晨雾、风雨、晨曦。天气与食物只影响同稀有度内的种类。",
   "description": "轻巧地在枝头停歇，偶尔歪着头，好像也在观察这扇窗。",
   "hint": "留意树冠边缘的小小身影。",
   "color": "b5c9a1",
@@ -65,16 +71,17 @@ const ENTRY_DEFS: Dictionary = {
   "attraction_id": "seeds",
   "preference": "偏爱能停一下再探看的谷物食盘。",
   "keepsake_name": "细枝书签",
-  "keepsake_description": "一小截细枝恰好可以夹在书里，留下树梢的气息。"
+  "keepsake_description": "一小截细枝恰好可以夹在书里，留下树梢的气息。",
+  "favorite_seed": "sunflower"
  },
  "robin": {
   "name": "知更鸟",
   "type": "树梢来客",
-  "rarity": "特别",
+  "rarity": "普通",
   "category": "birds",
   "habitat": "低枝与树影之间",
   "behavior": "张望、等待、来访",
-  "condition": "晴日、听雨、夕照、落雪、晨雾、风雨、晨曦时，留意低枝与树影之间。",
+  "condition": "全天候有机会来访；偏好天气：晴日、听雨、夕照、落雪、晨雾、风雨、晨曦。天气与食物只影响同稀有度内的种类。",
   "description": "温暖的橙色胸羽，为安静的树影添了一点颜色。",
   "hint": "安静等待枝头的新访客。",
   "color": "df9b73",
@@ -91,7 +98,8 @@ const ENTRY_DEFS: Dictionary = {
   "attraction_id": "flowers",
   "preference": "喜欢花草角旁安静的低枝。",
   "keepsake_name": "暖色落羽",
-  "keepsake_description": "一片带着暖色的小羽毛，把那次相遇留了下来。"
+  "keepsake_description": "一片带着暖色的小羽毛，把那次相遇留了下来。",
+  "favorite_seed": "berries"
  },
  "butterfly": {
   "name": "白蝶",
@@ -140,11 +148,11 @@ const ENTRY_DEFS: Dictionary = {
  "woodpecker": {
   "name": "啄木鸟",
   "type": "树干来客",
-  "rarity": "特别",
+  "rarity": "普通",
   "category": "birds",
   "habitat": "树干侧面与高枝",
   "behavior": "贴树停歇、轻敲树干、停下来侧头听",
-  "condition": "晴日、夕照、晨曦时，留意树干侧面与高枝。",
+  "condition": "全天候有机会来访；偏好天气：晴日、夕照、晨曦。天气与食物只影响同稀有度内的种类。",
   "description": "几下轻敲之后，它停下来侧过头。树干仿佛成了小小的节拍器，给窗边的安静添了一点节奏。",
   "hint": "树干旁的红色小点，会不会正在轻敲？",
   "color": "c47c67",
@@ -157,16 +165,17 @@ const ENTRY_DEFS: Dictionary = {
   "attraction_id": "seeds",
   "preference": "喜欢谷物食盘附近可以落脚的树干。",
   "keepsake_name": "敲出节奏的树皮",
-  "keepsake_description": "一小片树皮带着浅浅纹路，像写了一行短乐谱。"
+  "keepsake_description": "一小片树皮带着浅浅纹路，像写了一行短乐谱。",
+  "favorite_seed": "sunflower"
  },
  "owl": {
   "name": "林鸮",
   "type": "夜间树梢来客",
-  "rarity": "稀有",
+  "rarity": "罕见",
   "category": "birds",
   "habitat": "月色下的高枝与树冠边缘",
   "behavior": "落枝、眨眼、转头张望、舒展双翼",
-  "condition": "月夜时，留意月色下的高枝与树冠边缘。",
+  "condition": "全天候有机会来访；偏好天气：月夜。天气与食物只影响同稀有度内的种类。",
   "description": "它在高枝上眨眨眼，再慢慢转头，好像也想知道窗内的人在读什么。夜色里，多了一位安静的邻居。",
   "hint": "夜深后，高枝上可能有一双安静的眼睛。",
   "color": "b6aaa0",
@@ -177,7 +186,8 @@ const ENTRY_DEFS: Dictionary = {
   "attraction_id": "lantern",
   "preference": "偏爱暖光小灯映不到的高枝边缘。",
   "keepsake_name": "月色软羽",
-  "keepsake_description": "一片柔软的羽毛，像夹住了一小段月色。"
+  "keepsake_description": "一片柔软的羽毛，像夹住了一小段月色。",
+  "favorite_seed": "sunflower"
  },
  "luna_moth": {
   "name": "月蛾",
@@ -437,7 +447,7 @@ const ENTRY_DEFS: Dictionary = {
  "kingfisher": {
   "name": "翠鸟",
   "type": "水边来客",
-  "rarity": "稀有",
+  "rarity": "罕见",
   "category": "birds",
   "habitat": "河岸低枝与水面上方",
   "behavior": "俯身张望、贴水掠过、回枝停歇",
@@ -449,17 +459,18 @@ const ENTRY_DEFS: Dictionary = {
    5,
    7
   ],
-  "condition": "晴日、晨雾、晨曦时，留意河岸低枝与水面上方。",
+  "condition": "全天候有机会来访；偏好天气：晴日、晨雾、晨曦。天气与食物只影响同稀有度内的种类。",
   "personality": "耐心等一瞬",
   "attraction_id": "flowers",
   "preference": "喜欢花草角外侧能望向河面的枝头。",
   "keepsake_name": "水色小石",
-  "keepsake_description": "一枚光滑的浅蓝石子，仿佛刚从河光里取出来。"
+  "keepsake_description": "一枚光滑的浅蓝石子，仿佛刚从河光里取出来。",
+  "favorite_seed": "berries"
  },
  "swallow": {
   "name": "燕子",
   "type": "空中来客",
-  "rarity": "常见",
+  "rarity": "普通",
   "category": "birds",
   "habitat": "屋檐、河湾与开阔天空",
   "behavior": "振翅、滑翔、划出弧线",
@@ -470,17 +481,18 @@ const ENTRY_DEFS: Dictionary = {
    0,
    3
   ],
-  "condition": "晴日、夕照时，留意屋檐、河湾与开阔天空。",
+  "condition": "全天候有机会来访；偏好天气：晴日、夕照。天气与食物只影响同稀有度内的种类。",
   "personality": "轻快的远行者",
   "attraction_id": "seeds",
   "preference": "常从谷物食盘上方的开阔处掠过。",
   "keepsake_name": "弧线细草",
-  "keepsake_description": "一根弯弯的细草，像它划过天空时留下的路线。"
+  "keepsake_description": "一根弯弯的细草，像它划过天空时留下的路线。",
+  "favorite_seed": "millet"
  },
  "magpie": {
   "name": "喜鹊",
   "type": "树梢来客",
-  "rarity": "特别",
+  "rarity": "普通",
   "category": "birds",
   "habitat": "高枝与阳台栏杆",
   "behavior": "落枝、翘尾、左右探看",
@@ -492,17 +504,18 @@ const ENTRY_DEFS: Dictionary = {
    3,
    7
   ],
-  "condition": "晴日、夕照、晨曦时，留意高枝与阳台栏杆。",
+  "condition": "全天候有机会来访；偏好天气：晴日、夕照、晨曦。天气与食物只影响同稀有度内的种类。",
   "personality": "街角观察员",
   "attraction_id": "fruit",
   "preference": "对果实小篮旁的新鲜摆设格外好奇。",
   "keepsake_name": "银亮小圆片",
-  "keepsake_description": "一枚被磨得光亮的小圆片，映出一小块天空。"
+  "keepsake_description": "一枚被磨得光亮的小圆片，映出一小块天空。",
+  "favorite_seed": "sunflower"
  },
  "white_eye": {
   "name": "绣眼鸟",
   "type": "花果来客",
-  "rarity": "特别",
+  "rarity": "普通",
   "category": "birds",
   "habitat": "花盆边缘与细枝",
   "behavior": "歪头、跳枝、探看果实",
@@ -514,17 +527,18 @@ const ENTRY_DEFS: Dictionary = {
    3,
    7
   ],
-  "condition": "晴日、夕照、晨曦时，留意花盆边缘与细枝。",
+  "condition": "全天候有机会来访；偏好天气：晴日、夕照、晨曦。天气与食物只影响同稀有度内的种类。",
   "personality": "挑挑拣拣",
   "attraction_id": "fruit",
   "preference": "偏爱果实小篮和旁边的细枝。",
   "keepsake_name": "果香叶片",
-  "keepsake_description": "一片小叶托着淡淡果香，边缘有个漂亮的弧度。"
+  "keepsake_description": "一片小叶托着淡淡果香，边缘有个漂亮的弧度。",
+  "favorite_seed": "millet"
  },
  "egret": {
   "name": "白鹭",
   "type": "水岸来客",
-  "rarity": "稀有",
+  "rarity": "普通",
   "category": "birds",
   "habitat": "浅水岸边与河湾",
   "behavior": "缓步、停驻、展翅掠水",
@@ -536,12 +550,13 @@ const ENTRY_DEFS: Dictionary = {
    5,
    7
   ],
-  "condition": "晴日、晨雾、晨曦时，留意浅水岸边与河湾。",
+  "condition": "全天候有机会来访；偏好天气：晴日、晨雾、晨曦。天气与食物只影响同稀有度内的种类。",
   "personality": "把脚步放轻",
   "attraction_id": "flowers",
   "preference": "喜欢从花草角望出去的清静水岸。",
   "keepsake_name": "白色细羽",
-  "keepsake_description": "一根细白羽毛，轻得像水面上的一笔留白。"
+  "keepsake_description": "一根细白羽毛，轻得像水面上的一笔留白。",
+  "favorite_seed": "berries"
  },
  "hedgehog": {
   "name": "刺猬",
@@ -937,6 +952,389 @@ const ENTRY_DEFS: Dictionary = {
   "description": "几颗星先连成角，接着是轻盈的背与四蹄。那只鹿在山脊上方走过一步，随后又散回各自遥远的位置。",
   "hint": "熟悉的星点连起来，会不会正在轻轻迈步？",
   "color": "c7d6cf"
+ },
+ "pigeon": {
+  "name": "鸽子",
+  "type": "枝头来客",
+  "rarity": "普通",
+  "category": "birds",
+  "habitat": "食盘与窗沿",
+  "behavior": "点头、踱步、突然发呆",
+  "condition": "全天候有机会来访；偏爱小米与谷物食盘，阴雨时也肯出来散步。天气与食物只影响同稀有度内的种类。",
+  "description": "面包般厚实的身子几乎不动，脑袋却忙着前后点头。每次迈步都像在给自己配拍子。",
+  "hint": "留意食盘与窗沿；点头、踱步、突然发呆。",
+  "color": "c5cad5",
+  "weather_ids": [
+   0,
+   1,
+   3,
+   5,
+   7
+  ],
+  "personality": "一本正经的节拍大师",
+  "attraction_id": "seeds",
+  "preference": "偏爱小米与谷物食盘，阴雨时也肯出来散步。",
+  "favorite_seed": "millet",
+  "keepsake_name": "点头签收单",
+  "keepsake_description": "一张踩了两个爪印的纸，好像在说：今天的谷物收到了。"
+ },
+ "crow": {
+  "name": "乌鸦",
+  "type": "枝头来客",
+  "rarity": "普通",
+  "category": "birds",
+  "habitat": "高枝与食盘边缘",
+  "behavior": "藏石子、试探、歪头偷看",
+  "condition": "全天候有机会来访；爱葵花籽和食盘边亮晶晶的小东西。天气与食物只影响同稀有度内的种类。",
+  "description": "把亮石子放在食盘边，仿佛想交换一粒种子。等没人注意，它会把两样都带走。",
+  "hint": "留意高枝与食盘边缘；藏石子、试探、歪头偷看。",
+  "color": "505268",
+  "weather_ids": [
+   0,
+   1,
+   3,
+   5,
+   6,
+   7
+  ],
+  "personality": "精打细算的小机灵",
+  "attraction_id": "seeds",
+  "preference": "爱葵花籽和食盘边亮晶晶的小东西。",
+  "favorite_seed": "sunflower",
+  "keepsake_name": "借你一天的亮石子",
+  "keepsake_description": "乌鸦留下的小石子；旁边那道划痕看起来很像借条。"
+ },
+ "cockatiel": {
+  "name": "玄凤",
+  "type": "枝头来客",
+  "rarity": "普通",
+  "category": "birds",
+  "habitat": "阳台低枝与窗台",
+  "behavior": "竖冠、侧步、受惊后装镇定",
+  "condition": "全天候有机会来访；喜欢小米和安静明亮的低枝。天气与食物只影响同稀有度内的种类。",
+  "description": "头顶羽冠对一切声音都很认真。发现刚才的脚步声来自自己后，又慢慢把羽冠放下来。",
+  "hint": "留意阳台低枝与窗台；竖冠、侧步、受惊后装镇定。",
+  "color": "e8d4a0",
+  "weather_ids": [
+   0,
+   3,
+   4,
+   7
+  ],
+  "personality": "一惊一乍的体面人",
+  "attraction_id": "seeds",
+  "preference": "喜欢小米和安静明亮的低枝。",
+  "favorite_seed": "millet",
+  "keepsake_name": "惊叹号冠羽",
+  "keepsake_description": "一根弯弯的冠羽，看起来连掉下来都还在惊讶。"
+ },
+ "dough_bird": {
+  "name": "面团鸟",
+  "type": "奇想鸟类",
+  "rarity": "普通",
+  "category": "birds",
+  "habitat": "暖窗台与粗树枝",
+  "behavior": "膨胀打盹、陷入肚皮、抖松",
+  "condition": "全天候有机会来访；偏爱小米与有暖光的休息位置。天气与食物只影响同稀有度内的种类。",
+  "description": "睡着时悄悄鼓成一团，把脚整个埋进肚皮。醒来抖一下，仿佛刚刚出炉。",
+  "hint": "留意暖窗台与粗树枝；膨胀打盹、陷入肚皮、抖松。",
+  "color": "eee0c5",
+  "weather_ids": [
+   0,
+   3,
+   4,
+   7
+  ],
+  "personality": "很会发呆的软团子",
+  "attraction_id": "seeds",
+  "preference": "偏爱小米与有暖光的休息位置。",
+  "favorite_seed": "millet",
+  "keepsake_name": "不掉渣的小面包",
+  "keepsake_description": "一枚轻飘飘的面包形羽团，摸起来完全没有面包的道理。"
+ },
+ "dandelion_bird": {
+  "name": "蒲团鸟",
+  "type": "奇想鸟类",
+  "rarity": "普通",
+  "category": "birds",
+  "habitat": "树冠外缘与花盆上方",
+  "behavior": "打喷嚏、追绒毛、重新蓬松",
+  "condition": "全天候有机会来访；喜欢花草角和有一点微风的清晨。天气与食物只影响同稀有度内的种类。",
+  "description": "一个喷嚏就把自己的绒毛吹散。它会认真追上每一小团，确认数量后才继续发呆。",
+  "hint": "留意树冠外缘与花盆上方；打喷嚏、追绒毛、重新蓬松。",
+  "color": "dddcc3",
+  "weather_ids": [
+   0,
+   3,
+   5,
+   7
+  ],
+  "personality": "把自己收拾得很忙",
+  "attraction_id": "flowers",
+  "preference": "喜欢花草角和有一点微风的清晨。",
+  "favorite_seed": "millet",
+  "keepsake_name": "一团有方向的绒毛",
+  "keepsake_description": "放在桌上时总朝着树的方向歪一点点。"
+ },
+ "paper_bird": {
+  "name": "纸团鸟",
+  "type": "奇想鸟类",
+  "rarity": "罕见",
+  "category": "birds",
+  "habitat": "细树枝与窗台缝隙",
+  "behavior": "被吹平、折叠、团回圆形",
+  "condition": "全天候有机会来访；喜欢花草角和有风的窗边；风只影响同档偏好。天气与食物只影响同稀有度内的种类。",
+  "description": "风大时被吹成一张纸，费好大劲才团回自己。有时把肚皮折成夹子，稳稳夹住树枝。",
+  "hint": "留意细树枝与窗台缝隙；被吹平、折叠、团回圆形。",
+  "color": "e3dfc9",
+  "weather_ids": [
+   0,
+   5,
+   6,
+   7
+  ],
+  "personality": "顽固的揉皱小纸条",
+  "attraction_id": "flowers",
+  "preference": "喜欢花草角和有风的窗边；风只影响同档偏好。",
+  "favorite_seed": "millet",
+  "keepsake_name": "一封没写字的信",
+  "keepsake_description": "展开时能看见细小爪印，似乎内容全写在折痕里。"
+ },
+ "cloud_bird": {
+  "name": "云兜鸟",
+  "type": "奇想鸟类",
+  "rarity": "罕见",
+  "category": "birds",
+  "habitat": "湿润树冠与河面近枝",
+  "behavior": "自顾自下雨、检查漏水、晾干",
+  "condition": "全天候有机会来访；喜欢花草与湿润天气，雨停后会晒蓬松。天气与食物只影响同稀有度内的种类。",
+  "description": "紧张时会在自己脚下下一小阵雨。它先往上看，再往下看，最后疑惑地检查自己的肚皮。",
+  "hint": "留意湿润树冠与河面近枝；自顾自下雨、检查漏水、晾干。",
+  "color": "d2e1e4",
+  "weather_ids": [
+   1,
+   4,
+   5,
+   7
+  ],
+  "personality": "常常担心漏水",
+  "attraction_id": "flowers",
+  "preference": "喜欢花草与湿润天气，雨停后会晒蓬松。",
+  "favorite_seed": "berries",
+  "keepsake_name": "一滴不会蒸发的雨",
+  "keepsake_description": "透明小珠里一直飘着一朵慢吞吞的小云。"
+ },
+ "yarn_bird": {
+  "name": "毛线鸟",
+  "type": "奇想鸟类",
+  "rarity": "罕见",
+  "category": "birds",
+  "habitat": "暖灯旁与枝杈分叉",
+  "behavior": "缠线、回头、倒退绕线",
+  "condition": "全天候有机会来访；偏爱果实与暖灯，冷天尤其喜欢靠近窗边。天气与食物只影响同稀有度内的种类。",
+  "description": "毛线尾巴很容易挂在树杈上。走远才发现自己变瘦了，于是倒着走回去，把尾巴一圈圈收好。",
+  "hint": "留意暖灯旁与枝杈分叉；缠线、回头、倒退绕线。",
+  "color": "cba7b4",
+  "weather_ids": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "personality": "有点迷糊的手作家",
+  "attraction_id": "lantern",
+  "preference": "偏爱果实与暖灯，冷天尤其喜欢靠近窗边。",
+  "favorite_seed": "berries",
+  "keepsake_name": "永远差一针的线圈",
+  "keepsake_description": "软软的圆线圈，看上去再织一针就能完成。"
+ },
+ "clockwork_bird": {
+  "name": "咔哒鸟",
+  "type": "奇想鸟类",
+  "rarity": "稀有",
+  "category": "birds",
+  "habitat": "食盘边缘与坚实树枝",
+  "behavior": "啄三口、停机、脚拨发条",
+  "condition": "全天候有机会来访；喜欢葵花籽；阳光下能看见外壳的细小接缝。天气与食物只影响同稀有度内的种类。",
+  "description": "每吃三口就卡住一拍。它若无其事地用脚拧两下尾部发条，然后假装从没发生过。",
+  "hint": "留意食盘边缘与坚实树枝；啄三口、停机、脚拨发条。",
+  "color": "b5a393",
+  "weather_ids": [
+   0,
+   3,
+   4,
+   7
+  ],
+  "personality": "努力自然的机械邻居",
+  "attraction_id": "seeds",
+  "preference": "喜欢葵花籽；阳光下能看见外壳的细小接缝。",
+  "favorite_seed": "sunflower",
+  "keepsake_name": "多出来的小齿轮",
+  "keepsake_description": "它坚称机器运转正常，这颗齿轮只是多出来的。"
+ },
+ "alien_bird": {
+  "name": "信号不好鸟",
+  "type": "奇想鸟类",
+  "rarity": "稀有",
+  "category": "birds",
+  "habitat": "朝向山上信号塔的树枝",
+  "behavior": "天线找信号、三脚错步、摆种子",
+  "condition": "全天候有机会来访；喜欢小米与暖灯；雾夜会朝信号塔转动触角。天气与食物只影响同稀有度内的种类。",
+  "description": "三只脚总慢半拍落地。它把谷物排成一条神秘讯号，盯着天空等一会儿，又把讯号吃掉。",
+  "hint": "留意朝向山上信号塔的树枝；天线找信号、三脚错步、摆种子。",
+  "color": "b9d5b3",
+  "weather_ids": [
+   2,
+   5,
+   6,
+   7
+  ],
+  "personality": "坚持发送的迷路访客",
+  "attraction_id": "lantern",
+  "preference": "喜欢小米与暖灯；雾夜会朝信号塔转动触角。",
+  "favorite_seed": "millet",
+  "keepsake_name": "未发送成功的种子",
+  "keepsake_description": "刻着三个小点的种子，也许它只是还没收到回复。"
+ },
+ "twin_bird": {
+  "name": "两口子鸟",
+  "type": "奇想鸟类",
+  "rarity": "稀有",
+  "category": "birds",
+  "habitat": "食盘与宽树枝",
+  "behavior": "双头争食、反向张望、犹豫转圈",
+  "condition": "全天候有机会来访；两颗头都喜欢果实，至于先吃哪颗还在开会。天气与食物只影响同稀有度内的种类。",
+  "description": "两个脑袋共享一只圆身体。一边刚把种子叼起来，另一边就把它放回去，好像还没讨论好。",
+  "hint": "留意食盘与宽树枝；双头争食、反向张望、犹豫转圈。",
+  "color": "d1c4dd",
+  "weather_ids": [
+   0,
+   1,
+   3,
+   7
+  ],
+  "personality": "意见总是二比零",
+  "attraction_id": "fruit",
+  "preference": "两颗头都喜欢果实，至于先吃哪颗还在开会。",
+  "favorite_seed": "berries",
+  "keepsake_name": "一对不配套的小叶子",
+  "keepsake_description": "左边的说要送这片，右边的坚持另一片也要。"
+ },
+ "invisible_bird": {
+  "name": "隐形鸟",
+  "type": "奇想鸟类",
+  "rarity": "神秘",
+  "category": "birds",
+  "habitat": "挂雨滴的树枝与食盘",
+  "behavior": "透明呼吸、吞下悬浮种子、雨滴显形",
+  "condition": "全天候有机会来访；喜欢小米与湿润花草，雨滴会让轮廓更明显。天气与食物只影响同稀有度内的种类。",
+  "description": "大部分时候只看得到眼睛和脚印。种子进肚子后会悬浮片刻，下雨时终于能看清它圆圆的轮廓。",
+  "hint": "留意挂雨滴的树枝与食盘；透明呼吸、吞下悬浮种子、雨滴显形。",
+  "color": "b4d7da",
+  "weather_ids": [
+   1,
+   4,
+   5
+  ],
+  "personality": "存在感忽强忽弱",
+  "attraction_id": "flowers",
+  "preference": "喜欢小米与湿润花草，雨滴会让轮廓更明显。",
+  "favorite_seed": "millet",
+  "keepsake_name": "一片什么也没有的羽毛",
+  "keepsake_description": "盒子看起来空空的，手指却能摸到柔软的小羽梗。"
+ },
+ "shadow_bird": {
+  "name": "影影鸟",
+  "type": "奇想鸟类",
+  "rarity": "神秘",
+  "category": "birds",
+  "habitat": "树影与窗沿暗处",
+  "behavior": "贴影滑动、啄影子、悄悄鼓起",
+  "condition": "全天候有机会来访；偏爱暖灯边缘的阴影与葵花籽的影子。天气与食物只影响同稀有度内的种类。",
+  "description": "扁扁地贴在树影里，专门啄种子的影子。吃饱后影子会鼓起一点点，好像忘了自己应该是平的。",
+  "hint": "留意树影与窗沿暗处；贴影滑动、啄影子、悄悄鼓起。",
+  "color": "535465",
+  "weather_ids": [
+   2,
+   3,
+   5
+  ],
+  "personality": "怕被灯认出来",
+  "attraction_id": "lantern",
+  "preference": "偏爱暖灯边缘的阴影与葵花籽的影子。",
+  "favorite_seed": "sunflower",
+  "keepsake_name": "一小块有温度的黑",
+  "keepsake_description": "并不会弄脏手，却把盒子里的光挤到了旁边。"
+ },
+ "inverted_bird": {
+  "name": "倒着鸟",
+  "type": "奇想鸟类",
+  "rarity": "神秘",
+  "category": "birds",
+  "habitat": "树枝下侧",
+  "behavior": "倒挂呼吸、反向蹬腿、困惑看雨",
+  "condition": "全天候有机会来访；喜欢果实与枝下阴凉，明暗交界时更爱活动。天气与食物只影响同稀有度内的种类。",
+  "description": "一直抓着树枝下面，仿佛这样才是正着。遇到下雨，它会很认真地思考雨为什么往天上落。",
+  "hint": "留意树枝下侧；倒挂呼吸、反向蹬腿、困惑看雨。",
+  "color": "adb6d1",
+  "weather_ids": [
+   0,
+   2,
+   5,
+   7
+  ],
+  "personality": "坚持自己站得很正",
+  "attraction_id": "flowers",
+  "preference": "喜欢果实与枝下阴凉，明暗交界时更爱活动。",
+  "favorite_seed": "berries",
+  "keepsake_name": "反方向的指南针",
+  "keepsake_description": "指针总朝脚底，倒着拿也一样。"
+ },
+ "galaxy_bird": {
+  "name": "一口星河鸟",
+  "type": "奇想鸟类",
+  "rarity": "传说",
+  "category": "birds",
+  "habitat": "面向雪山与夜空的高枝",
+  "behavior": "星河缓旋、种子绕行、跟着转晕",
+  "condition": "全天候有机会来访；偏爱暖灯与葵花籽；晴夜能看清腹中的星光。天气与食物只影响同稀有度内的种类。",
+  "description": "一粒种子在肚皮里的小星河绕了好几圈。它忍不住转头跟着看，结果先把自己看晕了。",
+  "hint": "留意面向雪山与夜空的高枝；星河缓旋、种子绕行、跟着转晕。",
+  "color": "a2a9d6",
+  "weather_ids": [
+   2,
+   3,
+   7
+  ],
+  "personality": "藏着宇宙的小吃货",
+  "attraction_id": "lantern",
+  "preference": "偏爱暖灯与葵花籽；晴夜能看清腹中的星光。",
+  "favorite_seed": "sunflower",
+  "keepsake_name": "失去轨道的一粒星",
+  "keepsake_description": "一粒小小的光，偶尔会围着盒子里的灰尘打转。"
+ },
+ "crescent_bird": {
+  "name": "缺一口鸟",
+  "type": "奇想鸟类",
+  "rarity": "传说",
+  "category": "birds",
+  "habitat": "月光树梢与窗沿",
+  "behavior": "弯月呼吸、吃成满月、找自己的脚",
+  "condition": "全天候有机会来访；喜欢小米与安静的夜灯；暮色时轮廓格外柔和。天气与食物只影响同稀有度内的种类。",
+  "description": "像一弯缺了一口的月亮。吃饱后会鼓成圆月，低头找脚时才发现视线已经被肚皮挡住。",
+  "hint": "留意月光树梢与窗沿；弯月呼吸、吃成满月、找自己的脚。",
+  "color": "e9dcad",
+  "weather_ids": [
+   2,
+   3,
+   7
+  ],
+  "personality": "对圆满有点执着",
+  "attraction_id": "lantern",
+  "preference": "喜欢小米与安静的夜灯；暮色时轮廓格外柔和。",
+  "favorite_seed": "millet",
+  "keepsake_name": "半枚圆满纪念章",
+  "keepsake_description": "边缘像被咬了一小口，但它说这是最完整的一枚。"
  }
 }
 
@@ -1064,6 +1462,57 @@ func get_profile(id: String) -> Dictionary:
   "keepsake_name":str(definition.get("keepsake_name", "")),
   "keepsake_description":str(definition.get("keepsake_description", ""))}
 
+## Tickets are zero-based: [0,9000), [9000,9690), [9690,9890),
+## [9890,9990), [9990,10000). Exposed for exact distribution checks and GM tools.
+func bird_tier_for_roll(ticket: int) -> String:
+ var value: int = clampi(ticket, 0, 9999)
+ var boundary: int = 0
+ for index: int in range(BIRD_TIER_NAMES.size()):
+  boundary += BIRD_TIER_WEIGHTS[index]
+  if value < boundary:
+   return BIRD_TIER_NAMES[index]
+ return BIRD_TIER_NAMES[-1]
+
+## Every bird remains possible in its tier. Weather, decoration and available
+## food add species weights only; they cannot change a tier's total probability.
+func get_bird_pool(weather: int, tier: String) -> Array[String]:
+ var weighted: Array[String] = []
+ var mode: int = clampi(weather, 0, 7)
+ for id: String in BIRD_TIER_IDS.get(tier, []):
+  var definition: Dictionary = ENTRY_DEFS[id]
+  var weight: int = 1
+  if definition.get("weather_ids", []).has(mode): weight += 2
+  if str(definition.get("attraction_id", "")) == attraction: weight += 2
+  if food_percent > 0.0 and attraction in ["seeds", "fruit"] and str(definition.get("favorite_seed", "")) == active_seed: weight += 2
+  for index: int in range(weight): weighted.append(id)
+ return weighted
+
+func select_bird(weather: int, rng: RandomNumberGenerator = null) -> String:
+ var chooser: RandomNumberGenerator = rng
+ if chooser == null:
+  chooser = RandomNumberGenerator.new()
+  chooser.randomize()
+ var tier: String = bird_tier_for_roll(chooser.randi_range(0, 9999))
+ var pool: Array[String] = get_bird_pool(weather, tier)
+ return pool[chooser.randi_range(0, pool.size() - 1)]
+
+## When weather permits nonbirds, keep the original 50/50 visitor split.
+## Otherwise invite a bird instead of inventing an incompatible animal visit.
+## Online and offline encounters use the same five-tier bird roll.
+func select_visit(weather: int, rng: RandomNumberGenerator = null) -> String:
+ var chooser: RandomNumberGenerator = rng
+ if chooser == null:
+  chooser = RandomNumberGenerator.new()
+  chooser.randomize()
+ var pool: Array[String] = get_visit_pool(weather)
+ if pool.is_empty() or chooser.randi_range(0, 1) == 0:
+  return select_bird(weather, chooser)
+ if food_percent > 0.0 and attraction == "fruit" and active_seed == "berries" and pool.has("squirrel"):
+  pool.append("squirrel")
+  pool.append("squirrel")
+ return pool[chooser.randi_range(0, pool.size() - 1)]
+
+## Legacy event pools deliberately contain no birds: they cannot bypass tiers.
 func get_visit_pool(weather: int) -> Array[String]:
  return _weather_pool(NORMAL_IDS, weather)
 
@@ -1196,8 +1645,9 @@ func settle_offline(now_unix: float) -> Array:
      rare_misses += 1
      _tokens[token] = true
    else:
-    var normal_pool: Array[String] = _weighted_pool(NORMAL_IDS)
-    var normal_id: String = normal_pool[rng.randi_range(0, normal_pool.size() - 1)]
+    # Historical weather is not fabricated: use the time-of-day light preset.
+    var light_mode: int = {6:7, 12:0, 18:3}.get(hour, 0)
+    var normal_id: String = select_visit(light_mode, rng)
     _register(normal_id, "安静的来访已自动记入日记。", token, event_time)
     added.append(records[0].duplicate(true))
  _batch_mutation = false
@@ -1222,9 +1672,11 @@ func simulate_offline(hours: int = 24) -> Array:
  var now: float = Time.get_unix_time_from_system()
  simulation_count += 1
  var number: int = clampi(int(ceil(safe_hours / 8.0)), 1, 12)
+ var demo_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+ demo_rng.seed = hash("demo:%d:%d" % [world_seed, simulation_count])
  _batch_mutation = true
  for i in range(number):
-  var id: String = NORMAL_IDS[(simulation_count + i) % NORMAL_IDS.size()]
+  var id: String = select_visit(0, demo_rng)
   var token: String = "simulation:%d:%d" % [simulation_count, i]
   _register(id, "演示补算：模拟离开 %d 小时后的来访。" % safe_hours, token, now)
   added.append(records[0].duplicate(true))

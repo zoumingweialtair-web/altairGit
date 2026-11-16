@@ -11,16 +11,16 @@ func _initialize() -> void:
     run.call_deferred()
 
 func run() -> void:
-    root.size = Vector2i(1440,900)
-    root.content_scale_size = Vector2i(1440,900)
+    root.size = Vector2i(1624,1392)
+    root.content_scale_size = Vector2i(1624,1392)
     var backdrop = ColorRect.new()
     backdrop.color = Color("e8e6d7")
-    backdrop.size = Vector2(1440,900)
+    backdrop.size = Vector2(1624,1392)
     root.add_child(backdrop)
     for index in range(Motion.IDS.size()):
         var preview = Preview.new()
         root.add_child(preview)
-        var cell: Rect2=Rect2(5+index%7*203,42+int(index/7)*270,190,210)
+        var cell: Rect2=Rect2(5+index%8*203,42+int(index/8)*270,190,210)
         var id: String=Motion.IDS[index]
         var bounds: Rect2=Art.bounds(id,false).merge(Art.bounds(id,true))
         if id=="squirrel":bounds=Rect2(-113,-113,226,226)
@@ -31,7 +31,7 @@ func run() -> void:
         preview.actors.append(Motion.spawn(Motion.IDS[index],Vector2.ZERO,0))
         previews.append(preview)
         var label = Label.new()
-        label.position = Vector2(28+index%7*203,254+int(index/7)*270)
+        label.position = Vector2(28+index%8*203,254+int(index/8)*270)
         label.text = Motion.IDS[index]
         label.add_theme_color_override("font_color",Color("344d48"))
         root.add_child(label)
@@ -70,5 +70,5 @@ func run() -> void:
             if signatures[id].size() < 2:
                 failures += 1
                 push_error("No rendered body-part animation for %s in %s" % [id,phase])
-    print("CREATURE_RENDER_TEST species=21 phases=3 poses=64 drawings=4032 animated_checks=63 failures=",failures)
+    print("CREATURE_RENDER_TEST species=37 phases=3 poses=64 drawings=7104 animated_checks=111 failures=",failures)
     quit(1 if failures else 0)

@@ -3,7 +3,22 @@ extends Control
 const DetailedArt=preload("res://scripts/visitor_art.gd")
 const Habitat=preload("res://scripts/habitat_paths.gd")
 const Preview = preload("res://scripts/creature_preview.gd")
-const NAMES: Dictionary = {"sparrow":"麻雀", "tit":"山雀", "robin":"知更鸟", "woodpecker":"啄木鸟", "owl":"林鸮", "kingfisher":"翠鸟", "swallow":"燕子", "magpie":"喜鹊", "white_eye":"绣眼鸟", "egret":"白鹭", "squirrel":"松鼠", "hedgehog":"刺猬", "cat":"猫", "bat":"蝙蝠", "butterfly":"白蝶", "luna_moth":"月蛾", "jewel_beetle":"宝石甲虫", "fireflies":"萤火虫", "dragonfly":"蜻蜓", "ladybug":"瓢虫", "stag_beetle":"锹甲"}
+const Motion = preload("res://scripts/visitor_motion.gd")
+const POSE_NAMES: Dictionary = {
+ "perch":"站枝","look":"张望","nibble":"啃果","climb":"攀爬","preen":"梳羽","sing":"鸣唱",
+ "peck":"啄食","watch":"观察","sniff":"嗅闻","sit":"坐下","groom":"理毛","crouch":"蓄力",
+ "takeoff":"起跳展翅","flap":"振翅","glide":"滑翔","cruise":"飞行","brake":"减速展尾",
+ "land":"落地收翅","depart":"离场","arrive":"接近","fly_to_food":"飞往食盘","hover":"悬停",
+ "crawl":"爬行","walk":"行走","wade":"涉水","fly":"飞行","hop":"轻跳","listen":"侧耳听声",
+ "feed":"进食","head_bob":"呆萌点头","inspect":"端详亮物","crest_pop":"冠羽弹起","inflate":"面团鼓起",
+ "seed_sneeze":"绒毛喷嚏","fold":"折纸抖动","hover_feed":"漂浮进食","unravel":"线头松开",
+ "windup":"给自己上弦","calibrate":"校准天线","argue":"两头拌嘴","shadow_slide":"影子贴台滑行",
+ "shadow_feed":"影子啄食","shadow_watch":"影子张望","hanging_feed":"倒挂进食","hang":"倒挂休息",
+ "invert_settle":"抓枝翻转","unhook":"松爪展开","flutter":"轻纸飘动","float":"云朵浮游",
+ "idle":"停留","observe":"观察","orbit":"星点绕行","moon_phase":"月牙盈亏","condense":"凝成小雨滴",
+ "drift":"云兜漂浮","floating_seed":"种子凭空消失","invisible_blink":"隐形眨眼"
+}
+var new_birds_only: bool = false
 const WEATHER_NAMES: Array[String] = ["晴日", "听雨", "月夜", "夕照", "落雪", "晨雾", "风雨", "晨曦"]
 var ids: Array[String] = []
 var selected: String = "sparrow"
@@ -40,7 +55,11 @@ func _ready() -> void:
     ui_theme.default_font = font
     ui_theme.default_font_size = 15
     theme = ui_theme
-    ids = world.get_creature_ids()
+    new_birds_only = new_birds_only or OS.get_cmdline_user_args().has("--new-birds")
+    ids.assign(Motion.EXPANSION_BIRDS if new_birds_only else world.get_creature_ids())
+    if new_birds_only:
+        selected = "pigeon"
+        get_window().title = "Little Elsewhere · 新鸟动作检视"
     _build_controls()
     var requested_phase: String = "entry"
     var requested_progress: float = 0.0
@@ -52,7 +71,7 @@ func _ready() -> void:
         elif arg.begins_with("--creature-frames="): capture_dir = arg.trim_prefix("--creature-frames=")
     if selected not in ids: selected = ids[0]
     _select(ids.find(selected))
-    world.seek_actor_phase(selected, requested_phase, requested_progress)
+    _seek(requested_phase, requested_progress)
     if not capture_dir.is_empty(): _export_frames.call_deferred(capture_dir)
 
 func _box(fill: String, border: String) -> StyleBoxFlat:
@@ -95,20 +114,20 @@ func _build_controls() -> void:
     footer.size = Vector2(1440,90)
     footer.add_theme_stylebox_override("panel",_box("e8e6d7","a3b4a5"))
     add_child(footer)
-    _label("来客动作检视",Vector2(20,822),18)
+    _label("新鸟动作检视" if new_birds_only else "来客动作检视",Vector2(20,822),18)
     picker = OptionButton.new()
     picker.position = Vector2(170,820)
     picker.size = Vector2(190,34)
-    for id in ids: picker.add_item(str(NAMES.get(id,id)))
+    for id in ids: picker.add_item(_creature_name(id))
     picker.item_selected.connect(_select)
     add_child(picker)
     _button("重播全程",Vector2(372,820),Vector2(94,34),func(): _restart())
     play_button = _button("暂停",Vector2(476,820),Vector2(68,34),func():
         playing = not playing
         play_button.text = "暂停" if playing else "继续")
-    for index in range(3):
-        var phase: String = ["entry","idle","exit"][index]
-        _button(["入场","停留","离场"][index],Vector2(554+index*72,820),Vector2(64,34),func(): _seek(phase))
+    for index in range(4):
+        var phase: String = ["entry","idle","feed","exit"][index]
+        _button(["入场","停留","进食","离场"][index],Vector2(554+index*55,820),Vector2(51,34),func(): _seek(phase))
     var speed_picker = OptionButton.new()
     speed_picker.position = Vector2(778,820)
     speed_picker.size = Vector2(91,34)
@@ -127,7 +146,7 @@ func _build_controls() -> void:
     _button("安静模式",Vector2(989,820),Vector2(104,34),func():
         world.set_quiet(not world.quiet)
         stage.set_quiet(world.quiet))
-    _button("依次看 21 种",Vector2(1103,820),Vector2(132,34),func(): sequence = not sequence)
+    _button("依次看 %d 种" % ids.size(),Vector2(1103,820),Vector2(132,34),func(): sequence = not sequence)
     _button("放大动作",Vector2(1245,820),Vector2(112,34),func(): preview_panel.visible = not preview_panel.visible)
     phase_label = _label("",Vector2(20,867),14)
     progress_bar = ProgressBar.new()
@@ -143,7 +162,7 @@ func _build_controls() -> void:
     preview_panel.size = Vector2(340,276)
     preview_panel.clip_contents = true
     preview_panel.add_theme_stylebox_override("panel",_box("e8e6d7","8da594"))
-    preview_panel.visible = false
+    preview_panel.visible = new_birds_only
     add_child(preview_panel)
     preview_label = Label.new()
     preview_label.position = Vector2(16,12)
@@ -157,7 +176,7 @@ func _build_controls() -> void:
 func _select(index: int) -> void:
     selected = ids[wrapi(index,0,ids.size())]
     picker.select(ids.find(selected))
-    var mode: int = 2 if selected in ["owl","luna_moth","bat","fireflies","stag_beetle"] else 7
+    var mode: int = 2 if selected in ["owl","luna_moth","bat","fireflies","stag_beetle","shadow_bird","galaxy_bird","crescent_bird"] else 7
     world.set_weather(mode)
     stage.set_weather(mode,true)
     weather_picker.select(mode)
@@ -171,9 +190,25 @@ func _restart() -> void:
     play_button.text = "暂停"
     _refresh()
 
-func _seek(phase: String) -> void:
+func _creature_name(id: String) -> String:
+    return str(DiaryState.get_entry_defs().get(id,{}).get("name",id))
+
+func _seek(phase: String, phase_progress: float = 0.0) -> void:
     if world.get_actor_lifecycle_snapshot(selected).is_empty(): _restart()
-    world.seek_actor_phase(selected,phase,0.0)
+    if phase == "feed":
+        # Find a genuine feeding moment in this creature's own timeline.
+        var found: bool = false
+        for step in range(81):
+            world.seek_actor_phase(selected,"idle",float(step)/80.0)
+            for actor in world.actors:
+                if str(actor["id"]) != selected: continue
+                if float(actor.get("feed_blend",0.0)) > 0.50 or str(actor.get("pose","")) in ["peck","nibble"]:
+                    found = true
+                    break
+            if found: break
+        if not found: world.seek_actor_phase(selected,"idle",0.5)
+    else:
+        world.seek_actor_phase(selected,phase,phase_progress)
     _refresh()
 
 func _process(delta: float) -> void:
@@ -191,13 +226,19 @@ func _refresh() -> void:
         preview.show_actor({},world)
         return
     var phase: String = {"entry":"入场", "idle":"停留", "exit":"离场"}.get(str(state["phase"]),"")
-    phase_label.text = "%s  ·  %s %d%%  ·  %.1f / %.0f 秒  ·  %s%s" % [NAMES[selected],phase,float(state["phase_progress"])*100,float(state["age"]),float(state["duration"]),"安静" if world.quiet else "自然"," · 依次观看中" if sequence else ""]
-    preview_label.text = "%s · %s\n%s" % [NAMES[selected],phase,{"perch":"站枝","look":"张望","nibble":"啃果","climb":"攀爬","preen":"梳羽","sing":"鸣唱","peck":"啄食","watch":"观察","sniff":"嗅闻","sit":"坐下","groom":"理毛","crouch":"蓄力","takeoff":"起跳展翅","flap":"振翅","glide":"滑翔","cruise":"飞行","brake":"减速展尾","land":"落地收翅","depart":"离场","arrive":"接近","fly_to_food":"飞往食盘","hover":"悬停","crawl":"爬行","walk":"行走","wade":"涉水"}.get(str(state["pose"]),str(state["pose"]))]
+    phase_label.text = "%s  ·  %s %d%%  ·  %.1f / %.0f 秒  ·  %s%s" % [_creature_name(selected),phase,float(state["phase_progress"])*100,float(state["age"]),float(state["duration"]),"安静" if world.quiet else "自然"," · 依次观看中" if sequence else ""]
+    var pose: String = str(state["pose"])
+    var action: String = ""
+    for actor in world.actors:
+        if str(actor["id"]) == selected: action = str(actor.get("special_action","")); break
+    var pose_text: String = str(POSE_NAMES.get(pose,"停留"))
+    if action in ["orbit","moon_phase","floating_seed","invisible_blink","condense"]: pose_text += " · " + str(POSE_NAMES.get(action,"观察"))
+    preview_label.text = "%s · %s\n%s" % [_creature_name(selected),phase,pose_text]
     progress_bar.value = float(state["age"])/float(state["duration"])*100
     for actor in world.actors:
         if str(actor["id"]) == selected:
             preview.show_actor(actor,world)
-            var area: Rect2=DetailedArt.bounds(selected,false).merge(DetailedArt.bounds(selected,true))
+            var area: Rect2=DetailedArt.bounds(selected,false).merge(DetailedArt.bounds(selected,true)).merge(DetailedArt.bounds_for_actor(actor))
             if selected=="squirrel":area=Rect2(-113,-113,226,226)
             var zoom: float=minf(302.0/area.size.x,202.0/area.size.y)
             preview.scale=Vector2.ONE*zoom
@@ -223,7 +264,8 @@ func _export_frames(directory: String) -> void:
             var p: float = lerpf(0.20,0.85,frame/15.0) if phase != "idle" else lerpf(0.25,0.34,frame/15.0)
             world.seek_actor_phase(selected,phase,p)
             _refresh()
-            await RenderingServer.frame_post_draw
+            await get_tree().process_frame
+            RenderingServer.force_draw(false)
             var image: Image = get_viewport().get_texture().get_image()
             if phase == "idle" and frame == 0:
                 image.save_png(directory.path_join("%s_scene.png" % selected))

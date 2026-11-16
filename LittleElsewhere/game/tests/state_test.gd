@@ -4,14 +4,15 @@ var failed: int = 0
 var checks: int = 0
 const TEST_PATH: String = "user://window_diary_demo_state_isolated_test.json"
 const StateScript: Script = preload("res://scripts/diary_state.gd")
-const EXPECTED_BIRDS: Array[String] = ["sparrow", "tit", "robin", "woodpecker", "owl", "kingfisher", "swallow", "magpie", "white_eye", "egret"]
+const EXPECTED_BIRDS: Array[String] = ["sparrow", "tit", "robin", "woodpecker", "owl", "kingfisher", "swallow", "magpie", "white_eye", "egret", "pigeon", "crow", "cockatiel", "dough_bird", "dandelion_bird", "paper_bird", "cloud_bird", "yarn_bird", "clockwork_bird", "alien_bird", "twin_bird", "invisible_bird", "shadow_bird", "inverted_bird", "galaxy_bird", "crescent_bird"]
+const EXPANSION_BIRDS: Array[String] = ["pigeon", "crow", "cockatiel", "dough_bird", "dandelion_bird", "paper_bird", "cloud_bird", "yarn_bird", "clockwork_bird", "alien_bird", "twin_bird", "invisible_bird", "shadow_bird", "inverted_bird", "galaxy_bird", "crescent_bird"]
 const EXPECTED_ANIMALS: Array[String] = ["squirrel", "hedgehog", "cat", "bat"]
 const EXPECTED_INSECTS: Array[String] = ["butterfly", "luna_moth", "jewel_beetle", "fireflies", "dragonfly", "ladybug", "stag_beetle"]
-const EXPECTED_VISITORS: Array[String] = ["sparrow", "tit", "robin", "butterfly", "squirrel", "woodpecker", "owl", "luna_moth", "jewel_beetle", "fireflies", "kingfisher", "swallow", "magpie", "white_eye", "egret", "hedgehog", "cat", "bat", "dragonfly", "ladybug", "stag_beetle"]
+const EXPECTED_VISITORS: Array[String] = ["sparrow", "tit", "robin", "butterfly", "squirrel", "woodpecker", "owl", "luna_moth", "jewel_beetle", "fireflies", "kingfisher", "swallow", "magpie", "white_eye", "egret", "hedgehog", "cat", "bat", "dragonfly", "ladybug", "stag_beetle", "pigeon", "crow", "cockatiel", "dough_bird", "dandelion_bird", "paper_bird", "cloud_bird", "yarn_bird", "clockwork_bird", "alien_bird", "twin_bird", "invisible_bird", "shadow_bird", "inverted_bird", "galaxy_bird", "crescent_bird"]
 const EXPECTED_SCENERY: Array[String] = ["scene_sun", "scene_rain", "scene_night", "scene_dusk", "scene_snow", "scene_fog", "scene_storm", "scene_dawn"]
 const EXPECTED_WONDERS: Array[String] = ["ufo", "meteor", "supernova", "aurora", "star_whale", "time_ripple", "tree_spirit", "lanterns", "ghost_train", "moon_gate", "signal_echo", "aurora_crown", "ember_clouds", "meteor_shower", "deep_one", "sunken_city", "sky_jellyfish", "twin_moons", "floating_isles", "bioluminescent_tide", "constellation_stag"]
 const EXPANSION_WONDERS: Dictionary = {"aurora_crown": [2], "ember_clouds": [3], "meteor_shower": [2], "deep_one": [2, 5, 6], "sunken_city": [5, 2], "sky_jellyfish": [2], "twin_moons": [2], "floating_isles": [0, 7, 5], "bioluminescent_tide": [2, 3], "constellation_stag": [2]}
-const NEW_ENTRIES: Array[String] = ["squirrel", "woodpecker", "owl", "luna_moth", "jewel_beetle", "fireflies", "aurora", "star_whale", "time_ripple", "tree_spirit", "kingfisher", "swallow", "magpie", "white_eye", "egret", "hedgehog", "cat", "bat", "dragonfly", "ladybug", "stag_beetle", "lanterns", "ghost_train", "moon_gate", "signal_echo", "scene_fog", "scene_storm", "scene_dawn", "aurora_crown", "ember_clouds", "meteor_shower", "deep_one", "sunken_city", "sky_jellyfish", "twin_moons", "floating_isles", "bioluminescent_tide", "constellation_stag"]
+const NEW_ENTRIES: Array[String] = ["squirrel", "woodpecker", "owl", "luna_moth", "jewel_beetle", "fireflies", "aurora", "star_whale", "time_ripple", "tree_spirit", "kingfisher", "swallow", "magpie", "white_eye", "egret", "hedgehog", "cat", "bat", "dragonfly", "ladybug", "stag_beetle", "lanterns", "ghost_train", "moon_gate", "signal_echo", "scene_fog", "scene_storm", "scene_dawn", "aurora_crown", "ember_clouds", "meteor_shower", "deep_one", "sunken_city", "sky_jellyfish", "twin_moons", "floating_isles", "bioluminescent_tide", "constellation_stag", "pigeon", "crow", "cockatiel", "dough_bird", "dandelion_bird", "paper_bird", "cloud_bird", "yarn_bird", "clockwork_bird", "alien_bird", "twin_bird", "invisible_bird", "shadow_bird", "inverted_bird", "galaxy_bird", "crescent_bird"]
 
 func check(condition: bool, label: String) -> void:
  checks += 1
@@ -72,7 +73,7 @@ func check_profiles_and_pools(state: Node) -> void:
   for weather: int in range(8):
    var visit_pool: Array[String] = state.get_visit_pool(weather)
    var rare_pool: Array[String] = state.get_rare_pool(weather)
-   if visit_pool.is_empty() or rare_pool.is_empty(): pool_ids_valid = false
+   if rare_pool.is_empty(): pool_ids_valid = false
    var all_ids: Array[String] = visit_pool + rare_pool
    for id: String in all_ids:
     if not state.get_entry_defs().has(id):
@@ -81,14 +82,14 @@ func check_profiles_and_pools(state: Node) -> void:
     var definition: Dictionary = state.get_entry_defs()[id]
     if not definition.get("weather_ids", []).has(weather) or definition.get("category", "") == "scenery": pool_ids_valid = false
     coverage[id] = true
-   for id: String in EXPECTED_VISITORS + EXPECTED_WONDERS:
+   for id: String in EXPECTED_ANIMALS + EXPECTED_INSECTS + EXPECTED_WONDERS:
     var definition: Dictionary = state.get_entry_defs()[id]
     var expected_weight: int = (3 if definition.get("attraction_id", "") == decor else 1) if definition.get("weather_ids", []).has(weather) else 0
     if all_ids.count(id) != expected_weight: weights_correct = false
- check(pool_ids_valid, "every weather and decoration has valid compatible nonempty event pools")
+ check(pool_ids_valid, "weather pools contain only compatible nonbirds; wonders remain available")
  check(weights_correct, "preferred decor adds two weights while every compatible species retains its base chance")
- check(coverage.size() == EXPECTED_VISITORS.size() + EXPECTED_WONDERS.size(), "every visitor and wonder can appear naturally in a compatible weather")
- check(state.get_rare_pool(5).has("kingfisher") and not state.get_rare_pool(6).has("kingfisher") and state.get_visit_pool(3).has("bat") and not state.get_visit_pool(0).has("bat"), "water birds and evening animals respect their weather conditions")
+ check(coverage.size() == EXPECTED_ANIMALS.size() + EXPECTED_INSECTS.size() + EXPECTED_WONDERS.size(), "every nonbird visitor and wonder remains naturally reachable")
+ check(not state.get_rare_pool(5).has("kingfisher") and state.get_bird_pool(5, "罕见").count("kingfisher") > state.get_bird_pool(6, "罕见").count("kingfisher") and state.get_visit_pool(3).has("bat") and not state.get_visit_pool(0).has("bat"), "birds use tier preferences while evening animals retain weather conditions")
  check(not state.get_visit_pool(-99).is_empty() and not state.get_rare_pool(99).is_empty(), "out of range weather falls back safely")
  state.set_attraction("fruit")
  check(not state.set_attraction("invalid") and state.attraction == "fruit" and state.get_count() == 0, "invalid decor cannot replace a valid choice or award observations")
@@ -102,13 +103,13 @@ func check_new_wonder_conditions(state: Node) -> void:
   for weather: int in range(8):
    if state.get_rare_pool(weather).has(id) != EXPANSION_WONDERS[id].has(weather): matching = false
  check(matching, "all ten new wonders appear only in their specified weather pools")
- check(collection_only, "new wonders do not alter the twenty one biological visitor profiles")
+ check(collection_only, "wonders do not invent biological visitor profiles")
  check(state.get_rare_pool(2).count("aurora") == 1 and state.get_rare_pool(2).count("aurora_crown") == 1 and state.get_entry_defs()["aurora"]["name"] != state.get_entry_defs()["aurora_crown"]["name"], "original aurora and new crown remain distinct equally reachable encounters")
 
 func check_full_previous_save() -> void:
  var original_collection: Dictionary = {}
  for id: String in StateScript.ENTRY_DEFS:
-  if not EXPANSION_WONDERS.has(id):
+  if not EXPANSION_WONDERS.has(id) and not EXPANSION_BIRDS.has(id):
    original_collection[id] = {"name":StateScript.ENTRY_DEFS[id]["name"], "count":7, "first_seen":"旧版首次", "last_seen":"旧版最近", "last_weather":"月夜"}
  var old_payload: Dictionary = {"version":2, "collection":original_collection,
   "records":[{"id":"aurora", "name":"极光", "note":"原有奇遇", "time":"旧版最近"}],
@@ -130,7 +131,7 @@ func check_full_previous_save() -> void:
   state.discover(id, "新增奇遇", "new_wonder:" + id)
  state.free()
  state = new_state()
- check(state.get_count() == StateScript.ENTRY_DEFS.size() and state.get_count() == 50 and int(state.collection["aurora"]["count"]) == 7 and int(state.collection["aurora_crown"]["count"]) == 1, "expanded fifty entry save preserves both old and new wonder histories")
+ check(state.get_count() == 50 and not state.collection.has("galaxy_bird") and int(state.collection["aurora"]["count"]) == 7 and int(state.collection["aurora_crown"]["count"]) == 1, "expanded fifty entry save preserves both old and new wonder histories")
  state.free()
 
 func _initialize() -> void:
@@ -155,11 +156,12 @@ func _initialize() -> void:
    category_counts[category] += 1
   for field: String in ["habitat", "behavior", "condition", "description", "hint", "color"]:
    if str(entry.get(field, "")).is_empty(): metadata_complete = false
- check(category_counts == {"birds":EXPECTED_BIRDS.size(), "animals":EXPECTED_ANIMALS.size(), "insects":EXPECTED_INSECTS.size(), "scenery":EXPECTED_SCENERY.size(), "wonders":EXPECTED_WONDERS.size()}, "field guide contains 10 birds 4 animals 7 insects 8 scenery and 21 wonders")
+ check(category_counts == {"birds":EXPECTED_BIRDS.size(), "animals":EXPECTED_ANIMALS.size(), "insects":EXPECTED_INSECTS.size(), "scenery":EXPECTED_SCENERY.size(), "wonders":EXPECTED_WONDERS.size()}, "field guide contains 26 birds 4 animals 7 insects 8 scenery and 21 wonders")
  check(metadata_complete, "every definition has field guide details")
  var offline_ids: Array[String] = []
  offline_ids.append_array(StateScript.NORMAL_IDS)
  offline_ids.append_array(StateScript.RARE_IDS)
+ offline_ids.append_array(StateScript.BIRD_IDS)
  var offline_pools_match: bool = offline_ids.size() == EXPECTED_VISITORS.size() + EXPECTED_WONDERS.size()
  for id: String in EXPECTED_VISITORS + EXPECTED_WONDERS:
   if offline_ids.count(id) != 1: offline_pools_match = false

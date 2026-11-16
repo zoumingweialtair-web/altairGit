@@ -50,7 +50,7 @@ var _audio_buttons: Dictionary = {}
 var _toolbar_buttons: Dictionary = {}
 var _state: Dictionary = {
  "weather_index":0,"weather_label":"晴日","day":1,"clock":"08:00",
- "visits":0,"collected":0,"total":50,"food_percent":0.0,
+ "visits":0,"collected":0,"total":66,"food_percent":0.0,
  "seed_stocks":{"sunflower":24,"millet":36,"berries":12},"supplies_available":true,
  "recent":[],"music_on":true,"ambience_on":true,
  "volumes":{"music":0.65,"rain":0.7,"wind":0.45,"river":0.55},
@@ -148,7 +148,7 @@ func _build_top() -> void:
  var guide: Button = _button(hud,"CollectionButton","",Rect2(1158,22,190,50),func(): _emit_tool("guide"))
  guide.tooltip_text = "打开口袋图鉴 · 按 3"
  _icon(guide,"book",Rect2(7,8,32,32))
- _collection_label = _label(guide,"图鉴 0 / 50",Rect2(46,5,132,38),18)
+ _collection_label = _label(guide,"图鉴 0 / 66",Rect2(46,5,132,38),18)
  var audio_button: Button = _button(hud,"AudioButton","",Rect2(1358,22,58,50),func(): show_panel("audio"))
  _icon(audio_button,"audio",Rect2(12,8,32,32))
  audio_button.tooltip_text = "声音 · 四轨独立混音"
@@ -232,7 +232,7 @@ func update_state(data: Dictionary) -> void:
  _weather_label.text = str(_state.get("weather_label",WEATHER_LABELS[index]))
  _date_label.text = "第 %d 天  %s" % [int(_state.get("day",1)),str(_state.get("clock","08:00"))]
  _visits_label.text = "来访 %d" % int(_state.get("visits",0))
- _collection_label.text = "图鉴 %d / %d" % [int(_state.get("collected",0)),int(_state.get("total",50))]
+ _collection_label.text = "图鉴 %d / %d" % [int(_state.get("collected",0)),int(_state.get("total",66))]
  var food: float = clampf(float(_state.get("food_percent",0)),0.0,100.0)
  _food_label.text = "食盘 %d%%" % roundi(food)
  _food_fill.size.x = 94.0*food/100.0

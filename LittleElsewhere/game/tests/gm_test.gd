@@ -5,7 +5,7 @@ const Commands = preload("res://scripts/gm_commands.gd")
 const Styles = preload("res://scripts/ui_lab_styles.gd")
 const NORMAL_PATH: String = "user://window_diary_demo_save.json"
 const WEATHER_IDS: Array[String] = ["sun","rain","night","dusk","snow","fog","storm","dawn"]
-const CATEGORY_COUNTS: Dictionary = {"birds":10,"animals":4,"insects":7,"scenery":8,"wonders":21}
+const CATEGORY_COUNTS: Dictionary = {"birds":26,"animals":4,"insects":7,"scenery":8,"wonders":21}
 
 
 var checks: int = 0
@@ -103,7 +103,7 @@ func _test_information_and_validation() -> void:
     check(backend.complete("event tw").has("event twin_moons"),"completion includes rare events")
     command("help event")
     var ids: Dictionary=command("ids all")
-    check(str(ids.message).contains("50") and str(ids.message).contains("aurora_crown"),"ID catalog exposes all 50 entries")
+    check(str(ids.message).contains("66") and str(ids.message).contains("aurora_crown"),"ID catalog exposes all 66 entries")
     command("status")
     for invalid: String in ["unknown_command","weather moon","weather -1","weather 8","spawn absent","event absent","spawn aurora_crown","event sparrow","collect absent","favorite sparrow on","weather sun extra","weather sun\ncollect all","ids invalid"]:
         command(invalid,false)
@@ -152,10 +152,10 @@ func _test_collection_and_profiles() -> void:
         check(correct,"category grants exactly its entries once: "+category)
     _reset_fixture()
     command("collect all")
-    check(state.get_count()==50 and state.records.size()==50,"collect all grants 50 distinct observations")
+    check(state.get_count()==66 and state.records.size()==66,"collect all grants 66 distinct observations")
     var old_count: int=int(state.collection.sparrow.count)
     command("collect sparrow")
-    check(int(state.collection.sparrow.count)==old_count+1 and state.get_count()==50,"recollecting an entry increases visits without duplicate definitions")
+    check(int(state.collection.sparrow.count)==old_count+1 and state.get_count()==66,"recollecting an entry increases visits without duplicate definitions")
     command("visits sparrow 5")
     var profile: Dictionary=state.get_profile("sparrow")
     check(profile.visits==5 and profile.keepsake_unlocked and profile.bond_label=="熟悉的邻居","five visits unlock the memento and familiar bond")
@@ -346,7 +346,7 @@ func _test_preview_mode() -> void:
     check(backend.complete("style 3").has("style 30"),"numeric completion includes lightweight proposal 30")
     command("style quiet_glass")
     command("collect all")
-    check(state.get_count()==50 and state._save_path().is_empty(),"preview collection commands remain in memory")
+    check(state.get_count()==66 and state._save_path().is_empty(),"preview collection commands remain in memory")
     command("guide twin_moons")
     var snapshot: Dictionary=scene.guide.get_snapshot()
     check(snapshot.visible_count==6 and snapshot.selected=="twin_moons" and not snapshot.known,"preview sample guide stays independent of GM memory collection")

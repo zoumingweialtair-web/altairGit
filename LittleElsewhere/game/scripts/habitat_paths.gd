@@ -8,7 +8,13 @@ const ANCHORS: Dictionary = {
  "kingfisher":Vector2(489,298),"swallow":Vector2(710,230),"magpie":Vector2(594,107),
  "white_eye":Vector2(421,310),"egret":Vector2(855,494),"hedgehog":Vector2(305,755),
  "cat":Vector2(1237,757),"bat":Vector2(718,259),"dragonfly":Vector2(810,530),
- "ladybug":Vector2(237,653),"stag_beetle":Vector2(163,433)
+ "ladybug":Vector2(237,653),"stag_beetle":Vector2(163,433),
+ "pigeon":Vector2(1107,584),"crow":Vector2(405,182),"cockatiel":Vector2(454,296),
+ "dough_bird":Vector2(1140,584),"dandelion_bird":Vector2(547,117),"paper_bird":Vector2(489,298),
+ "cloud_bird":Vector2(710,230),"yarn_bird":Vector2(377,319),"clockwork_bird":Vector2(454,296),
+ "alien_bird":Vector2(594,107),"twin_bird":Vector2(421,310),"invisible_bird":Vector2(1107,584),
+ "shadow_bird":Vector2(1040,755),"inverted_bird":Vector2(420,324),
+ "galaxy_bird":Vector2(547,117),"crescent_bird":Vector2(405,182)
 }
 const SHELTER: Dictionary = {"sparrow":Vector2(385,189),"tit":Vector2(440,172),"robin":Vector2(377,319)}
 static var _cache: Dictionary = {}
@@ -20,7 +26,10 @@ static func anchor(id: String, weather: int = 0) -> Vector2:
 static func support(id: String) -> String:
  if id == "ladybug": return "plant"
  if id in ["squirrel","woodpecker","jewel_beetle","stag_beetle"]: return "bark"
- if id in ["cat","hedgehog"]: return "sill"
+ if id in ["cat","hedgehog","shadow_bird"]: return "sill"
+ if id in ["pigeon","dough_bird","invisible_bird"]: return "feeder"
+ if id == "inverted_bird": return "branch_underside"
+ if id == "cloud_bird": return "air"
  if id == "egret": return "shore"
  return "branch"
 

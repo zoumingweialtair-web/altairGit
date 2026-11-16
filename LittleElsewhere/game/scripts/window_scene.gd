@@ -155,6 +155,8 @@ func trigger(id: String, record: bool = true) -> void:
         "bioluminescent_tide": "一层层青蓝色的潮光从对岸推来，把河流写成发光的信。",
         "constellation_stag": "山脊上的星点连成一头鹿，枝杈般的鹿角驮着几颗更亮的星。"
     }
+    if not notes.has(id) and id in VisitorMotion.IDS:
+        notes[id] = str(preload("res://scripts/diary_state.gd").ENTRY_DEFS.get(id,{}).get("description","窗边来了一位新朋友。"))
     if not notes.has(id):
         return
     if id in ["sparrow", "tit", "robin"]:
@@ -180,21 +182,24 @@ func trigger(id: String, record: bool = true) -> void:
         spectacles.append({"id": id, "age": 0.0, "motion_age": 0.0})
         queue_redraw()
         return
-    # Retriggering a present species never teleports it or interrupts its gesture.
+    # Retriggering a present or queued species never duplicates it, teleports it,
+    # or interrupts its gesture. Queue ownership follows its departure slot.
     for actor in actors:
-        if str(actor["id"]) == id:
+        if str(actor["id"]) == id or actor.get("replacement_queue", []).has(id):
             return
     if id == "butterfly" and weather in VisitorMotion.SHELTER_WEATHER:
         return
     if actors.size() >= 6:
-        # Make room by letting a visitor leave. The queued arrival belongs to that
-        # slot, so explicit GM clears also discard queued visitors safely.
+        # Keep every accepted arrival, including rare birds. A list per occupied
+        # slot prevents later visits from overwriting an earlier replacement;
+        # actors.clear() also discards every pending visit without a side queue.
         var slot: Dictionary = actors[0]
         for actor in actors:
-            if not actor.has("replacement"):
+            if actor.get("replacement_queue", []).size() < slot.get("replacement_queue", []).size():
                 slot = actor
-                break
-        slot["replacement"] = id
+        var pending: Array = slot.get("replacement_queue", [])
+        pending.append(id)
+        slot["replacement_queue"] = pending
         VisitorMotion.request_departure(slot)
         return
     _spawn_actor(id)
@@ -206,7 +211,38 @@ func _spawn_actor(id: String) -> void:
         if str(actor["id"]) == id: return
     if id == "butterfly" and weather in VisitorMotion.SHELTER_WEATHER: return
     var perch: Vector2 = Habitat.anchor(id,weather)
+    if id in VisitorMotion.EXPANSION_BIRDS and Habitat.support(id) == "branch":
+        perch = _available_branch_perch(perch)
     actors.append(VisitorMotion.spawn(id, perch, weather))
+
+func _available_branch_perch(preferred: Vector2) -> Vector2:
+    # Reserve the arrival contact too: two birds already flying in must not
+    # choose the same branch. Existing visitors keep their current routes.
+    var occupied: Array[Vector2] = []
+    for actor: Dictionary in actors:
+        var other_id: String = str(actor["id"])
+        var branch_bird: bool = other_id in VisitorMotion.BIRDS and other_id not in VisitorMotion.AIRBORNE and Habitat.support(other_id) == "branch"
+        if branch_bird or other_id == "squirrel": occupied.append(actor["anchor"])
+    var best_clearance: float = _branch_clearance(preferred,occupied)
+    if best_clearance >= 60.0: return preferred
+    var candidates: Array[Vector2] = []
+    for source_id: String in ["squirrel","robin","owl","sparrow","kingfisher","white_eye","tit","magpie"]:
+        var point: Vector2 = Habitat.anchor(source_id)
+        if not candidates.has(point): candidates.append(point)
+    for point: Vector2 in Habitat.SHELTER.values():
+        if not candidates.has(point): candidates.append(point)
+    var best: Vector2 = preferred
+    for candidate: Vector2 in candidates:
+        var clearance: float = _branch_clearance(candidate,occupied)
+        if clearance > best_clearance + 0.01 or (is_equal_approx(clearance,best_clearance) and candidate.distance_to(preferred) < best.distance_to(preferred)):
+            best = candidate
+            best_clearance = clearance
+    return best
+
+func _branch_clearance(point: Vector2, occupied: Array[Vector2]) -> float:
+    var nearest: float = INF
+    for contact: Vector2 in occupied: nearest = minf(nearest,point.distance_to(contact))
+    return nearest
 
 func get_creature_ids() -> Array[String]:
     return VisitorMotion.IDS.duplicate()
@@ -241,8 +277,10 @@ func seek_actor_phase(id: String, phase: String, progress: float = 0.0) -> bool:
         actor["duration"] = duration
         actor.erase("forced_exit_age")
         actor.erase("exit_from")
+        actor.erase("exit_invert_blend")
         actor.erase("relocate_from")
         actor.erase("replacement")
+        actor.erase("replacement_queue")
         for key: String in ["exit_path_progress","exit_perch_blend","exit_was_flying","exit_heading","crouch","relocate_was_flying","relocate_heading"]:actor.erase(key)
         actor["age"] = enter * p if phase == "entry" else (enter + (duration - enter - leave) * p if phase == "idle" else duration - leave + leave * p)
         actor["motion_age"] = float(actor["age"]) * (0.35 + 0.65 * activity_blend)
@@ -271,10 +309,13 @@ func _process(delta: float) -> void:
             if perches.has(id):
                 actor["anchor"] = sheltered_perches[id] if weather in VisitorMotion.SHELTER_WEATHER else perches[id]
         if VisitorMotion.advance(actor, delta, weather, activity_blend):
-            if actor.has("replacement"): arrivals.append(str(actor["replacement"]))
+            for pending_id: String in actor.get("replacement_queue", []):
+                if not arrivals.has(pending_id): arrivals.append(pending_id)
             actors.remove_at(i)
     for id in arrivals:
-        _spawn_actor(id)
+        # Arrivals may outnumber freed slots. Route overflow back through the
+        # same capacity gate without recording the already accepted visit twice.
+        trigger(id, false)
     for i in range(spectacles.size() - 1, -1, -1):
         spectacles[i]["age"] = float(spectacles[i]["age"]) + delta
         spectacles[i]["motion_age"] = float(spectacles[i].get("motion_age", 0.0)) + delta * (0.45 + activity_blend * 0.55)

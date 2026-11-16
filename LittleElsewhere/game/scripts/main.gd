@@ -303,8 +303,7 @@ func _process(delta: float) -> void:
   weather_observed+=delta
   if weather_observed>=8.0:_record_scenery()
  if elapsed>next_visit and not capture_mode and not running_tests:
-  var pool: Array[String]=_visitor_pool()
-  scene_view.trigger(pool[visitor_rng.randi_range(0,pool.size()-1)])
+  scene_view.trigger(DiaryState.select_visit(weather_mode,visitor_rng))
   next_visit=elapsed+visitor_rng.randf_range(22.0,36.0)
  if elapsed>next_rare and not capture_mode and not running_tests:
   var pool: Array[String]=_rare_pool()
@@ -317,14 +316,6 @@ func _process(delta: float) -> void:
  if elapsed>=next_hud_refresh:
   _refresh_fieldkit()
   next_hud_refresh=elapsed+0.25
-
-func _visitor_pool() -> Array[String]:
- var pool: Array[String]=DiaryState.get_visit_pool(weather_mode)
- if DiaryState.food_percent>0.0 and DiaryState.attraction in ["seeds","fruit"]:
-  var preferred: Array={"sunflower":["tit","woodpecker"],"millet":["sparrow","white_eye"],"berries":["squirrel","robin"]}.get(DiaryState.active_seed,[])
-  for id: String in preferred:
-   if pool.has(id):pool.append(id);pool.append(id)
- return pool
 
 func _rare_pool() -> Array[String]:
  return DiaryState.get_rare_pool(weather_mode)
@@ -620,7 +611,18 @@ func _capture() -> void:
    "fieldkit_weather":fieldkit.show_panel("weather")
    "fieldkit_records":_show_records()
    "fieldkit_wonders":_show_demo("wonders")
- if not screenshot_state.begins_with("fieldkit"):
+ if screenshot_state.begins_with("expansion"):
+  scene_view.actors.clear()
+  _change_weather(7,false)
+  for id: String in preload("res://scripts/expansion_bird_art.gd").IDS:
+   DiaryState.discover(id,"新鸟动画演示")
+  var samples: Array[String]=["clockwork_bird","alien_bird","crescent_bird","inverted_bird","shadow_bird","pigeon"]
+  for id: String in samples:
+   scene_view.trigger(id,false)
+   scene_view.seek_actor_phase(id,"idle",0.25)
+  _refresh_fieldkit()
+  if screenshot_state=="expansion_guide":_show_collection("twin_bird")
+ if not screenshot_state.begins_with("fieldkit") and not screenshot_state.begins_with("expansion"):
   scene_view.trigger("tit",false)
   scene_view.trigger("robin",false)
   scene_view.trigger("sparrow",false)
@@ -677,7 +679,8 @@ func _capture() -> void:
   _show_collection("moon_gate")
   modal.set_filter("wonders")
  await get_tree().create_timer(screenshot_delay).timeout
- await RenderingServer.frame_post_draw
+ await get_tree().process_frame
+ RenderingServer.force_draw(false)
  if screenshot_path.is_empty():screenshot_path="user://demo_capture.png"
  var err: Error=get_viewport().get_texture().get_image().save_png(screenshot_path)
  print("SCREENSHOT ",screenshot_path," code=",err)
@@ -718,7 +721,7 @@ func _run_ui_smoke() -> void:
  if not _check(not modal.get_detail_snapshot().replay_enabled,"unknown card cannot replay"):return
  modal.select_entry("scene_snow")
  if not _check(DiaryState.get_count()==unknown_before,"viewing unknown cards grants nothing"):return
- var filters: Dictionary={"birds":10,"animals":4,"insects":7,"scenery":8,"wonders":21}
+ var filters: Dictionary={"birds":26,"animals":4,"insects":7,"scenery":8,"wonders":21}
  for category: String in filters:
   modal.set_filter(category)
   if not _check(modal.get_visible_entry_ids().size()==filters[category],"filter "+category):return
@@ -729,7 +732,7 @@ func _run_ui_smoke() -> void:
   _demo_trigger(id)
   if not _check(weather_mode in DiaryState.get_entry_defs()[id]["weather_ids"],"new wonder weather "+id):return
  for id: String in WEATHER_ENTRIES:DiaryState.discover(id,"测试风景")
- if not _check(DiaryState.get_count()==50,"fifty entries discoverable"):return
+ if not _check(DiaryState.get_count()==66,"sixty-six entries discoverable"):return
  DiaryState.toggle_favorite("sparrow")
  _show_collection()
  modal.set_filter("favorites")
@@ -808,7 +811,7 @@ func _refresh_fieldkit() -> void:
  var remaining: float=maxf(0.0,focus_target-focus_elapsed) if focus_target>0.0 else focus_elapsed
  fieldkit.update_state({"weather_index":weather_mode,"weather_label":WEATHER_NAMES[weather_mode],
   "day":day_number,"clock":"%02d:%02d" % [int(now.hour),int(now.minute)],
-  "visits":_visitor_total(),"collected":DiaryState.get_count(),"total":50,
+  "visits":_visitor_total(),"collected":DiaryState.get_count(),"total":DiaryState.get_entry_defs().size(),
   "food_percent":DiaryState.food_percent,"seed_stocks":DiaryState.seed_stocks.duplicate(),
   "supplies_available":DiaryState.supplies_available(),"recent":recent,
   "music_on":DiaryState.music_on,"ambience_on":DiaryState.ambience_on,"volumes":DiaryState.mixer_volumes.duplicate(),

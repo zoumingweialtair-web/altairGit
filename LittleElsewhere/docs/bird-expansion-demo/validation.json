@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-16",
+  "engine": "Godot 4.7.2 stable / Compatibility",
+  "scope": {
+    "new_birds": 16,
+    "total_birds": 26,
+    "creatures": 37,
+    "guide_entries": 66
+  },
+  "bird_rarity_tickets": {
+    "ordinary": 9000,
+    "uncommon": 690,
+    "rare": 200,
+    "mysterious": 100,
+    "legendary": 10,
+    "denominator": 10000
+  },
+  "checks": [
+    {
+      "name": "state_test",
+      "passed": 68,
+      "failed": 0
+    },
+    {
+      "name": "expansion_state_test",
+      "passed": 27,
+      "failed": 0,
+      "notes": "Exhaustive 10000-ticket distribution; save migration; all birds reachable; mementos"
+    },
+    {
+      "name": "habitat_route_test",
+      "passed": 166,
+      "failed": 0
+    },
+    {
+      "name": "bird_expansion_motion_test",
+      "passed": 189,
+      "failed": 0,
+      "notes": "Includes 80 interrupted departures"
+    },
+    {
+      "name": "bird_perch_spacing_test",
+      "passed": 42,
+      "failed": 0
+    },
+    {
+      "name": "creature_animation_test",
+      "passed": 720,
+      "failed": 0
+    },
+    {
+      "name": "creature_lab_test",
+      "passed": 581,
+      "failed": 0
+    },
+    {
+      "name": "creature_lab_test --new-birds",
+      "passed": 372,
+      "failed": 0
+    },
+    {
+      "name": "visitor_queue_test",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "name": "gm_test",
+      "passed": 396,
+      "failed": 0
+    },
+    {
+      "name": "gm_ui_test",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "name": "fieldkit_test",
+      "passed": 33,
+      "failed": 0
+    },
+    {
+      "name": "main --ui-test",
+      "result": "UI_SMOKE_OK",
+      "failed": 0
+    },
+    {
+      "name": "creature_render_test",
+      "species": 37,
+      "phases": 3,
+      "poses_per_phase": 64,
+      "drawings": 7104,
+      "animated_checks": 111,
+      "failed": 0
+    },
+    {
+      "name": "expansion_asset_test",
+      "passed": 6137,
+      "failed": 0,
+      "birds": 16,
+      "animations": 96,
+      "frames": 768,
+      "clipped_frames": 0,
+      "min_edge_clearance_px": 21,
+      "scene_samples": 64
+    },
+    {
+      "name": "capture_expansion_showcase",
+      "frames": 100,
+      "frame_ms": 80,
+      "resolution": [
+        1080,
+        1120
+      ],
+      "failed": 0
+    }
+  ],
+  "save_safety": "Normal save hash unchanged in state, UI, queue, asset and capture checks; previews run with --capture and --ui-lab.",
+  "visual_review": [
+    "Four transparent source atlases",
+    "16 native idle and flying bird shapes",
+    "Inverted foot pivot at six angles",
+    "Twin head independence at six extrema",
+    "Actual game scenery and guide",
+    "Chinese showcase first and flying frames"
+  ],
+  "artifacts": [
+    "characters.png",
+    "animated-birds.gif",
+    "expansion.png",
+    "expansion_guide.png",
+    "animation_lab.png",
+    "all_creatures.png"
+  ],
+  "limitations": [
+    "Original ten birds retain accepted procedural artwork; new sixteen use painted cutout artwork.",
+    "Fifty-species brainstorm and bird relationships are not fully implemented.",
+    "Baked SpriteFrames are portable pose clips; live world uses continuous articulated animation and separate travel routes."
+  ]
+}

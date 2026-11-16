@@ -52,7 +52,7 @@ func _run() -> void:
   return
  var visitors = gm.find_child("VisitorPicker",true,false) as OptionButton
  var events = gm.find_child("EventPicker",true,false) as OptionButton
- check(visitors != null and visitors.item_count == 21,"all 21 creatures are available in the picker")
+ check(visitors != null and visitors.item_count == 37,"all 37 creatures are available in the picker")
  check(events != null and events.item_count == 21,"all 21 wonders are available in the picker")
  var weather = gm.find_child("WeatherPicker",true,false) as OptionButton
  if weather != null:
@@ -107,9 +107,9 @@ func _run() -> void:
  await process_frame
  check(not gm.is_open(),"Escape closes the console")
  root.gui_release_focus()
- key(KEY_1,49)
+ key(KEY_W,119)
  await process_frame
- check(game.weather_mode == 0,"game shortcuts resume after closing")
+ check(str(game.fieldkit.get_snapshot().get("panel","")) == "weather","game shortcuts resume after closing")
  if OS.get_cmdline_user_args().has("--native-screenshot"):
   gm.show_console()
   await process_frame

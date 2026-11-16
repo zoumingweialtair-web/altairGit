@@ -373,7 +373,8 @@ func _detail(page: Node, defs: Dictionary) -> void:
  var profile: Dictionary = _profile(id) if known else {}
  var visitor: bool = not profile.is_empty()
  _label(box, str(definition.get("name", id)) if known else "等待新的相遇", Vector2(18, 10), Vector2(260, 38), 25)
- var badge: Panel = _panel(box, Rect2(296, 14, 112, 30), Kit.BLUE, Kit.BLUE)
+ var rarity_color: Color={"普通":Color("74836b"),"罕见":Color("648d92"),"稀有":Color("927895"),"神秘":Color("666e9c"),"传说":Color("ac824a")}.get(str(definition.get("rarity","")),Kit.BLUE) if known else Kit.BLUE
+ var badge: Panel = _panel(box, Rect2(296, 14, 112, 30), rarity_color, rarity_color)
  var badge_text: Label = _label(badge, str(definition.get("rarity", "已发现")) if known else "发现线索", Vector2(6, 1), Vector2(100, 27), 17, Kit.PAPER)
  badge_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
  _illustration(box, id, known, Rect2(12, 51, 192, 116), true)

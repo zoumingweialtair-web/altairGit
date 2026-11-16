@@ -1,9 +1,10 @@
 extends RefCounted
 ## Creature locomotion follows physical supports and explicit flight sub-states.
 const Habitat = preload("res://scripts/habitat_paths.gd")
-const IDS: Array[String] = ["sparrow","tit","robin","woodpecker","owl","kingfisher","swallow","magpie","white_eye","egret","squirrel","hedgehog","cat","bat","butterfly","luna_moth","jewel_beetle","fireflies","dragonfly","ladybug","stag_beetle"]
-const BIRDS: Array[String] = ["sparrow","tit","robin","woodpecker","owl","kingfisher","swallow","magpie","white_eye","egret"]
-const AIRBORNE: Array[String] = ["swallow","bat","butterfly","luna_moth","fireflies","dragonfly"]
+const IDS: Array[String] = ["sparrow","tit","robin","woodpecker","owl","kingfisher","swallow","magpie","white_eye","egret","squirrel","hedgehog","cat","bat","butterfly","luna_moth","jewel_beetle","fireflies","dragonfly","ladybug","stag_beetle","pigeon","crow","cockatiel","dough_bird","dandelion_bird","paper_bird","cloud_bird","yarn_bird","clockwork_bird","alien_bird","twin_bird","invisible_bird","shadow_bird","inverted_bird","galaxy_bird","crescent_bird"]
+const EXPANSION_BIRDS: Array[String] = ["pigeon","crow","cockatiel","dough_bird","dandelion_bird","paper_bird","cloud_bird","yarn_bird","clockwork_bird","alien_bird","twin_bird","invisible_bird","shadow_bird","inverted_bird","galaxy_bird","crescent_bird"]
+const BIRDS: Array[String] = ["sparrow","tit","robin","woodpecker","owl","kingfisher","swallow","magpie","white_eye","egret","pigeon","crow","cockatiel","dough_bird","dandelion_bird","paper_bird","cloud_bird","yarn_bird","clockwork_bird","alien_bird","twin_bird","invisible_bird","shadow_bird","inverted_bird","galaxy_bird","crescent_bird"]
+const AIRBORNE: Array[String] = ["swallow","bat","butterfly","luna_moth","fireflies","dragonfly","cloud_bird"]
 const CRAWLERS: Array[String] = ["squirrel","jewel_beetle","ladybug","stag_beetle"]
 const SHELTER_WEATHER: Array[int] = [1,2,4,5,6]
 
@@ -14,6 +15,9 @@ static func duration(id: String, weather: int) -> float:
 
 static func entry_duration(id: String) -> float:
  if id=="squirrel":return 8.4
+ if id=="inverted_bird":return 6.4
+ if id=="shadow_bird":return 5.6
+ if id in ["cloud_bird","paper_bird"]:return 6.0
  if id in CRAWLERS:return 6.8
  if id in ["cat","hedgehog"]:return 5.0
  if id in ["owl","egret"]:return 5.2
@@ -21,6 +25,8 @@ static func entry_duration(id: String) -> float:
 
 static func exit_duration(id: String) -> float:
  if id=="squirrel":return 7.2
+ if id=="inverted_bird":return 5.6
+ if id in ["shadow_bird","cloud_bird"]:return 5.2
  if id in CRAWLERS:return 6.0
  return 4.5
 
@@ -40,6 +46,7 @@ static func request_departure(actor: Dictionary) -> void:
  actor["exit_was_flying"]=bool(actor.get("fly",false))
  actor["exit_heading"]=Vector2.from_angle(float(actor.get("route_angle",0.0)))
  actor["exit_perch_blend"]=float(actor.get("perch_blend",1.0))
+ actor["exit_invert_blend"]=float(actor.get("invert_blend",0.0))
  actor["duration"]=float(actor["age"])+float(actor["exit_duration"])
  actor["phase"]="exit"
  actor["phase_progress"]=0.0
@@ -68,6 +75,7 @@ static func sample(actor: Dictionary, weather: int, activity: float) -> void:
  actor["fly"]=false
  actor["body_tilt"]=0.0
  actor["crouch"]=0.0
+ actor["invert_blend"]=0.0
  actor["wing_power"]=0.0
  actor["wing_strength"]=0.0
  actor["wing_phase"]=fposmod(float(actor["motion_age"])*_wing_rate(id),1.0)
@@ -85,6 +93,7 @@ static func sample(actor: Dictionary, weather: int, activity: float) -> void:
    actor["exit_was_flying"]=bool(actor["fly"])
    actor["exit_heading"]=Vector2.from_angle(float(actor.get("route_angle",0.0)))
    actor["exit_perch_blend"]=float(actor["perch_blend"])
+   actor["exit_invert_blend"]=float(actor.get("invert_blend",0.0))
   _exit(actor,float(actor["phase_progress"]))
  elif age<enter:
   actor["phase"]="entry"
@@ -104,10 +113,17 @@ static func sample(actor: Dictionary, weather: int, activity: float) -> void:
  actor["wing_strength"]=actor["wing_power"]
  actor["land_blend"]=actor["perch_blend"]
  actor["hidden_in_habitat"]=Habitat.is_hidden(id,actor["pos"])
+ if id in EXPANSION_BIRDS:_expansion_gestures(actor)
 
 static func _entry(actor: Dictionary, p: float) -> void:
  var id: String=str(actor["id"])
  var anchor: Vector2=actor["anchor"]
+ if id=="shadow_bird":
+  _shadow_slide(actor,entry_endpoint(id,anchor),anchor,p)
+  return
+ if id=="inverted_bird":
+  _inverted_entry(actor,p)
+  return
  if id in CRAWLERS:
   var moving: float=clampf(p/(0.86 if id=="squirrel" else 1.0),0.0,1.0)
   var path: PackedVector2Array=Habitat.crawl_path(id,anchor)
@@ -155,6 +171,12 @@ static func _exit(actor: Dictionary, p: float) -> void:
  var id: String=str(actor["id"])
  var anchor: Vector2=actor["anchor"]
  var from: Vector2=actor["exit_from"]
+ if id=="shadow_bird":
+  _shadow_slide(actor,from,exit_endpoint(id,anchor),p)
+  return
+ if id=="inverted_bird" and float(actor.get("exit_invert_blend",0.0))>0.001:
+  _inverted_exit(actor,p)
+  return
  if id in CRAWLERS:
   var path: PackedVector2Array=Habitat.crawl_path(id,anchor)
   var start_p: float=float(actor.get("exit_path_progress",1.0))
@@ -233,7 +255,10 @@ static func _flight_pose(actor: Dictionary, mode: String, power: float, perched:
  actor["support"]="air"
 
 static func _wing_rate(id: String) -> float:
- if id in ["owl","egret","magpie"]:return 3.2
+ if id=="cloud_bird":return 1.0
+ if id=="paper_bird":return 2.7
+ if id=="clockwork_bird":return 5.0
+ if id in ["owl","egret","magpie","crow","galaxy_bird","crescent_bird"]:return 3.2
  if id in ["swallow","bat"]:return 5.3
  if id in ["butterfly","luna_moth"]:return 5.0
  if id=="dragonfly":return 14.0
@@ -274,6 +299,8 @@ static func _transfer(actor: Dictionary, from: Vector2, to: Vector2, p: float, l
 
 static func entry_endpoint(id: String, anchor: Vector2) -> Vector2:
  if id in CRAWLERS:return Habitat.crawl_path(id,anchor)[0]
+ if id=="shadow_bird":return Vector2(1620,anchor.y)
+ if id=="inverted_bird":return Vector2(-180,anchor.y+120)
  if id=="hedgehog":return Vector2(-100,anchor.y)
  if id=="cat":return Vector2(1570,anchor.y)
  if id=="egret":return Vector2(1600,370)
@@ -283,6 +310,7 @@ static func entry_endpoint(id: String, anchor: Vector2) -> Vector2:
 
 static func exit_endpoint(id: String, anchor: Vector2) -> Vector2:
  if id in CRAWLERS:return Habitat.crawl_path(id,anchor)[0]
+ if id=="shadow_bird":return Vector2(1620,anchor.y)
  if id=="hedgehog":return Vector2(-120,anchor.y)
  if id=="cat":return Vector2(1600,anchor.y)
  if id in ["owl","tit","magpie","woodpecker"]:return Vector2(-190,-100)
@@ -293,7 +321,7 @@ static func route(id: String, from: Vector2, to: Vector2, p: float, incoming: bo
  if id in CRAWLERS:
   var path: PackedVector2Array=Habitat.crawl_path(id,to if incoming else from)
   return Habitat.sample_path(path,p if incoming else 1.0-p).position
- if id in ["cat","hedgehog"]:return from.lerp(to,smoothstep(0.0,1.0,p))
+ if id in ["cat","hedgehog","shadow_bird"]:return from.lerp(to,smoothstep(0.0,1.0,p))
  return _flight_curve(from,to,smoothstep(0.0,1.0,p),65.0).position
 
 static func idle_position(actor: Dictionary, age: float, weather: int, activity: float) -> Vector2:
@@ -305,6 +333,19 @@ static func idle_position(actor: Dictionary, age: float, weather: int, activity:
  actor["pose"]=idle_pose(id,float(actor["motion_age"]),false)
  actor["support"]=Habitat.support(id)
  if id=="squirrel":actor["support"]="branch"
+ if id=="inverted_bird":actor["invert_blend"]=1.0
+ if id=="shadow_bird":
+  actor["pose"]="shadow_watch"
+  return anchor
+ if id in ["crow","clockwork_bird","twin_bird"]:
+  var feeding_at: float=9.0+float(EXPANSION_BIRDS.find(id)%3)*1.2
+  var feeder: Vector2=Vector2(1107,584) if id=="crow" else Vector2(1140,584)
+  if t>=feeding_at and t<feeding_at+4.8:
+   _transfer(actor,anchor,feeder,(t-feeding_at)/4.8,85.0)
+   return actor["pos"]
+  if t>=feeding_at+4.8:
+   actor["support"]="feeder"
+   return feeder
  if id in ["sparrow","tit"] and weather not in SHELTER_WEATHER:
   var start: float=7.0 if id=="sparrow" else 9.5
   var feeder: Vector2=Vector2(1140,584) if id=="sparrow" else Vector2(1107,584)
@@ -330,12 +371,14 @@ static func idle_position(actor: Dictionary, age: float, weather: int, activity:
    "luna_moth":extent=Vector2(28,16);frequency=0.25
    "dragonfly":extent=Vector2(44,12);frequency=0.34
    "fireflies":extent=Vector2(12,8);frequency=0.18
+   "cloud_bird":extent=Vector2(25,10);frequency=0.20
   var sign_x: float=-1.0 if id in ["swallow","bat","dragonfly"] else 1.0
   var offset: Vector2=Vector2(sign_x*sin(t*frequency)*extent.x,sin(t*frequency*1.6)*extent.y)*activity
   var tangent: Vector2=Vector2(sign_x*cos(t*frequency)*extent.x,cos(t*frequency*1.6)*extent.y*1.6).normalized()
   _heading(actor,tangent)
   _flight_pose(actor,"glide" if id in ["swallow","bat"] and fmod(t,3.1)>2.1 else "flap",0.8,0.0)
-  actor["pose"]="hover" if id in ["dragonfly","luna_moth","fireflies"] else "fly"
+  actor["pose"]="hover" if id in ["dragonfly","luna_moth","fireflies","cloud_bird"] else "fly"
+  if id=="cloud_bird":actor["flight_mode"]="float";actor["wing_power"]=0.16
   return anchor+offset
  if id=="white_eye":
   var local: float=fmod(t,9.0)
@@ -360,3 +403,120 @@ static func idle_pose(id: String, t: float, flying: bool) -> String:
   "robin":return "sing" if fmod(t,9.0)>6.5 else "perch"
   "sparrow":return "peck" if fmod(t,6.0)>4.5 else "look"
  return "perch"
+
+# New characters retain the same contact origin as ordinary birds. Only the
+# hanging bird rotates the artwork around that foot origin after touching bark.
+static func _shadow_slide(actor: Dictionary, from: Vector2, to: Vector2, p: float) -> void:
+ actor["pos"]=from.lerp(to,smoothstep(0.0,1.0,p))
+ actor["fly"]=false
+ actor["support"]="sill"
+ actor["facing"]=1.0 if to.x>from.x else -1.0
+ actor["route_angle"]=0.0 if to.x>from.x else PI
+ actor["pose"]="shadow_slide"
+ actor["flight_mode"]="surface"
+ actor["perch_blend"]=1.0
+ actor["travel"]=sin(p*PI)
+ actor["gait_distance"]=from.distance_to(actor["pos"])
+ actor["gait_phase"]=fposmod(float(actor["gait_distance"])/32.0,1.0)
+
+static func _inverted_entry(actor: Dictionary, p: float) -> void:
+ var anchor: Vector2=actor["anchor"]
+ var flight_p: float=smoothstep(0.0,1.0,clampf(p/0.78,0.0,1.0))
+ var data: Dictionary=_flight_curve(entry_endpoint("inverted_bird",anchor),anchor,flight_p,-55.0)
+ actor["pos"]=data.position
+ _heading(actor,data.tangent)
+ _flight_pose(actor,"flap" if p<0.54 else "brake",0.85,0.0)
+ actor["pose"]="arrive" if p<0.54 else "brake"
+ actor["feet_reach"]=smoothstep(0.52,0.76,p)
+ actor["tail_spread"]=smoothstep(0.50,0.74,p)
+ if p>=0.78:
+  actor["pos"]=anchor
+  actor["fly"]=false
+  actor["support"]="branch_underside"
+  actor["pose"]="invert_settle"
+  actor["flight_mode"]="land"
+  actor["perch_blend"]=smoothstep(0.78,0.94,p)
+  actor["wing_power"]=lerpf(0.4,0.0,smoothstep(0.78,1.0,p))
+  actor["invert_blend"]=smoothstep(0.80,1.0,p)
+  actor["body_tilt"]=0.0
+
+static func _inverted_exit(actor: Dictionary, p: float) -> void:
+ var from: Vector2=actor["exit_from"]
+ var inverted: float=float(actor["exit_invert_blend"])
+ # Unfold around the same feet before releasing; no reposition on interruption.
+ var release: float=0.20
+ if p<release:
+  actor["pos"]=from
+  actor["invert_blend"]=inverted*(1.0-smoothstep(0.0,release,p))
+  actor["fly"]=false
+  actor["support"]="branch_underside"
+  actor["flight_mode"]="takeoff"
+  actor["pose"]="unhook"
+  actor["wing_power"]=smoothstep(0.04,release,p)*0.7
+  actor["perch_blend"]=1.0
+  actor["body_tilt"]=0.0
+  return
+ var q: float=pow(clampf((p-release)/(1.0-release),0.0,1.0),1.25)
+ var data: Dictionary=_flight_curve(from,Vector2(-190,from.y+150),q,-80.0)
+ actor["pos"]=data.position
+ _heading(actor,data.tangent)
+ _flight_pose(actor,"takeoff" if p<0.36 else "flap",1.0,0.0)
+ actor["pose"]="takeoff" if p<0.36 else "depart"
+ actor["feet_reach"]=1.0-smoothstep(release,release+0.12,p)
+ actor["perch_blend"]=1.0-smoothstep(release,release+0.08,p)
+
+static func _gesture_pulse(p: float, start: float, end: float) -> float:
+ if p<=start or p>=end:return 0.0
+ return sin((p-start)/(end-start)*PI)
+
+static func _expansion_gestures(actor: Dictionary) -> void:
+ var id: String=str(actor["id"])
+ var t: float=float(actor["motion_age"])
+ var p: float=fposmod(t*0.145+float(EXPANSION_BIRDS.find(id))*0.073,1.0)
+ var resting: bool=str(actor["phase"])=="idle" and (not bool(actor["fly"]) or id=="cloud_bird")
+ var feeding: float=_gesture_pulse(p,0.50,0.80) if resting else 0.0
+ actor["special_phase"]=p
+ actor["special_action"]="observe"
+ actor["feed_blend"]=feeding
+ actor["seed_visible"]=feeding>0.06
+ actor["windup"]=_gesture_pulse(p,0.14,0.44) if resting and id=="clockwork_bird" else 0.0
+ actor["antenna_scan"]=(sin(t*1.7)+1.0)*0.5 if id=="alien_bird" else 0.0
+ actor["head_disagreement"]=_gesture_pulse(p,0.10,0.46) if resting and id=="twin_bird" else 0.0
+ actor["orbit_phase"]=fposmod(t*0.12,1.0)
+ actor["fullness"]=0.5+0.5*sin(t*0.38)
+ actor["body_float"]=sin(t*1.3)*2.5 if id=="cloud_bird" else 0.0
+ if bool(actor["fly"]) and id=="paper_bird":
+  var envelope: float=sin(float(actor["phase_progress"])*PI) if str(actor["phase"]) in ["entry","exit"] else 0.0
+  actor["pos"]=(actor["pos"] as Vector2)+Vector2(0,sin(t*5.4)*7.0*envelope)
+  actor["body_tilt"]+=sin(t*4.0)*0.12*envelope
+  actor["flight_mode"]="flutter"
+ if not resting:return
+ actor["pose"]="feed" if feeding>0.05 else "look"
+ actor["special_action"]="feed" if feeding>0.05 else "observe"
+ match id:
+  "pigeon":
+   if p<0.25:actor["pose"]="head_bob";actor["special_action"]="head_bob"
+  "crow":
+   if p<0.30:actor["pose"]="inspect";actor["special_action"]="inspect"
+  "cockatiel":
+   if p<0.30:actor["pose"]="crest_pop";actor["special_action"]="crest_pop"
+  "dough_bird":
+   if p<0.30:actor["pose"]="inflate";actor["special_action"]="inflate"
+  "dandelion_bird":
+   if p<0.30:actor["pose"]="seed_sneeze";actor["special_action"]="seed_sneeze"
+  "cloud_bird":actor["pose"]="hover_feed" if feeding>0.05 else "hover";actor["special_action"]="condense" if feeding>0.05 else "drift"
+  "paper_bird":
+   if p<0.30:actor["pose"]="fold";actor["special_action"]="fold"
+  "yarn_bird":
+   if p<0.30:actor["pose"]="unravel";actor["special_action"]="unravel"
+  "clockwork_bird":
+   if float(actor["windup"])>0.05:actor["pose"]="windup";actor["special_action"]="windup"
+  "alien_bird":
+   if p<0.42:actor["pose"]="calibrate";actor["special_action"]="calibrate"
+  "twin_bird":
+   if float(actor["head_disagreement"])>0.05:actor["pose"]="argue";actor["special_action"]="argue"
+  "invisible_bird":actor["special_action"]="floating_seed" if feeding>0.05 else "invisible_blink"
+  "shadow_bird":actor["pose"]="shadow_feed" if feeding>0.05 else "shadow_watch"
+  "inverted_bird":actor["pose"]="hanging_feed" if feeding>0.05 else "hang"
+  "galaxy_bird":actor["special_action"]="orbit"
+  "crescent_bird":actor["special_action"]="moon_phase"

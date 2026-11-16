@@ -1147,7 +1147,7 @@ func _update_detailed_portrait() -> void:
  _portrait.show()
  _portrait.actor=DetailedVisitor.portrait_actor(entry_id,_elapsed if animated else 1.5)
  _portrait.context={"light":Color.WHITE,"alpha":1.0,"activity":0.7}
- var area: Rect2=DetailedVisitor.bounds(entry_id,bool(_portrait.actor.get("fly",false)))
+ var area: Rect2=DetailedVisitor.bounds_for_actor(_portrait.actor)
  var fit: float=minf((size.x-16.0)/maxf(1.0,area.size.x),(size.y-14.0)/maxf(1.0,area.size.y))
  _portrait.scale=Vector2.ONE*fit
  _portrait.position=size*0.5-area.get_center()*fit

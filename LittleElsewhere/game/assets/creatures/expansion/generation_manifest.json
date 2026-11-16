@@ -1,0 +1,72 @@
+{
+  "created": "2026-11-16",
+  "source_concept": "docs/bird-expansion-art-v1/character-sheet-v2.png",
+  "provider": "image_gen",
+  "purpose": "Four painted transparent 4x4 articulated-bird parts atlases",
+  "passes": [
+    {
+      "atlas": "a",
+      "prompt": "Convert the specified characters from the provided approved concept sheet into a PRODUCTION 2D CUTOUT ANIMATION PARTS ATLAS. Preserve their exact charming light hand-drawn watercolor/pencil textures, muted cream/sage/teal colors, round pudding proportions, tiny black bead eyes and tiny beaks. This is a genuinely TRANSPARENT PNG with alpha, NOT a poster. No paper background, no ground shadows, no text, labels, gridlines, captions, props or checkerboard painted into the image. The reference sheet is for faithful character identities, not for copying its background/layout.\n\nStrict invisible grid: square image with EXACTLY FOUR equal-height ROWS and FOUR equal-width COLUMNS (16 equal square cells). Leave transparent empty gutters around every part; all artwork stays within its own cell. Every piece is CENTERED inside its cell; no overlaps between cells. A body should fill about 72% of its cell. Separated parts should be fully painted shapes ready to rotate at joints. Each row corresponds to one species; across that row:\nCOLUMN 1: complete bird BODY including the head, face, beak and short tail, but REMOVE both wings and REMOVE all feet/legs; clean painted fill where wings were, no amputated stumps or outline gaps.\nCOLUMN 2: its detached NEAR WING, a rounded feather/mitten shape pointing DOWN in a relaxed folded pose, attachment root at TOP, fully separated from body.\nCOLUMN 3: its detached FAR WING, same species palette, similarly pointing DOWN, root at TOP.\nCOLUMN 4: its detached TWO LITTLE FEET with short legs, isolated as a pair, soles on common baseline. Feet and wings not attached to a second body.\nBird bodies face gently RIGHT in three-quarter view with TWO bead eyes visible. Keep all pixels outside the actual art genuinely transparent. Enough detail for a ~70px game character, crisp clean silhouette; NOT oil-paint, not vector icon, not glossy 3D.\nRows TOP TO BOTTOM: row1 PIGEON (gray bread-shaped pigeon with thick neck, soft gray/lavender collar, pink feet); row2 CROW (soft charcoal ball, small cream eye patches with black pupils, tiny blunt beak, charcoal feet); row3 COCKATIEL (pale cream bird, peach cheek marks, upright three-feather crest, gray-beige wings, pink feet); row4 DOUGH BIRD (soft cream inflated dough ball with three simple top folds, tiny eyes and beak, tiny warm-beige feet, soft doughy wings). Only these four species. Do not draw their seeds, pebbles, sparkles or ground. All four columns must be clearly detached parts, especially NO wings remain baked onto the body.",
+      "cleanup_source": "exec-850fd476-d83c-4e1f-b599-ee12498d568b.png",
+      "output": "atlas_a.png",
+      "sha256": "90fe2fbd381ff2975b988e10d52ea60dcb7939fada2b1e25a081b99c3487a33d",
+      "dimensions": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "atlas": "b",
+      "prompt": "Convert the specified characters from the provided approved concept sheet into a PRODUCTION 2D CUTOUT ANIMATION PARTS ATLAS. Preserve their exact charming light hand-drawn watercolor/pencil textures, muted cream/sage/teal colors, round pudding proportions, tiny black bead eyes and tiny beaks. This is a genuinely TRANSPARENT PNG with alpha, NOT a poster. No paper background, no ground shadows, no text, labels, gridlines, captions, props or checkerboard painted into the image. The reference sheet is for faithful character identities, not for copying its background/layout.\n\nStrict invisible grid: square image with EXACTLY FOUR equal-height ROWS and FOUR equal-width COLUMNS (16 equal square cells). Leave transparent empty gutters around every part; all artwork stays within its own cell. Every piece is CENTERED inside its cell; no overlaps between cells. A body should fill about 72% of its cell. Separated parts should be fully painted shapes ready to rotate at joints. Each row corresponds to one species; across that row:\nCOLUMN 1: complete bird BODY including the head, face, beak and short tail, but REMOVE both wings and REMOVE all feet/legs; clean painted fill where wings were, no amputated stumps or outline gaps.\nCOLUMN 2: its detached NEAR WING, a rounded feather/mitten shape pointing DOWN in a relaxed folded pose, attachment root at TOP, fully separated from body.\nCOLUMN 3: its detached FAR WING, same species palette, similarly pointing DOWN, root at TOP.\nCOLUMN 4: its detached TWO LITTLE FEET with short legs, isolated as a pair, soles on common baseline. Feet and wings not attached to a second body.\nBird bodies face gently RIGHT in three-quarter view with TWO bead eyes visible. Keep all pixels outside the actual art genuinely transparent. Enough detail for a ~70px game character, crisp clean silhouette; NOT oil-paint, not vector icon, not glossy 3D.\nRows TOP TO BOTTOM: row1 DANDELION BIRD (round dandelion-down puffball, tiny face; controlled fine cream fluff; fluffy separate wings and small warm feet); row2 CRUMPLED PAPER BIRD (crumpled off-white paper-ball body with clean fold planes, tiny eyes and folded beak; separated paper folded wings; folded-paper little feet); row3 CLOUD BIRD (drooping soft pale gray-lavender cloud body, tiny face; cloud-lobed separated wings; two skinny brown feet). Do not include the cloud above its head, rain, particles, ground or extra props: those will be animated separately. row4 YARN BIRD (loose sage yarn-ball body with tiny eyes and beak, a short attached thread tail curling beside body; separated knitted wings; two tiny sage feet). Do not include its twig or loose disconnected thread. Preserve simple readable silhouettes. No wing is baked onto the column1 bodies.",
+      "cleanup_source": "exec-714c2280-14a6-4d70-ab76-ede0381d7437.png",
+      "output": "atlas_b.png",
+      "sha256": "0241449a97d874f9287791b8cb5e07638cf94f376243a5ed0e1fa411606e5700",
+      "dimensions": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "atlas": "c",
+      "prompt": "Convert the specified characters from the provided approved concept sheet into a PRODUCTION 2D CUTOUT ANIMATION PARTS ATLAS. Preserve their exact charming light hand-drawn watercolor/pencil textures, muted cream/sage/teal colors, round pudding proportions, tiny black bead eyes and tiny beaks. This is a genuinely TRANSPARENT PNG with alpha, NOT a poster. No paper background, no ground shadows, no text, labels, gridlines, captions, props or checkerboard painted into the image. The reference sheet is for faithful character identities, not for copying its background/layout.\n\nStrict invisible grid: square image with EXACTLY FOUR equal-height ROWS and FOUR equal-width COLUMNS (16 equal square cells). Leave transparent empty gutters around every part; all artwork stays within its own cell. Every piece is CENTERED inside its cell; no overlaps between cells. A body should fill about 72% of its cell. Separated parts should be fully painted shapes ready to rotate at joints. Each row corresponds to one species; across that row:\nCOLUMN 1: complete bird BODY including the head, face, beak and short tail, but REMOVE both wings and REMOVE all feet/legs; clean painted fill where wings were, no amputated stumps or outline gaps.\nCOLUMN 2: its detached NEAR WING, a rounded feather/mitten shape pointing DOWN in a relaxed folded pose, attachment root at TOP, fully separated from body.\nCOLUMN 3: its detached FAR WING, same species palette, similarly pointing DOWN, root at TOP.\nCOLUMN 4: its detached TWO LITTLE FEET with short legs, isolated as a pair, soles on common baseline. Feet and wings not attached to a second body.\nBird bodies face gently RIGHT in three-quarter view with TWO bead eyes visible. Keep all pixels outside the actual art genuinely transparent. Enough detail for a ~70px game character, crisp clean silhouette; NOT oil-paint, not vector icon, not glossy 3D.\nRows TOP TO BOTTOM with TWO EXPLICIT COLUMN OVERRIDES:\nrow1 CLOCKWORK BIRD: rotund cream/brass tin body, small teal panels, small visible gear-window in belly; NO attached winding key on body. column2 rounded teal metal wing. OVERRIDE column3: a single DETACHED brass winding KEY (not a far wing), root/stem to LEFT, loop-handle to RIGHT. column4 pair of tiny brass mechanical feet.\nrow2 ALIEN BIRD: dusty sage pear-shaped round body with two soft antennae pointing differently, two black bead eyes; mint wings. OVERRIDE column4: exactly THREE tiny feet on common baseline instead of two. No seeds.\nrow3 TWO-HEADED BIRD: OVERRIDE column1: ONE HEADLESS plump oatmeal body with TWO short neck stubs emerging at TOP, no faces, no wings or feet. column2 one detached muted brown wing. OVERRIDE column3: exactly TWO separate COMPLETE round oatmeal bird HEADS sitting SIDE BY SIDE in this cell with a clear transparent gap, each head has its own two bead eyes and tiny beak; left head sleepy, right head earnest. Each head has a short neck at bottom. NO torso beneath the heads. column4: one pair of tiny pink feet.\nrow4 INVISIBLE BIRD: complete transparent round bird body with its face and faint pale-mint glass/refraction edges; the INSIDE is genuinely largely transparent, a few soft highlights define its body. No seed inside the belly (will animate separately). Wings are detached transparent pale-mint outlines/highlights, matching the body; feet pale mint with clear outline. No rain or droplets around body. Keep the full invisible bird silhouette readable while genuinely transparent.",
+      "cleanup_source": "exec-2a6a08e6-a215-4c8d-bd5d-85b4baddf0f2.png",
+      "output": "atlas_c.png",
+      "sha256": "f57351f1acf30b74a815651ab92e852550fea5e60169bd87504de8e2ff112ec8",
+      "dimensions": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "atlas": "d",
+      "prompt": "Convert the specified characters from the provided approved concept sheet into a PRODUCTION 2D CUTOUT ANIMATION PARTS ATLAS. Preserve their exact charming light hand-drawn watercolor/pencil textures, muted cream/sage/teal colors, round pudding proportions, tiny black bead eyes and tiny beaks. This is a genuinely TRANSPARENT PNG with alpha, NOT a poster. No paper background, no ground shadows, no text, labels, gridlines, captions, props or checkerboard painted into the image. The reference sheet is for faithful character identities, not for copying its background/layout.\n\nStrict invisible grid: square image with EXACTLY FOUR equal-height ROWS and FOUR equal-width COLUMNS (16 equal square cells). Leave transparent empty gutters around every part; all artwork stays within its own cell. Every piece is CENTERED inside its cell; no overlaps between cells. A body should fill about 72% of its cell. Separated parts should be fully painted shapes ready to rotate at joints. Each row corresponds to one species; across that row:\nCOLUMN 1: complete bird BODY including the head, face, beak and short tail, but REMOVE both wings and REMOVE all feet/legs; clean painted fill where wings were, no amputated stumps or outline gaps.\nCOLUMN 2: its detached NEAR WING, a rounded feather/mitten shape pointing DOWN in a relaxed folded pose, attachment root at TOP, fully separated from body.\nCOLUMN 3: its detached FAR WING, same species palette, similarly pointing DOWN, root at TOP.\nCOLUMN 4: its detached TWO LITTLE FEET with short legs, isolated as a pair, soles on common baseline. Feet and wings not attached to a second body.\nBird bodies face gently RIGHT in three-quarter view with TWO bead eyes visible. Keep all pixels outside the actual art genuinely transparent. Enough detail for a ~70px game character, crisp clean silhouette; NOT oil-paint, not vector icon, not glossy 3D.\nRows TOP TO BOTTOM:\nrow1 SHADOW BIRD: OVERRIDE column1 draw the FULL FLAT smoky charcoal bird silhouette with its flattened wing lobes and tiny face as in the bottom-left of the reference. It lies almost horizontally like an ink-shadow/paper cutout; no furry upright volume. Front edge slightly curled; two tiny cream spots with dark pupils and small beak. Leave row1 columns2,3,4 COMPLETELY TRANSPARENT EMPTY (no wings or feet parts needed for this special creature). No seed and no ground shadow.\nrow2 INVERTED BIRD: pale-lavender round bird with cream face, but draw its column1 body UPRIGHT, feet would normally go below it, NOT upside-down in this asset. No twig, NO feet or wings attached to body. Lavender detached wings in columns2/3 and pair of little pink gripping feet in column4. Runtime will rotate this bird upside-down.\nrow3 GALAXY BIRD: deep muted indigo rotund body with cream face and a circular belly-window showing a delicate small star field. NO orbiting seed, no orbit ring outside body; will animate separately. Indigo detached wings and two tiny warm feet.\nrow4 CRESCENT BIRD: thick soft buttery-cream CRESCENT MOON shaped body with clearly open side cutout to RIGHT; tiny bead eyes together near upper tip with a tiny beak. No wing or feet baked onto body; crescent opening genuinely transparent. Short cream wing pieces in columns2/3; pair of tiny warm feet in column4. No held seed or props. Preserve clearly crescent silhouette.",
+      "cleanup_source": "exec-8ef6fdbb-2611-4114-b4a1-64ebeb171bc3.png",
+      "output": "atlas_d.png",
+      "sha256": "9a395cb9dc7de5af5738719b3de195e4a447717e92e5d74a32e6e6417a5c974d",
+      "dimensions": [
+        1254,
+        1254
+      ]
+    }
+  ],
+  "cleanup_prompt": "Remove background paper haze and colored fringe outside every part; retain handdrawn opaque interiors; preserve genuine alpha; no layout changes.",
+  "layout": {
+    "grid": [
+      4,
+      4
+    ],
+    "columns": [
+      "body",
+      "near_wing",
+      "far_wing_or_special",
+      "feet"
+    ],
+    "runtime": "res://scripts/expansion_bird_art.gd",
+    "baked_animations": "res://assets/creatures/expansion/animations",
+    "baked_frame_size": [
+      192,
+      192
+    ],
+    "baked_frames_per_bird": 48
+  }
+}
