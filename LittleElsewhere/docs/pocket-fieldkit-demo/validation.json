@@ -1,0 +1,128 @@
+{
+  "project": "Little Elsewhere",
+  "ui": "35 Pocket Fieldkit",
+  "date": "2026-11-16T16:01:19.551334+08:00",
+  "engine": "Godot 4.7.2 / Compatibility",
+  "viewport": [
+    1440,
+    810
+  ],
+  "window": [
+    1280,
+    720
+  ],
+  "launchers": {
+    "demo": "game/Demo.cmd",
+    "normal": "game/Play.cmd",
+    "animation_lab": "game/PreviewCreatures.cmd"
+  },
+  "creatures": {
+    "birds": 10,
+    "animals": 4,
+    "insects": 7,
+    "phases": [
+      "entry",
+      "idle",
+      "exit"
+    ]
+  },
+  "collection": {
+    "birds": 10,
+    "animals": 4,
+    "insects": 7,
+    "scenery": 8,
+    "wonders": 21,
+    "total": 50
+  },
+  "validation": [
+    {
+      "suite": "state_test.gd",
+      "checks": 68,
+      "failures": 0
+    },
+    {
+      "suite": "scene_test.gd",
+      "checks": 398,
+      "failures": 0
+    },
+    {
+      "suite": "atmosphere_test.gd",
+      "checks": 154,
+      "failures": 0
+    },
+    {
+      "suite": "gm_test.gd",
+      "checks": 364,
+      "failures": 0
+    },
+    {
+      "suite": "fieldkit_test.gd",
+      "checks": 31,
+      "failures": 0,
+      "renderers": [
+        "headless",
+        "native OpenGL"
+      ],
+      "real_mouse_input": true
+    },
+    {
+      "suite": "fieldkit_gm_test.gd",
+      "checks": 216,
+      "failures": 0
+    },
+    {
+      "suite": "creature_animation_test.gd",
+      "checks": 416,
+      "failures": 0
+    },
+    {
+      "suite": "creature_lab_test.gd",
+      "checks": 156,
+      "failures": 0
+    },
+    {
+      "suite": "creature_render_test.gd",
+      "draws": 4032,
+      "pixel_change_checks": 63,
+      "failures": 0,
+      "renderer": "native OpenGL"
+    },
+    {
+      "suite": "main --ui-test",
+      "status": "UI_SMOKE_OK"
+    },
+    {
+      "suite": "Godot editor import",
+      "script_errors": 0
+    }
+  ],
+  "screenshots": [
+    "animation_review.png",
+    "creature_lab.png",
+    "fieldkit.png",
+    "fieldkit_audio.png",
+    "fieldkit_feed.png",
+    "fieldkit_focus.png",
+    "fieldkit_focus_settings.png",
+    "fieldkit_guide.png",
+    "fieldkit_records.png",
+    "fieldkit_unknown.png",
+    "fieldkit_weather.png",
+    "fieldkit_wonders.png"
+  ],
+  "animation_preview": "animation_review.gif",
+  "save_compatibility": {
+    "version": 3,
+    "migrates": [
+      1,
+      2
+    ],
+    "normal_save_unchanged_by_tests": true,
+    "demo_save": "window_diary_fieldkit_demo.json",
+    "lab_no_save": true
+  },
+  "limitations": [
+    "Procedural pixel character animation demo; not final production sprite sheets.",
+    "Weather is manually selected; online/offline timing uses accelerated demo parameters."
+  ]
+}

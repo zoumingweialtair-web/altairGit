@@ -37,6 +37,7 @@ var _font: SystemFont
 @onready var world = $World
 
 func _ready() -> void:
+    get_window().content_scale_size = Vector2i(1440,900)
     mouse_filter = Control.MOUSE_FILTER_IGNORE
     styles = Styles.all_styles()
     _light_preview = OS.get_cmdline_user_args().has("--ui-light")

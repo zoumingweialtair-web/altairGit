@@ -1,5 +1,8 @@
 extends Node2D
 
+const VisitorMotion = preload("res://scripts/visitor_motion.gd")
+var _drawing_actor: Dictionary = {}
+
 signal encounter(id: String, note: String)
 signal bird_selected(id: String)
 
@@ -188,22 +191,78 @@ func trigger(id: String, record: bool = true) -> void:
         spectacles.append({"id": id, "age": 0.0, "motion_age": 0.0})
         queue_redraw()
         return
-    # One actor for each species keeps the window calm and avoids feeder piles.
-    for i in range(actors.size() - 1, -1, -1):
-        if str(actors[i]["id"]) == id:
-            actors.remove_at(i)
-    if id == "butterfly" and weather in [1, 2, 4, 5, 6]:
-        # Manual replay switches to a suitable backdrop in Main; ambient spawns
-        # are filtered there. Preserve explicit event recording, never show a
-        # butterfly flying in a storm or snow.
+    # Retriggering a present species never teleports it or interrupts its gesture.
+    for actor in actors:
+        if str(actor["id"]) == id:
+            return
+    if id == "butterfly" and weather in VisitorMotion.SHELTER_WEATHER:
         return
-    while actors.size() >= 6:
-        actors.pop_front()
-    var perch: Vector2 = VISITOR_ANCHORS.get(id, perches.get(id, Vector2(230, 550)))
-    if weather in [1, 2, 4, 5, 6] and sheltered_perches.has(id):
-        perch = sheltered_perches[id]
-    actors.append({"id": id, "age": 0.0, "pos": perch, "start": perch, "fly": false, "alpha": 1.0, "facing": 1.0, "motion_age": 0.0})
+    if actors.size() >= 6:
+        # Make room by letting a visitor leave. The queued arrival belongs to that
+        # slot, so explicit GM clears also discard queued visitors safely.
+        var slot: Dictionary = actors[0]
+        for actor in actors:
+            if not actor.has("replacement"):
+                slot = actor
+                break
+        slot["replacement"] = id
+        VisitorMotion.request_departure(slot)
+        return
+    _spawn_actor(id)
     queue_redraw()
+
+func _spawn_actor(id: String) -> void:
+    if id not in VisitorMotion.IDS: return
+    for actor in actors:
+        if str(actor["id"]) == id: return
+    if id == "butterfly" and weather in VisitorMotion.SHELTER_WEATHER: return
+    var perch: Vector2 = VISITOR_ANCHORS.get(id, perches.get(id, Vector2(230, 550)))
+    if weather in VisitorMotion.SHELTER_WEATHER and sheltered_perches.has(id):
+        perch = sheltered_perches[id]
+    actors.append(VisitorMotion.spawn(id, perch, weather))
+
+func get_creature_ids() -> Array[String]:
+    return VisitorMotion.IDS.duplicate()
+
+func get_creature_duration(id: String) -> float:
+    return VisitorMotion.duration(id, weather) if id in VisitorMotion.IDS else 0.0
+
+func get_actor_lifecycle_snapshot(id: String) -> Dictionary:
+    for actor in actors:
+        if str(actor["id"]) == id:
+            return {"id":id, "phase":actor.get("phase", "entry"),
+                "phase_progress":actor.get("phase_progress", 0.0), "duration":actor.get("duration", 0.0),
+                "age":actor["age"], "position":actor["pos"], "pose":actor.get("pose", ""),
+                "flying":actor["fly"], "alpha":actor["alpha"], "motion_age":actor["motion_age"],
+                "entry_duration":actor["entry_duration"], "exit_duration":actor["exit_duration"]}
+    return {}
+
+func request_actor_departure(id: String) -> bool:
+    for actor in actors:
+        if str(actor["id"]) == id:
+            VisitorMotion.request_departure(actor)
+            return true
+    return false
+
+func seek_actor_phase(id: String, phase: String, progress: float = 0.0) -> bool:
+    if phase not in ["entry", "idle", "exit"]: return false
+    for actor in actors:
+        if str(actor["id"]) != id: continue
+        var p: float = clampf(progress, 0.0, 0.9999)
+        var enter: float = float(actor["entry_duration"])
+        var leave: float = float(actor["exit_duration"])
+        var duration: float = get_creature_duration(id)
+        actor["duration"] = duration
+        actor.erase("forced_exit_age")
+        actor.erase("exit_from")
+        actor.erase("relocate_from")
+        actor.erase("replacement")
+        actor["age"] = enter * p if phase == "entry" else (enter + (duration - enter - leave) * p if phase == "idle" else duration - leave + leave * p)
+        actor["motion_age"] = float(actor["age"]) * (0.35 + 0.65 * activity_blend)
+        VisitorMotion.sample(actor, weather, activity_blend)
+        queue_redraw()
+        return true
+    return false
 
 func _process(delta: float) -> void:
     clock_time += delta
@@ -212,71 +271,21 @@ func _process(delta: float) -> void:
         var target: float = 1.0 if index == weather else 0.0
         weather_weights[index] = lerpf(weather_weights[index], target, blend)
     activity_blend = lerpf(activity_blend, 0.45 if quiet else 1.0, blend)
+    var arrivals: Array[String] = []
     for i in range(actors.size() - 1, -1, -1):
         var actor: Dictionary = actors[i]
-        var age: float = float(actor["age"]) + delta
-        actor["age"] = age
         var id: String = str(actor["id"])
-        var duration: float = 40.0 if weather in [1, 2, 4, 5, 6] else (34.0 if weather == 3 else 26.0)
-        if id in TREE_VISITORS:
-            duration = 36.0
-        if age > duration:
+        if int(actor.get("weather", weather)) != weather and str(actor.get("phase", "")) == "idle":
+            actor["weather"] = weather
+            actor["relocate_from"] = actor["pos"]
+            actor["relocate_at"] = actor["age"]
+            if perches.has(id):
+                actor["anchor"] = sheltered_perches[id] if weather in VisitorMotion.SHELTER_WEATHER else perches[id]
+        if VisitorMotion.advance(actor, delta, weather, activity_blend):
+            if actor.has("replacement"): arrivals.append(str(actor["replacement"]))
             actors.remove_at(i)
-            continue
-        if id in TREE_VISITORS:
-            actor["motion_age"] = float(actor.get("motion_age", 0.0)) + delta * (0.45 + activity_blend * 0.55)
-            _update_tree_visitor(actor)
-            continue
-        if id == "butterfly":
-            if weather in [1, 2, 4, 5, 6]:
-                actor["alpha"] = maxf(0.0, float(actor["alpha"]) - delta * 0.8)
-                actor["pos"] = (actor["pos"] as Vector2) + Vector2(-24.0, 10.0) * delta
-                if float(actor["alpha"]) <= 0.01:
-                    actors.remove_at(i)
-            else:
-                actor["pos"] = Vector2(225.0 + sin(age * 0.42) * 95.0, 555.0 + sin(age * 0.8) * 32.0 - age * 0.8)
-                actor["alpha"] = minf(1.0, (26.0 - age) / 3.0)
-            continue
-        var start: Vector2 = perches.get(id, actor["start"])
-        var feeder: Vector2 = Vector2(1147, 590)
-        if id == "tit":
-            feeder += Vector2(-49, -2)
-        elif id == "robin":
-            feeder += Vector2(39, -4)
-        var destination: Vector2 = start
-        var flying: bool = false
-        if weather in [1, 2, 4, 5, 6]:
-            destination = sheltered_perches.get(id, start)
-            var old_pos: Vector2 = actor["pos"]
-            # Gently retreat into the canopy when weather changes mid-flight.
-            flying = old_pos.distance_to(destination) > 9.0
-            actor["pos"] = old_pos.lerp(destination, 1.0 - exp(-delta * 1.4))
-            actor["alpha"] = clampf((40.0 - age) / 3.0, 0.0, 1.0)
-            actor["fly"] = flying
-            actor["facing"] = -1.0 if id == "tit" else 1.0
-            continue
-        var pace: float = 0.78 if weather == 3 else 1.0
-        var travel_age: float = age * pace
-        if travel_age < 7.0:
-            destination = start
-        elif travel_age < 11.0:
-            var progress: float = (travel_age - 7.0) / 4.0
-            var eased: float = smoothstep(0.0, 1.0, progress)
-            destination = start.lerp(feeder, eased) + Vector2(0, -sin(progress * PI) * 100.0)
-            flying = true
-        elif travel_age < 22.0:
-            destination = feeder
-        else:
-            var progress: float = (travel_age - 22.0) / 4.0
-            destination = feeder.lerp(start if weather == 3 else Vector2(1390, 330), progress)
-            actor["alpha"] = 1.0 - progress
-            flying = true
-        # Soft movement also prevents a jump back to the day route after rain.
-        actor["pos"] = (actor["pos"] as Vector2).lerp(destination, 1.0 - exp(-delta * 9.0))
-        actor["fly"] = flying
-        actor["facing"] = -1.0 if travel_age > 13.0 and travel_age < 18.0 else 1.0
-        if weather == 3:
-            actor["alpha"] = minf(float(actor["alpha"]), clampf((34.0 - age) / 3.0, 0.0, 1.0))
+    for id in arrivals:
+        _spawn_actor(id)
     for i in range(spectacles.size() - 1, -1, -1):
         spectacles[i]["age"] = float(spectacles[i]["age"]) + delta
         spectacles[i]["motion_age"] = float(spectacles[i].get("motion_age", 0.0)) + delta * (0.45 + activity_blend * 0.55)
@@ -318,12 +327,14 @@ func _draw() -> void:
     _draw_signal_towers()
     _draw_attraction()
     for actor in actors:
+        _drawing_actor = actor
         if str(actor["id"]) in TREE_VISITORS:
             _draw_tree_visitor(actor)
         elif str(actor["id"]) == "butterfly":
             _draw_butterfly(actor)
         else:
             _draw_bird(actor)
+    _drawing_actor = {}
     for spectacle in spectacles:
         if str(spectacle["id"]) in FANTASY_EVENTS:
             _draw_fantasy(spectacle)
@@ -335,7 +346,7 @@ func _draw() -> void:
 
 func _draw_bird(actor: Dictionary) -> void:
     var id: String = str(actor["id"])
-    var age: float = float(actor["age"])
+    var age: float = float(actor.get("motion_age", actor["age"]))
     var alpha: float = float(actor["alpha"])
     var body: Color = Color("bda78a")
     var wing: Color = Color("806d55")
@@ -360,7 +371,7 @@ func _draw_bird(actor: Dictionary) -> void:
     var scale_pixel: float = 2.65
     var puff: float = 1.0 + weather_weights[4] * 0.11
     var facing: float = float(actor["facing"])
-    draw_set_transform((pos + Vector2(0, bob)).round(), 0.0, Vector2(scale_pixel * facing * puff, scale_pixel))
+    draw_set_transform((pos + Vector2(0, bob)).round(), float(actor.get("body_tilt", 0.0)) * facing, Vector2(scale_pixel * facing * puff, scale_pixel))
     for y in range(BIRD_PATTERN.size()):
         var row: String = BIRD_PATTERN[y]
         for x in range(row.length()):
@@ -373,16 +384,26 @@ func _draw_bird(actor: Dictionary) -> void:
                 color = _ambient_color(head.darkened(0.35))
             color.a = alpha
             var peek: float = 1.0 if not flying and y < 5 and sin(age * 0.72) > 0.86 else 0.0
-            draw_rect(Rect2(x - 9 + peek, y - 12, 1, 1), color)
+            var part: Vector2 = Vector2.ZERO
+            var pose: String = str(actor.get("pose", "perch"))
+            if y < 5 and not flying:
+                if pose == "peck": part = Vector2(1, maxf(0.0, sin(age * 8.0)) * 2.5)
+                elif pose == "preen": part = Vector2(-2, 1)
+                elif pose == "sing" and key == "B": part.y = 1.0 if int(age * 4) % 2 == 0 else 0.0
+            if key == "T": part.y = roundf(sin(age * 1.6) * activity_blend)
+            if key == "L" and flying: part.y -= 2.0 * (1.0 - float(actor.get("land_blend", 0.0)))
+            if key == "C" and pose == "sing": part.x += roundf(sin(age * 4.0) * 0.6)
+            draw_rect(Rect2(Vector2(x - 9 + peek, y - 12) + part, Vector2.ONE), color)
     if flying or (not quiet and weather in [0, 3] and fmod(age, 13.0) > 12.35):
-        var flap: bool = int(age * (7.0 if quiet else 10.0)) % 2 == 0
+        var flap: bool = int(age * 9.0) % 2 == 0
+        var fold: float = float(actor.get("land_blend",0.0)) if str(actor.get("phase","idle")) != "idle" else 0.0
         var wc: Color = _ambient_color(wing.lightened(0.12))
         wc.a = alpha
         if flap:
-            draw_rect(Rect2(-5, -16, 5, 9), wc)
-            draw_rect(Rect2(-8, -18, 5, 5), wc)
+            draw_rect(Rect2(-5, -16+fold*7, 5, 9-fold*4), wc)
+            draw_rect(Rect2(-8+fold*3, -18+fold*10, 5, 5-fold*2), wc)
         else:
-            draw_rect(Rect2(-5, -6, 7, 7), wc)
+            draw_rect(Rect2(-5, -6-fold*3, 7-fold*2, 7-fold*4), wc)
     elif weather == 1 and sin(age * 1.1) > 0.91 and not quiet:
         # A brief small shake and a few droplets, without screen-wide effects.
         draw_rect(Rect2(-9, -13, 1, 2), Color(0.68, 0.81, 0.87, alpha * 0.6))
@@ -395,14 +416,16 @@ func _draw_bird(actor: Dictionary) -> void:
 
 func _draw_butterfly(actor: Dictionary) -> void:
     var pos: Vector2 = actor["pos"]
-    var age: float = float(actor["age"])
+    var age: float = float(actor.get("motion_age", actor["age"]))
     var width: float = 3.0 + absf(sin(age * 6.0)) * 6.0
     var c: Color = _ambient_color(Color(0.98, 0.93, 0.75, float(actor["alpha"])))
     draw_rect(Rect2(pos.x - width - 2, pos.y - 9, width, 10), c)
     draw_rect(Rect2(pos.x + 2, pos.y - 9, width, 10), c)
     draw_rect(Rect2(pos.x - width + 1, pos.y + 2, width - 2, 5), c.darkened(0.08))
     draw_rect(Rect2(pos.x + 2, pos.y + 2, width - 2, 5), c.darkened(0.08))
-    draw_rect(Rect2(pos.x - 1, pos.y - 7, 3, 15), _ambient_color(Color("646453")))
+    draw_rect(Rect2(pos.x - 1, pos.y - 7, 3, 15), _visitor_ink("646453", float(actor["alpha"])))
+    for side in [-1.0, 1.0]:
+        draw_line(pos + Vector2(side, -7), pos + Vector2(side * (4 + sin(age * 2.3)), -12), _visitor_ink("646453", float(actor["alpha"])), 1.0)
 
 func _update_atmosphere_tint(delta: float) -> void:
     var state: Dictionary = get_atmosphere_state()
@@ -628,6 +651,8 @@ func get_actor_position(id: String) -> Vector2:
 
 func _actor_hit_rect(actor: Dictionary) -> Rect2:
     var pos: Vector2 = actor["pos"]
+    if bool(actor.get("fly",false)) and str(actor["id"]) in ["woodpecker","owl","egret"]:
+        return Rect2(pos-Vector2(66,88),Vector2(132,118))
     match str(actor["id"]):
         "squirrel": return Rect2(pos - Vector2(50, 66), Vector2(94, 72))
         "woodpecker": return Rect2(pos - Vector2(31, 60), Vector2(56, 66))
@@ -665,40 +690,6 @@ func _fantasy_hit_rect(event: Dictionary) -> Rect2:
 func _event_envelope(age: float, duration: float) -> float:
     return minf(smoothstep(0.0, 1.5, age), 1.0 - smoothstep(duration - 3.0, duration, age))
 
-func _update_tree_visitor(actor: Dictionary) -> void:
-    var id: String = str(actor["id"])
-    var age: float = float(actor["age"])
-    var t: float = float(actor["motion_age"])
-    actor["alpha"] = _event_envelope(age, 36.0)
-    var anchor: Vector2 = VISITOR_ANCHORS[id]
-    if id in ["kingfisher", "swallow", "magpie", "white_eye", "egret", "hedgehog", "cat", "bat", "dragonfly", "ladybug", "stag_beetle"]:
-        _update_new_visitor(actor, anchor, t)
-        return
-    match id:
-        "squirrel":
-            if t < 6.0:
-                # Hands stay close to the painted trunk during the ascent.
-                var progress: float = smoothstep(0.0, 1.0, t / 6.0)
-                actor["pos"] = anchor.lerp(Vector2(206, 330), progress) + Vector2(sin(t * 4.0) * 1.5, 0)
-                actor["pose"] = "climb"
-            elif t < 8.4:
-                var progress: float = (t - 6.0) / 2.4
-                actor["pos"] = Vector2(206, 330).lerp(Vector2(379, 321), progress) + Vector2(0, -sin(progress * PI) * 48.0 * activity_blend)
-                actor["pose"] = "leap"
-            else:
-                actor["pos"] = Vector2(379, 321)
-                actor["pose"] = "nibble"
-        "woodpecker":
-            actor["pos"] = anchor + Vector2(0, -floorf(t / 9.0) * 3.0)
-        "owl":
-            actor["pos"] = anchor
-        "luna_moth":
-            actor["pos"] = anchor + Vector2(sin(t * 0.28) * 46.0, cos(t * 0.37) * 20.0) * activity_blend
-        "jewel_beetle":
-            actor["pos"] = anchor + Vector2(sin(t * 0.2) * 4.0, -t * 1.45)
-        "fireflies":
-            actor["pos"] = anchor + Vector2(sin(t * 0.18) * 11.0, cos(t * 0.14) * 7.0) * activity_blend
-
 func _pixel_pattern(pattern: Array[String], palette: Dictionary, origin: Vector2, alpha: float, ambient: bool = true) -> void:
     for y in range(pattern.size()):
         for x in range(pattern[y].length()):
@@ -723,6 +714,13 @@ func _draw_tree_visitor(actor: Dictionary) -> void:
     var pos: Vector2 = actor["pos"]
     var t: float = float(actor["motion_age"])
     var alpha: float = float(actor["alpha"])
+    if bool(actor.get("fly", false)) and id in ["woodpecker", "owl", "egret"]:
+        var landing: float = float(actor.get("land_blend", 0.0))
+        var flight_actor: Dictionary = actor.duplicate()
+        flight_actor["alpha"] = alpha * (1.0 - landing)
+        _draw_large_bird_flight(flight_actor)
+        if landing <= 0.001: return
+        alpha *= landing
     match id:
         "squirrel": _draw_squirrel(pos, t, alpha, str(actor.get("pose", "climb")))
         "woodpecker": _draw_woodpecker(pos, t, alpha)
@@ -752,9 +750,17 @@ func _draw_squirrel(pos: Vector2, t: float, alpha: float, pose: String) -> void:
         "..OOOOOOOOO...."
     ]
     var bob: float = sin(t * (2.3 if pose == "nibble" else 4.2)) * 0.65 * activity_blend
-    draw_set_transform((pos + Vector2(0, bob)).round(), 0.0, Vector2(2.3, 2.3))
-    _pixel_pattern(tail, palette, Vector2(-20, -29 + roundf(sin(t * 1.8) * 1.3 * activity_blend)), alpha)
+    draw_set_transform((pos + Vector2(0, bob)).round(), 0.0, Vector2(2.3 * float(_drawing_actor.get("facing",1.0)), 2.3))
+    var tail_sway: float = roundf(sin(t * 1.8) * 1.3 * activity_blend)
+    # Tail root joins the rump; the curled upper section moves independently.
+    for width in [6.0,4.0]:
+        var tail_color: Color = _visitor_ink("354640" if width > 5.0 else "ae784b",alpha)
+        draw_line(Vector2(-15,-15+tail_sway),Vector2(-12,-7),tail_color,width)
+        draw_line(Vector2(-12,-7),Vector2(-4,-5),tail_color,width)
+    _pixel_pattern(tail, palette, Vector2(-20, -29 + tail_sway), alpha)
     _pixel_pattern(body, palette, Vector2(-8, -17), alpha)
+    if fmod(t, 5.2) < 0.18: draw_rect(Rect2(2,-13,2,1),_visitor_ink("ae784b",alpha))
+    draw_rect(Rect2(0,-17-roundf(maxf(0.0,sin(t*0.8))),2,2),_visitor_ink("ae784b",alpha))
     if pose == "nibble":
         var nibble: float = 1.0 if fmod(t, 2.7) < 0.5 else 0.0
         draw_rect(Rect2(5, -10 + nibble, 5, 5), _visitor_ink("b98c4f", alpha))
@@ -816,15 +822,15 @@ func _draw_luna_moth(pos: Vector2, t: float, alpha: float) -> void:
         ".....GO......", ".....GO......", "......O......"
     ]
     var palette: Dictionary = {"O": Color("638c77"), "G": Color("9bbd8b"), "L": Color("c3d6a7"), "E": Color("b2a57c"), "C": Color("e1d7ad")}
-    var spread: float = 0.7 + sin(t * 3.0) * 0.24 * activity_blend
+    var spread: float = 0.62 + sin(t * (9.0 if str(_drawing_actor.get("phase","idle")) != "idle" else 5.0)) * 0.30 * activity_blend
     for side in [-1.0, 1.0]:
         draw_set_transform(pos.round(), 0.0, Vector2(2.5 * spread * side, 2.0))
         _pixel_pattern(wing, palette, Vector2(1, -10), alpha)
     draw_set_transform(pos.round(), 0.0, Vector2(2.0, 2.0))
     draw_rect(Rect2(-1, -7, 3, 13), _visitor_ink("c8c49b", alpha))
     draw_rect(Rect2(-1, -9, 3, 3), _visitor_ink("d5d5af", alpha))
-    draw_line(Vector2(0, -8), Vector2(-4, -12), _visitor_ink("a3b28b", alpha), 1.0)
-    draw_line(Vector2(1, -8), Vector2(5, -12), _visitor_ink("a3b28b", alpha), 1.0)
+    draw_line(Vector2(0, -8), Vector2(-4 - sin(t * 2.1), -12), _visitor_ink("a3b28b", alpha), 1.0)
+    draw_line(Vector2(1, -8), Vector2(5 + sin(t * 2.1), -12), _visitor_ink("a3b28b", alpha), 1.0)
     draw_set_transform(Vector2.ZERO)
 
 func _draw_jewel_beetle(pos: Vector2, t: float, alpha: float) -> void:
@@ -841,8 +847,8 @@ func _draw_jewel_beetle(pos: Vector2, t: float, alpha: float) -> void:
         draw_line(Vector2(4, y), Vector2(7, y + 1 - leg), _visitor_ink("4b5d45", alpha), 1.0)
     _pixel_pattern(pattern, palette, Vector2(-5, -13), alpha)
     draw_rect(Rect2(-0.5, -9, 1, 8), _visitor_ink("315f54", alpha))
-    draw_line(Vector2(-2, -12), Vector2(-4, -15), _visitor_ink("58794f", alpha), 1.0)
-    draw_line(Vector2(2, -12), Vector2(4, -15), _visitor_ink("58794f", alpha), 1.0)
+    draw_line(Vector2(-2, -12), Vector2(-4 - sin(t * 1.7), -15), _visitor_ink("58794f", alpha), 1.0)
+    draw_line(Vector2(2, -12), Vector2(4 + cos(t * 1.7), -15), _visitor_ink("58794f", alpha), 1.0)
     var glint: float = pow((sin(t * 0.75) + 1.0) * 0.5, 3.0) * 0.5
     draw_rect(Rect2(-3, -9, 1, 3), Color(0.67, 0.9, 0.69, alpha * glint))
     draw_set_transform(Vector2.ZERO)
@@ -854,6 +860,9 @@ func _draw_firefly_group(pos: Vector2, t: float, alpha: float) -> void:
         var radius: float = 19.0 + float(index % 4) * 11.0
         var point: Vector2 = pos + Vector2(cos(phase + t * 0.035) * radius, sin(phase) * radius * 0.65)
         point += Vector2(sin(t * 0.4 + phase) * 5.0, cos(t * 0.31 + phase) * 6.0) * activity_blend
+        var wing: float = 1.5 + absf(sin(t * 15.0 + phase)) * 2.0
+        draw_line(point+Vector2(-wing,-1),point+Vector2(wing,-1),Color(0.65,0.76,0.60,alpha*0.35),1.0)
+        draw_rect(Rect2(point+Vector2(0,-2),Vector2(1,3)),Color(0.36,0.49,0.37,alpha*0.7))
         var pulse: float = 0.2 + (sin(t * 0.9 + phase) + 1.0) * 0.32
         var glow: float = alpha * pulse * (0.68 if quiet else 1.0)
         draw_rect(Rect2((point - Vector2(2, 2)).round(), Vector2(7, 7)), Color(0.78, 0.82, 0.48, glow * 0.06))
@@ -1160,30 +1169,6 @@ func _draw_attraction() -> void:
             draw_rect(Rect2(p-Vector2(2,31),Vector2(5,5)),_ambient_color(Color("667563")))
             draw_rect(Rect2(p-Vector2(11,1),Vector2(23,4)),_ambient_color(Color("667563")))
 
-func _update_new_visitor(actor: Dictionary, anchor: Vector2, t: float) -> void:
-    var id: String = str(actor["id"])
-    var move: float = activity_blend
-    match id:
-        "kingfisher":
-            var phase: float = fmod(t,16.0)
-            if phase>7.0 and phase<12.0:
-                var dive: float = sin((phase-7.0)/5.0*PI)
-                actor["pos"] = anchor.lerp(Vector2(696,500),dive)
-                actor["fly"] = true
-            else:
-                actor["pos"] = anchor
-                actor["fly"] = false
-        "swallow":actor["pos"] = anchor+Vector2(sin(t*0.18)*240.0,sin(t*0.38)*41.0)*move
-        "magpie":actor["pos"] = anchor+Vector2(0,-absf(sin(t*0.7))*2.0*move)
-        "white_eye":actor["pos"] = anchor+Vector2(floorf(fmod(t,18.0)/6.0)*15.0,-absf(sin(t*0.8))*2.0*move)
-        "egret":actor["pos"] = anchor+Vector2(sin(t*0.12)*8.0, sin(t*0.8)*0.35)
-        "hedgehog":actor["pos"] = anchor+Vector2(sin(t*0.08)*47.0,0)
-        "cat":actor["pos"] = anchor
-        "bat":actor["pos"] = anchor+Vector2(sin(t*0.21)*150.0,sin(t*0.43)*52.0)*move
-        "dragonfly":actor["pos"] = anchor+Vector2(sin(t*0.34)*75.0,cos(t*0.58)*17.0)*move
-        "ladybug":actor["pos"] = anchor+Vector2(sin(t*0.17)*9.0,-t*0.38)
-        "stag_beetle":actor["pos"] = anchor+Vector2(sin(t*0.16)*4.0,-t*0.68)
-
 func _draw_new_bird(id: String, pos: Vector2, t: float, alpha: float) -> void:
     if id=="egret":
         draw_set_transform(pos.round(),0,Vector2(1.2,1.2))
@@ -1191,7 +1176,9 @@ func _draw_new_bird(id: String, pos: Vector2, t: float, alpha: float) -> void:
         draw_line(Vector2(-3,-9),Vector2(-4+leg,1),_visitor_ink("65694e",alpha),1.3)
         draw_line(Vector2(3,-9),Vector2(4-leg,1),_visitor_ink("65694e",alpha),1.3)
         var form: Array[String] = ["...........WWWW.....","..........WCCCCWBBBB","..........WCCCCW....","...........WWCW.....","............WCW.....","............WCW.....","............WCW.....","...........WCW......","...WWWWWWWWCW.......","..WCCCCCCCCWW.......",".WCCCCCCCCCCW.......","WCCCCCCCCCCW........",".WWCCCCCCWW.........","...WWWWWW..........."]
-        _pixel_pattern(form,{"W":Color("a9bcb5"),"C":Color("eee9cc"),"B":Color("bba16b")},Vector2(-12,-24),alpha)
+        var neck_palette: Dictionary = {"W":Color("a9bcb5"),"C":Color("eee9cc"),"B":Color("bba16b")}
+        for row in range(form.size()):
+            _pixel_pattern([form[row]],neck_palette,Vector2(-12 + (roundf(sin(t*0.75)) if row<7 else 0.0),row-24),alpha)
         draw_rect(Rect2(1,-22,1,1),_visitor_ink("344b48",alpha))
         draw_set_transform(Vector2.ZERO)
         draw_line(pos+Vector2(-16,5),pos+Vector2(18,5),Color(0.82,0.88,0.83,alpha*0.2),1.0)
@@ -1214,8 +1201,18 @@ func _draw_new_bird(id: String, pos: Vector2, t: float, alpha: float) -> void:
     if id=="magpie":head=Color("384f59");body=Color("e2dfc9");wing=Color("415966")
     elif id=="white_eye":head=Color("96a45d");body=Color("d7cc83");wing=Color("748d51")
     var palette: Dictionary = {"O":Color("354b4b"),"H":head,"E":Color("172e38"),"B":Color("7c8065"),"W":wing,"C":body,"T":wing.darkened(0.08),"L":Color("626746")}
-    draw_set_transform((pos+Vector2(0,sin(t*1.7)*0.45*activity_blend)).round(),0,Vector2(2.55,2.55))
-    _pixel_pattern(BIRD_PATTERN,palette,Vector2(-9,-12),alpha)
+    draw_set_transform((pos+Vector2(0,sin(t*1.7)*0.45*activity_blend)).round(),float(_drawing_actor.get("body_tilt",0.0)),Vector2(2.55 * float(_drawing_actor.get("facing",1.0)),2.55))
+    var flying: bool = bool(_drawing_actor.get("fly",false))
+    for row in range(BIRD_PATTERN.size()):
+        var head_shift: float = roundf(sin(t * 0.8)) if row < 5 and not flying else 0.0
+        _pixel_pattern([BIRD_PATTERN[row]],palette,Vector2(-9 + head_shift,row-12),alpha)
+    if fmod(t + id.length(),5.3) < 0.17:
+        draw_rect(Rect2(4,-10,1,1),_visitor_ink(head.to_html(false),alpha))
+    if flying:
+        var flap: float = sin(t * 15.0)
+        var extension: float = 7.0 + float(_drawing_actor.get("travel",1.0)) * 6.0
+        _draw_flight_wing(Vector2(-3,-7),Vector2(-8,-3-flap*extension),2.5,_visitor_ink(wing.lightened(0.15).to_html(false),alpha))
+        draw_line(Vector2(-5,-8),Vector2(-10,-10-flap*extension),_visitor_ink(wing.darkened(0.2).to_html(false),alpha),1.0)
     if id=="kingfisher":
         draw_rect(Rect2(8,-9,6,1),_visitor_ink("465862",alpha))
         draw_rect(Rect2(4,-6,3,2),_visitor_ink("e3d9b8",alpha))
@@ -1232,25 +1229,44 @@ func _draw_new_bird(id: String, pos: Vector2, t: float, alpha: float) -> void:
     draw_set_transform(Vector2.ZERO)
 
 func _draw_hedgehog(pos: Vector2, t: float, alpha: float) -> void:
-    draw_set_transform((pos+Vector2(0,sin(t*2.5)*0.4*activity_blend)).round(),0,Vector2(2.2,2.2))
+    draw_set_transform((pos+Vector2(0,sin(t*2.5)*0.4*activity_blend)).round(),0,Vector2(2.2 * float(_drawing_actor.get("facing",1.0)),2.2))
     var body: Array[String] = [".....O.O.O.O.......","...OOHHOHHOHOO.....","..OHFHFHFHFHFHO....",".OHFHFHFHFHFHFHO...","OHFHFHFHFHFHFHFHOO.","OHFHFHFHFHFHFHCCCCO","OHFHFHFHFHFHCCCCECO",".OHFHFHFHFHCCCCCCCO","..OOFFFFFFCCCCCCOO.","...OOOOOOOOOOOO...."]
-    _pixel_pattern(body,{"O":Color("536051"),"F":Color("7e7b58"),"H":Color("b2aa7a"),"C":Color("d3bb8b"),"E":Color("273d3c")},Vector2(-10,-10),alpha)
-    draw_rect(Rect2(8,-4,2,2),_visitor_ink("344341",alpha))
+    var palette: Dictionary = {"O":Color("536051"),"F":Color("7e7b58"),"H":Color("b2aa7a"),"C":Color("d3bb8b"),"E":Color("273d3c")}
+    var face: float = roundf(maxf(0.0, sin(t * 3.3)))
+    for row in range(body.size()):
+        for col in range(body[row].length()):
+            var key: String = body[row].substr(col,1)
+            if palette.has(key):
+                draw_rect(Rect2(col-10 + (face if col > 12 else 0.0),row-10,1,1),_visitor_ink((palette[key] as Color).to_html(false),alpha))
+    draw_rect(Rect2(8+face,-4,2,2),_visitor_ink("344341",alpha))
     var step: float = roundf(sin(t*3.0))
     draw_rect(Rect2(-5+step,0,3,2),_visitor_ink("6a6952",alpha))
     draw_rect(Rect2(5-step,0,3,2),_visitor_ink("6a6952",alpha))
     draw_set_transform(Vector2.ZERO)
 
 func _draw_cat(pos: Vector2, t: float, alpha: float) -> void:
+    if str(_drawing_actor.get("phase", "idle")) != "idle":
+        var seated: float = float(_drawing_actor.get("land_blend",0.0))
+        _draw_walking_cat(pos, t, alpha * (1.0-seated))
+        if seated < 0.001: return
+        alpha *= seated
     draw_set_transform(pos.round(),0,Vector2(2.5,2.5))
     var body: Array[String] = ["...OO......OO.....","..OFFO....OFFO....","..OFFFOOOOFFFO....","..OFFFFFFFFFFO....","..OFHHFFFFHHFO....","..OFHHFFFFHHFO....","...OFFFCCFFFO.....","....OFFFFFFO......","....OFFFFFFO......","...OFFFFFFFFO.....","..OFFFFFFFFFFO....","..OFFCCCCCCFFO....",".OFFFCCCCCCFFFO...",".OFFFCCCCCCFFFO...",".OFFFCCCCCCFFFO...",".OFFFCCCCCCFFFO...","..OFFCCCCCCFFO....","..OFFFCCCCFFFO....","..OFFFOOOOFFFO....","..OOOO....OOOO...."]
     var palette: Dictionary = {"O":Color("4b5953"),"F":Color("ba9970"),"H":Color("d5c498"),"C":Color("e5d4b0")}
-    _pixel_pattern(body,palette,Vector2(-9,-21),alpha)
+    var groom: bool = str(_drawing_actor.get("pose", "")) == "groom"
+    for row in range(body.size()):
+        var head_shift: float = roundf(sin(t * 0.5)) if row < 8 else 0.0
+        _pixel_pattern([body[row]],palette,Vector2(-9 + head_shift,-21 + row),alpha)
+    if groom:
+        draw_line(Vector2(-4,-3),Vector2(-6,-12 + sin(t * 4.0)),_visitor_ink("d4bd8d",alpha),3.0)
+    var ear_twitch: float = 1.0 if fmod(t, 7.4) > 6.9 else 0.0
+    draw_rect(Rect2(-6,-21-ear_twitch,2,2),_visitor_ink("ba9970",alpha))
     var blink: bool = fmod(t,5.1)<0.25
     for x in [-4,3]:
         draw_rect(Rect2(x,-16,2,1 if blink else 2),_visitor_ink("3b5352",alpha))
     draw_rect(Rect2(-1,-13,2,1),_visitor_ink("a97862",alpha))
-    draw_line(Vector2(8,-3),Vector2(16,-2),_visitor_ink("9e7c57",alpha),4.0)
+    draw_line(Vector2(3,-5),Vector2(10,-3),_visitor_ink("9e7c57",alpha),4.0)
+    draw_line(Vector2(10,-3),Vector2(16,-2),_visitor_ink("9e7c57",alpha),4.0)
     draw_line(Vector2(16,-2),Vector2(19,-8+sin(t*0.9)*3.0*activity_blend),_visitor_ink("9e7c57",alpha),3.0)
     draw_set_transform(Vector2.ZERO)
 
@@ -1285,16 +1301,20 @@ func _draw_new_insect(id: String, pos: Vector2, t: float, alpha: float) -> void:
         var form: Array[String] = ["...OOOO...","..OHHOHO..",".ORRRRRRO.","ORRRORRRRO","ORORORORRO","ORRRORRRRO","ORORORORRO",".ORRORRRO.","..ORRROO..","...OOO...."]
         _pixel_pattern(form,{"O":Color("43514a"),"H":Color("e2d5ae"),"R":Color("c86f57")},Vector2(-5,-9),alpha)
         var leg: float=roundf(sin(t*2.0))
-        for y in [-5,-1]:
+        for y in [-6,-3,0]:
             draw_line(Vector2(-4,y),Vector2(-7,y+leg),_visitor_ink("596251",alpha),1.0)
             draw_line(Vector2(4,y),Vector2(7,y-leg),_visitor_ink("596251",alpha),1.0)
     else:
         var form: Array[String] = [".O.....O.","OHO...OHO",".OHO.OHO.","..OHOHO..","..OHHHO..",".OHHHHHO.","OHHHHHHHO","OHHLHLHHO","OHHLHLHHO","OHHLHLHHO","OHHHHHHHO",".OHHHHHO.","..OOOOO.."]
         _pixel_pattern(form,{"O":Color("364b43"),"H":Color("877d59"),"L":Color("b5a574")},Vector2(-4,-15),alpha)
-        for y in [-7,-3]:
+        for y in [-8,-5,-2]:
             var leg: float=roundf(sin(t*1.7+float(y)))
             draw_line(Vector2(-4,y),Vector2(-7,y+leg),_visitor_ink("687456",alpha),1.0)
             draw_line(Vector2(4,y),Vector2(7,y-leg),_visitor_ink("687456",alpha),1.0)
+    if id != "dragonfly":
+        var antenna: float = sin(t * 1.7) * 1.3
+        for side in [-1.0, 1.0]:
+            draw_line(Vector2(side*2,-9 if id=="ladybug" else -11),Vector2(side*(5+antenna),-13 if id=="ladybug" else -15),_visitor_ink("687456",alpha),1.0)
     draw_set_transform(Vector2.ZERO)
 
 func _draw_lanterns(t: float, alpha: float) -> void:
@@ -1574,3 +1594,66 @@ func _draw_constellation_stag(t: float, alpha: float) -> void:
         var glow: float=0.7+sin(t*0.43+float(key.length()))*0.16
         draw_rect(Rect2(point.round()-Vector2.ONE,Vector2(3,3)),Color(0.87,0.92,0.82,alpha*glow))
     draw_rect(Rect2((p+Vector2(48,-55)).round(),Vector2(2,2)),Color(1.0,0.95,0.71,alpha))
+
+func _draw_large_bird_flight(actor: Dictionary) -> void:
+    var id: String = str(actor["id"])
+    var t: float = float(actor["motion_age"])
+    var alpha: float = float(actor["alpha"])
+    var facing: float = float(actor["facing"])
+    var feather: Color = Color("786e58") if id == "owl" else (Color("d8ddc5") if id == "egret" else Color("465459"))
+    var light: Color = Color("d3c298") if id == "owl" else (Color("eee9cc") if id == "egret" else Color("e2dfbf"))
+    var scale_px: float = 2.7 if id == "owl" else 2.15
+    draw_set_transform((actor["pos"] as Vector2).round(),float(actor.get("body_tilt",0.0))*facing,Vector2(scale_px*facing,scale_px))
+    var palette: Dictionary = {"O":feather.darkened(0.25),"H":light,"E":Color("253c3b"),"B":Color("b7a06a"),"W":feather,"C":light,"T":feather,"L":Color("736d54")}
+    var flap: float = sin(t * (10.0 if id == "owl" else 12.0))
+    var landing: float = float(actor.get("land_blend",0.0))
+    for side in [-1.0,1.0]:
+        var spread: float = (13.0 if id == "egret" else 11.0) * (1.0 - landing * 0.45)
+        var tip: Vector2 = Vector2(-5+side*spread,-10-flap*11.0)
+        _draw_flight_wing(Vector2(-4,-8),tip-Vector2(-4,-8),3.0,_visitor_ink(feather.to_html(false),alpha*(0.8 if side<0 else 1.0)))
+        for feather_index in range(3):
+            var offset: Vector2 = Vector2(feather_index*2,feather_index)
+            draw_line(tip+offset,tip+offset+Vector2(3,4),_visitor_ink(light.to_html(false),alpha*0.8),1.0)
+    _pixel_pattern(BIRD_PATTERN,palette,Vector2(-9,-12),alpha)
+    if id == "woodpecker":
+        draw_rect(Rect2(2,-13,5,2),_visitor_ink("b75a4c",alpha))
+        draw_rect(Rect2(8,-9,5,1),_visitor_ink("5d6861",alpha))
+    elif id == "egret":
+        draw_line(Vector2(-4,-2),Vector2(-16,-1+landing*3),_visitor_ink("65694e",alpha),1.0)
+        draw_line(Vector2(-2,-1),Vector2(-14,2+landing*3),_visitor_ink("65694e",alpha),1.0)
+        draw_rect(Rect2(8,-9,7,1),_visitor_ink("bba16b",alpha))
+    else:
+        draw_rect(Rect2(3,-11,4,4),_visitor_ink("b8a773",alpha))
+        draw_rect(Rect2(5,-10,1,2),_visitor_ink("283c3e",alpha))
+    draw_set_transform(Vector2.ZERO)
+
+func _draw_walking_cat(pos: Vector2, t: float, alpha: float) -> void:
+    var facing: float = float(_drawing_actor.get("facing",-1.0))
+    draw_set_transform(pos.round(),0,Vector2(2.3*facing,2.3))
+    var fur: Color = _visitor_ink("ba9970",alpha)
+    var shadow: Color = _visitor_ink("9e7c57",alpha)
+    var step: float = sin(t * 8.0) * 3.0
+    # Rear pair is behind the torso, front pair overlaps it; the back stays level.
+    for pair in [0,1]:
+        for side in [-1.0,1.0]:
+            var x: float = -8.0 if pair == 0 else 7.0
+            var stride: float = step * side * (-1.0 if pair == 0 else 1.0)
+            draw_line(Vector2(x,-7),Vector2(x+stride*0.55,-3),shadow if side<0 else fur,3.0)
+            draw_line(Vector2(x+stride*0.55,-3),Vector2(x-stride,0),shadow if side<0 else fur,2.0)
+            draw_rect(Rect2(x-stride-1,0,4,1),shadow if side<0 else fur)
+    draw_rect(Rect2(-12,-14,23,8),fur)
+    draw_rect(Rect2(-9,-7,16,2),_visitor_ink("e5d4b0",alpha))
+    var head: Array[String] = ["O.....O..","FFO.OFFO.","FFFFFFFFO","FHHFFHHFO","FHHFFHEFO",".FFFCCFO.","..FFFFO.."]
+    _pixel_pattern(head,{"O":Color("4b5953"),"F":Color("ba9970"),"H":Color("d5c498"),"C":Color("e5d4b0"),"E":Color("3b5352")},Vector2(6,-21),alpha)
+    draw_rect(Rect2(14,-16,2,1),_visitor_ink("a97862",alpha))
+    var tail_tip: Vector2 = Vector2(-23,-20+sin(t*1.6)*3)
+    draw_line(Vector2(-11,-12),Vector2(-18,-13),shadow,3.0)
+    draw_line(Vector2(-18,-13),tail_tip,shadow,2.0)
+    draw_set_transform(Vector2.ZERO)
+
+
+func _draw_flight_wing(root: Vector2, axis: Vector2, width: float, color: Color) -> void:
+    # A convex wing stays valid at every beat, including when the tip passes the
+    # body. A hand-warped quad could self-intersect at those exact poses.
+    var normal: Vector2 = Vector2(-axis.y,axis.x).normalized() * width
+    draw_colored_polygon(PackedVector2Array([root-normal*0.45,root+axis-normal*0.8,root+axis+normal*0.8,root+normal*0.45]),color)

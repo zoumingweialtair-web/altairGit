@@ -2,7 +2,7 @@ extends Node
 ## Local-only state for the playable Window Diary demonstration.
 signal changed
 
-const SAVE_VERSION: int = 2
+const SAVE_VERSION: int = 3
 const DAY: float = 86400.0
 const MAX_OFFLINE_DAYS: int = 30
 const KEEPSAKE_VISITS: int = 5
@@ -944,6 +944,13 @@ var collection: Dictionary = {}
 var records: Array = []
 var favorites: Array[String] = []
 var attraction: String = "seeds"
+const SEED_DEFAULTS: Dictionary = {"sunflower":24,"millet":36,"berries":12}
+const MIX_DEFAULTS: Dictionary = {"music":0.75,"rain":0.8,"wind":0.65,"river":0.7}
+var seed_stocks: Dictionary = SEED_DEFAULTS.duplicate()
+var food_percent: float = 68.0
+var active_seed: String = "millet"
+var last_supply_day: String = ""
+var mixer_volumes: Dictionary = MIX_DEFAULTS.duplicate()
 var seconds_focused: float = 0.0
 var music_on: bool = true
 var ambience_on: bool = true
@@ -991,8 +998,50 @@ func set_attraction(id: String) -> bool:
  changed.emit()
  return true
 
-## Affinity and mementos are derived from the existing observation count.
-## Reading a profile, replaying, or changing decor never awards a visit.
+func feed(seed_id: String, amount: int) -> Dictionary:
+ if not SEED_DEFAULTS.has(seed_id) or amount < 1:
+  return {"ok":false,"message":"请选择食物与投喂数量。"}
+ if amount > int(seed_stocks.get(seed_id,0)):
+  return {"ok":false,"message":"库存不足，先领取今日补给吧。"}
+ if food_percent >= 100.0:
+  return {"ok":false,"message":"食盘已经满了，等小邻居慢慢享用。"}
+ # Only consume enough stock to fill the tray.
+ var used: int = mini(amount,int(ceil((100.0-food_percent)/2.0)))
+ seed_stocks[seed_id] = int(seed_stocks.get(seed_id,0))-used
+ food_percent = minf(100.0,food_percent+float(used)*2.0)
+ active_seed = seed_id
+ attraction = "fruit" if seed_id=="berries" else "seeds"
+ save_state()
+ changed.emit()
+ return {"ok":true,"used":used,"message":"已添好 %d 份食物，小邻居会循香而来。" % used}
+
+func consume_food(id: String) -> void:
+ if str(ENTRY_DEFS.get(id,{}).get("category","")) not in ["birds","animals"]:
+  return
+ food_percent=maxf(0.0,food_percent-2.0)
+ save_state()
+ changed.emit()
+
+func supplies_available() -> bool:
+ return last_supply_day != Time.get_date_string_from_system()
+
+func claim_supplies() -> bool:
+ if not supplies_available(): return false
+ for id: String in SEED_DEFAULTS:
+  seed_stocks[id]=mini(999,int(seed_stocks.get(id,0))+int(SEED_DEFAULTS[id]))
+ last_supply_day=Time.get_date_string_from_system()
+ save_state()
+ changed.emit()
+ return true
+
+func set_mix(track: String, value: float) -> bool:
+ if not MIX_DEFAULTS.has(track) or not is_finite(value): return false
+ mixer_volumes[track]=clampf(value,0.0,1.0)
+ save_state()
+ changed.emit()
+ return true
+
+## Affinity and mementos are derived from genuine observations, never UI interactions.
 func get_profile(id: String) -> Dictionary:
  if not ENTRY_DEFS.has(id) or str(ENTRY_DEFS[id].get("category", "")) not in ["birds", "animals", "insects"]:
   return {}
@@ -1204,10 +1253,12 @@ func _save_path() -> String:
  if args.has("--ui-lab"):
   return ""
  for engine_arg in OS.get_cmdline_args():
-  if engine_arg.replace("\\", "/").ends_with("/ui_lab.tscn"):
+  if engine_arg.replace("\\", "/").get_file() in ["ui_lab.tscn","creature_lab.tscn"]:
    return ""
  if args.has("--capture"):
   return ""
+ if args.has("--demo"):
+  return "user://window_diary_fieldkit_demo.json"
  if args.has("--gm-sandbox"):
   return "user://window_diary_gm_save.json"
  if args.has("--test-mode") or args.has("--ui-test"):
@@ -1220,6 +1271,7 @@ func save_state() -> void:
   return
  var payload: Dictionary = {"version":SAVE_VERSION, "collection":collection, "records":records, "favorites":favorites, "attraction":attraction,
   "seconds_focused":seconds_focused, "music_on":music_on, "ambience_on":ambience_on,
+  "seed_stocks":seed_stocks,"food_percent":food_percent,"active_seed":active_seed,"last_supply_day":last_supply_day,"mixer_volumes":mixer_volumes,
   "world_seed":world_seed, "last_seen_unix":last_seen_unix, "rare_misses":rare_misses,
   "simulation_count":simulation_count, "tokens":_tokens, "timezone_bias_minutes":timezone_bias_minutes}
  var file: FileAccess = FileAccess.open(path + ".tmp", FileAccess.WRITE)
@@ -1249,7 +1301,7 @@ func _read_payload(path: String) -> Dictionary:
  var value: Variant = parser.data
  if not (value is Dictionary):
   return {}
- if int(value.get("version", -1)) not in [1, SAVE_VERSION]:
+ if int(value.get("version", -1)) not in [1, 2, SAVE_VERSION]:
   return {}
  if not (value.get("collection") is Dictionary) or not (value.get("records") is Array):
   return {}
@@ -1261,6 +1313,11 @@ func load_state() -> void:
  records = []
  favorites.clear()
  attraction = "seeds"
+ seed_stocks = SEED_DEFAULTS.duplicate()
+ food_percent = 68.0
+ active_seed = "millet"
+ last_supply_day = ""
+ mixer_volumes = MIX_DEFAULTS.duplicate()
  _tokens = {}
  last_seen_unix = 0.0
  last_summary = ""
@@ -1282,6 +1339,16 @@ func load_state() -> void:
    last_summary = "已从上一次可读的备份恢复日记。"
  if data.is_empty():
   return
+ for seed_id: String in SEED_DEFAULTS:
+  if data.get("seed_stocks") is Dictionary:
+   seed_stocks[seed_id]=clampi(int(data["seed_stocks"].get(seed_id,SEED_DEFAULTS[seed_id])),0,999)
+ food_percent=clampf(float(data.get("food_percent",68.0)),0.0,100.0)
+ var saved_seed: String=str(data.get("active_seed","millet"))
+ if SEED_DEFAULTS.has(saved_seed):active_seed=saved_seed
+ last_supply_day=str(data.get("last_supply_day",""))
+ for track: String in MIX_DEFAULTS:
+  if data.get("mixer_volumes") is Dictionary:
+   mixer_volumes[track]=clampf(float(data["mixer_volumes"].get(track,MIX_DEFAULTS[track])),0.0,1.0)
  var saved_attraction: String = str(data.get("attraction", "seeds"))
  if ATTRACTION_DEFS.has(saved_attraction):
   attraction = saved_attraction

@@ -18,6 +18,8 @@ func catalog() -> Array[Dictionary]:
         _entry("speed", "speed <0.1..8>", "设置动画与游戏运行倍速，1 为正常速度。", "世界", "speed 2"),
         _entry("pause", "pause <on|off|toggle>", "暂停或恢复世界；GM 控制台继续工作。", "世界", "pause toggle"),
         _entry("spawn", "spawn <creature_id>", "回放鸟类、动物或虫类，自动匹配天气；不增加收录。", "来客与奇遇", "spawn kingfisher"),
+        _entry("motion", "motion <creature_id> <entry|idle|exit> [0..1]", "预览任意生物的进入、停留或离开动画阶段，自动匹配天气；不增加收录。", "来客与奇遇", "motion squirrel idle 0.5"),
+        _entry("depart", "depart <creature_id>", "让现场来客从当前位置自然离开；不增加收录。", "来客与奇遇", "depart sparrow"),
         _entry("event", "event <wonder_id>", "回放任意奇遇并匹配天气；不增加收录。", "来客与奇遇", "event aurora_crown"),
         _entry("clear", "clear <actors|events|all>", "移除现有来客、奇遇或全部；后续自然来访仍继续。", "来客与奇遇", "clear events"),
         _entry("collect", "collect <id|all|birds|animals|insects|scenery|wonders>", "为指定条目或分类各增加一次观察并保存。", "收集", "collect all"),
@@ -25,6 +27,7 @@ func catalog() -> Array[Dictionary]:
         _entry("favorite", "favorite <id> <on|off>", "设置已收录条目的珍藏状态。", "收集", "favorite sparrow on"),
         _entry("offline", "offline <1..168>", "模拟离开指定小时并生成记录，不修改真实离线游标或电脑时钟。", "收集", "offline 24"),
         _entry("decor", "decor <seeds|fruit|flowers|lantern>", "切换吸引来客的窗边布置并保存。", "陪伴", "decor fruit"),
+        _entry("food", "food <status|stock <sunflower|millet|berries> <0..999>|level <0..100>>", "查看食物状态，或调整种子库存、食盘余量；按当前存档模式保存。", "陪伴", "food stock millet 36"),
         _entry("focus", "focus <on|off>", "进入或结束安静陪伴模式。", "陪伴", "focus on"),
         _entry("audio", "audio <music|ambience> <on|off>", "开关轻音乐或自然声。", "声音", "audio ambience on"),
         _entry("volume", "volume <master|music|rain|forest|river> <-60..0>", "设置当前音量 dB；天气切换会重新混音。", "声音", "volume music -22"),
@@ -74,6 +77,7 @@ func _stage(scene: Node) -> Node:
 func _mode(state: Node) -> String:
     var path: String = str(state.call("_save_path"))
     if path.is_empty(): return "预览模式：仅当前进程内数据，不读写存档；UI 图鉴样册另行独立"
+    if path.ends_with("window_diary_fieldkit_demo.json"): return "独立口袋观察站演示存档"
     if path.ends_with("window_diary_gm_save.json"): return "独立 GM 调试存档"
     if path.ends_with("window_diary_demo_save.json"): return "正式游戏存档：数据命令会保存"
     return "独立/测试存档"
@@ -133,7 +137,7 @@ func execute(line: String, scene: Node) -> Dictionary:
     if not is_instance_valid(scene) or not scene.is_inside_tree(): return _error("当前游戏场景尚未准备好。")
     var state: Node = _state(scene)
     if state == null: return _error("当前场景没有 DiaryState。")
-    if _is_concept(scene) and command in ["weather","time","spawn","event","focus","guide","layer","layers","clear"]:
+    if _is_concept(scene) and command in ["weather","time","spawn","motion","depart","event","focus","guide","layer","layers","clear"]:
         return _error("当前是静态 UI 原画提案，画中控件不执行动态操作。请用 style 21 到 style 30 切到轻量交互方案，体验天气、来客和图鉴。")
     match command:
         "status":
@@ -168,6 +172,22 @@ func execute(line: String, scene: Node) -> Dictionary:
         "spawn", "event":
             if args.size() != 2: return _usage(command)
             return _play_entry(scene, args[1].to_lower(), command == "event")
+        "motion":
+            if args.size() < 3 or args.size() > 4 or args[2].to_lower() not in ["entry","idle","exit"]: return _usage(command)
+            var progress: float = 0.0
+            if args.size() == 4:
+                if not args[3].is_valid_float(): return _usage(command)
+                progress = float(args[3])
+                if not is_finite(progress) or progress < 0.0 or progress > 1.0: return _usage(command)
+            return _motion(scene,args[1].to_lower(),args[2].to_lower(),progress)
+        "depart":
+            if args.size() != 2: return _usage(command)
+            var id: String = args[1].to_lower()
+            if not _defs().has(id) or _defs()[id].get("category","") not in ["birds","animals","insects"]: return _error("depart 仅接受鸟类、动物或虫类 ID。")
+            var world: Node = _world(scene)
+            if world == null or not world.has_method("request_actor_departure"): return _error("当前场景没有来客动画系统。")
+            if not bool(world.call("request_actor_departure",id)): return _error("这位来客当前不在窗边，可先使用 spawn " + id + "。")
+            return _ok("%s 正从当前位置离开；没有增加收录或来访次数。" % _defs()[id].name)
         "clear":
             if args.size() != 2 or args[1].to_lower() not in ["actors","events","all"]: return _usage(command)
             var world: Node = _world(scene)
@@ -213,6 +233,8 @@ func execute(line: String, scene: Node) -> Dictionary:
             state.call("set_attraction",id)
             if _world(scene) != null: _world(scene).call("set_attraction",id)
             return _persisted_message(state,"窗边布置已切为 " + str(state.call("get_attraction_defs")[id].name) + "。")
+        "food":
+            return _food(state,args)
         "focus":
             if args.size() != 2 or args[1].to_lower() not in ["on","off"]: return _usage(command)
             var enabled: bool = args[1].to_lower() == "on"
@@ -307,6 +329,37 @@ func _play_entry(scene: Node, id: String, wonder: bool) -> Dictionary:
         world.call("trigger",id,false)
     return _ok("正在回放 %s；天气已匹配，不增加收藏或观察次数。" % data.name)
 
+func _motion(scene: Node, id: String, phase: String, progress: float) -> Dictionary:
+    if not _defs().has(id) or _defs()[id].get("category","") not in ["birds","animals","insects"]:
+        return _error("motion 仅接受鸟类、动物或虫类 ID。")
+    var world: Node = _world(scene)
+    if world == null or not world.has_method("seek_actor_phase"): return _error("当前场景没有来客动画系统。")
+    var played: Dictionary = _play_entry(scene,id,false)
+    if not bool(played.get("ok",false)): return played
+    if not bool(world.call("seek_actor_phase",id,phase,progress)): return _error("来客尚未进入场景，请先匹配天气后重试。")
+    return _ok("%s · %s 阶段 %.0f%%；不增加收录或来访次数。" % [_defs()[id].name,{"entry":"进入","idle":"停留","exit":"离开"}[phase],progress*100.0],{"lifecycle":world.call("get_actor_lifecycle_snapshot",id)})
+
+func _food(state: Node, args: PackedStringArray) -> Dictionary:
+    if args.size() == 2 and args[1].to_lower() == "status":
+        var stocks: Dictionary = state.get("seed_stocks")
+        return _ok("食盘余量 %.0f%% · 当前食物 %s\n葵花籽 sunflower：%d · 小米 millet：%d · 浆果 berries：%d\n%s" % [float(state.get("food_percent")),str(state.get("active_seed")),int(stocks.get("sunflower",0)),int(stocks.get("millet",0)),int(stocks.get("berries",0)),_mode(state)])
+    if args.size() == 4 and args[1].to_lower() == "stock":
+        var id: String = args[2].to_lower()
+        if not StateData.SEED_DEFAULTS.has(id) or not args[3].is_valid_int(): return _usage("food")
+        var amount: int = int(args[3])
+        if amount < 0 or amount > 999: return _usage("food")
+        state.get("seed_stocks")[id] = amount
+        _save_and_notify(state)
+        return _persisted_message(state,"%s 库存已设为 %d。" % [id,amount])
+    if args.size() == 3 and args[1].to_lower() == "level":
+        if not args[2].is_valid_float(): return _usage("food")
+        var level: float = float(args[2])
+        if not is_finite(level) or level < 0.0 or level > 100.0: return _usage("food")
+        state.set("food_percent",level)
+        _save_and_notify(state)
+        return _persisted_message(state,"食盘余量已设为 %.0f%%。" % level)
+    return _usage("food")
+
 func _collect(state: Node, selector: String) -> Dictionary:
     var selected: Array[String] = []
     if _defs().has(selector): selected.append(selector)
@@ -393,7 +446,7 @@ func _saved_state_matches(state: Node, payload: Dictionary) -> bool:
     # Match the exact persisted schema. JSON round-tripping normalizes integer
     # representations and the serializer's floating-point timestamp precision.
     var expected: Dictionary = {"version":StateData.SAVE_VERSION}
-    for field in ["collection","records","favorites","attraction","seconds_focused","music_on","ambience_on","world_seed","last_seen_unix","rare_misses","simulation_count","timezone_bias_minutes"]:
+    for field in ["collection","records","favorites","attraction","seed_stocks","food_percent","active_seed","last_supply_day","mixer_volumes","seconds_focused","music_on","ambience_on","world_seed","last_seen_unix","rare_misses","simulation_count","timezone_bias_minutes"]:
         expected[field] = state.get(field)
     expected["tokens"] = state.get("_tokens")
     var normalized: Variant = JSON.parse_string(JSON.stringify(expected))
@@ -458,6 +511,11 @@ func _reset_state(state: Node) -> void:
     state.get("favorites").clear()
     state.get("_tokens").clear()
     state.set("attraction","seeds")
+    state.set("seed_stocks",StateData.SEED_DEFAULTS.duplicate())
+    state.set("food_percent",68.0)
+    state.set("active_seed","millet")
+    state.set("last_supply_day","")
+    state.set("mixer_volumes",StateData.MIX_DEFAULTS.duplicate())
     state.set("seconds_focused",0.0)
     state.set("music_on",true)
     state.set("ambience_on",true)
@@ -479,7 +537,7 @@ func _refresh_scene_state(scene: Node, state: Node) -> void:
 
 func _snapshot_state(state: Node) -> Dictionary:
     var snapshot: Dictionary = {}
-    for field in ["collection","records","favorites","attraction","seconds_focused","music_on","ambience_on","world_seed","last_seen_unix","timezone_bias_minutes","last_summary","rare_misses","simulation_count","storage_path_override","_tokens","_batch_mutation","_tick_elapsed"]:
+    for field in ["collection","records","favorites","attraction","seed_stocks","food_percent","active_seed","last_supply_day","mixer_volumes","seconds_focused","music_on","ambience_on","world_seed","last_seen_unix","timezone_bias_minutes","last_summary","rare_misses","simulation_count","storage_path_override","_tokens","_batch_mutation","_tick_elapsed"]:
         var value: Variant = state.get(field)
         snapshot[field] = value.duplicate(true) if value is Dictionary or value is Array else value
     snapshot["_gm_processing"] = state.is_processing()
@@ -543,6 +601,10 @@ func complete(prefix: String) -> Array[String]:
         var category: String = str(_defs()[id].get("category",""))
         if category in ["birds","animals","insects"]:
             candidates.append("spawn " + str(id))
+            candidates.append("depart " + str(id))
+            for phase: String in ["entry","idle","exit"]:
+                candidates.append("motion " + str(id) + " " + phase)
+                candidates.append("motion " + str(id) + " " + phase + " 0.5")
             candidates.append("visits " + str(id) + " 5")
         if category == "wonders": candidates.append("event " + str(id))
         candidates.append("collect " + str(id))
@@ -557,6 +619,9 @@ func complete(prefix: String) -> Array[String]:
         for layer in LAYER_NAMES: candidates.append("layer " + layer + " " + option)
     for category in ["actors","events","all"]: candidates.append("clear " + category)
     for id in ["seeds","fruit","flowers","lantern"]: candidates.append("decor " + id)
+    for seed_id: String in StateData.SEED_DEFAULTS:
+        candidates.append("food stock " + seed_id + " " + str(StateData.SEED_DEFAULTS[seed_id]))
+    candidates.append_array(["food status","food level 0","food level 100"])
     for option in ["status","now","backup","reload","reset"]: candidates.append("save " + option)
     for channel in ["master","music","rain","forest","river"]: candidates.append("volume " + channel + " -22")
     for style in Styles.all_styles(): candidates.append("style " + str(style.id))
