@@ -1,0 +1,132 @@
+{
+  "selected_direction": {
+    "index": 35,
+    "id": "pocket-fieldkit",
+    "name": "口袋观察站",
+    "reference": "../ui-design-v3/35-pocket-fieldkit.png"
+  },
+  "scope": "Visual refinement of the selected UI system; no runtime code changes in this review.",
+  "existing_runtime": {
+    "collection_total": 50,
+    "categories": {
+      "birds": {
+        "label": "鸟类",
+        "total": 10
+      },
+      "animals": {
+        "label": "动物",
+        "total": 4
+      },
+      "insects": {
+        "label": "昆虫",
+        "total": 7
+      },
+      "scenery": {
+        "label": "风景",
+        "total": 8
+      },
+      "wonders": {
+        "label": "奇遇",
+        "total": 21
+      }
+    },
+    "guide": [
+      "category filters",
+      "known/unknown entries",
+      "favorites",
+      "profile details",
+      "replay for discovered entries only"
+    ],
+    "visits_and_keepsakes": {
+      "source": "observation count",
+      "milestone_visits": 5,
+      "bond_labels": {
+        "0": "尚未相识",
+        "1": "初次相遇",
+        "2-4": "渐渐熟悉",
+        "5-9": "熟悉的邻居",
+        "10+": "窗边老友"
+      },
+      "sparrow_keepsake": "一根小羽毛"
+    },
+    "attractions": [
+      {
+        "id": "seeds",
+        "name": "谷物食盘"
+      },
+      {
+        "id": "fruit",
+        "name": "果实小篮"
+      },
+      {
+        "id": "flowers",
+        "name": "花草角"
+      },
+      {
+        "id": "lantern",
+        "name": "暖光小灯"
+      }
+    ],
+    "focus": "Elapsed timer starting at 00:00; records observations silently; ending shows duration and new observation count.",
+    "audio": [
+      "lofi 轻音乐",
+      "雨声",
+      "风与树叶",
+      "河水"
+    ],
+    "audio_limits": "Four live sliders exist. Slider settings are session-level; sound enabled choices persist. Existing sound presets also switch weather.",
+    "observation": "Normal discovery records automatically; replay and viewing a guide page do not grant collection or visits.",
+    "history": "Recent and offline observation records exist."
+  },
+  "proposed_features_not_implemented": [
+    "Three seed varieties with consumable inventory quantities",
+    "Food capacity / remaining percentage and quantity stepper",
+    "25/45 minute countdown presets with pause/resume",
+    "Manual record transaction required before automatic discovery is saved",
+    "A separate bird-song mixer channel",
+    "Season/day-index calendar progression"
+  ],
+  "refinement_notes": [
+    {
+      "topic": "Default screen",
+      "recommendation": "Keep the five-tool dock and small visitor strip. Feeding popover is closed at rest and anchored to its selected tool when opened; one active popover at a time."
+    },
+    {
+      "topic": "Consistent labels",
+      "recommendation": "Use 观察 / 投喂 / 图鉴 / 奇遇 / 陪伴 consistently. Distinguish 已收录 or 查看档案 from a manual 记录 action, because discovery is already saved automatically."
+    },
+    {
+      "topic": "Information hierarchy",
+      "recommendation": "One headline total 图鉴 12/50. Within the selected species show 来访 3 次 and 渐渐熟悉, then a five-slot keepsake milestone. Remove the unexplained 记录进度 2/4 meter from the selected reference."
+    },
+    {
+      "topic": "Known and unknown",
+      "recommendation": "Discovered tiles show a name and star toggle; undiscovered tiles show muted silhouettes, question mark and a clue, with favorite/replay disabled. Do not show a rare-event illustration before discovery."
+    },
+    {
+      "topic": "Readability",
+      "recommendation": "Use crisp 24/32-pixel icons and integer-scaled stepped borders; keep body Chinese readable, with pixel styling primarily in numerals, icons and outlines. At a 1440-wide composition target labels around 16–18px and generous line spacing."
+    },
+    {
+      "topic": "Button states",
+      "recommendation": "Selected is pale olive fill plus a small pointer/check mark. Hover gets a brighter edge; pressed shifts inset by one or two pixels. Disabled remains legible with softened ink and no strong highlight. Do not rely on color alone."
+    },
+    {
+      "topic": "Visitor familiarity",
+      "recommendation": "Use a consistent specimen example: 麻雀 / 来访 3 次 / 渐渐熟悉 / 3 of 5 filled slots / 再来 2 次，留下纪念 / 一根小羽毛. Separate unique species count from repeat visits."
+    },
+    {
+      "topic": "Companion and audio",
+      "recommendation": "Quiet mode keeps a small timer and 暂存 2 discovery queue; full collection remains available after the session. Use the four implemented audio labels, and indicate timer presets as proposed UI behavior rather than already available."
+    }
+  ],
+  "sources": [
+    "game/scripts/diary_state.gd:8 KEEPSAKE_VISITS",
+    "game/scripts/diary_state.gd:996 get_profile",
+    "game/scripts/main.gd:369 _start_focus",
+    "game/scripts/main.gd:528 _show_attractions",
+    "game/scripts/main.gd:548 _show_sound",
+    "game/scripts/main.gd:715 category counts",
+    "game/scripts/field_guide.gd:63 get_detail_snapshot"
+  ]
+}

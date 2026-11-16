@@ -1,0 +1,25 @@
+{
+  "tool_mode": "built-in image_gen",
+  "reference": "docs/ui-design-v3/35-pocket-fieldkit.png",
+  "images": [
+    {
+      "index": 2,
+      "id": "field-guide",
+      "name": "观察图鉴精修",
+      "english": "Refined Field Guide",
+      "filename": "02-field-guide.png",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1e332-25f2-71d1-8aee-4a2785765ce7\\exec-25b39e82-c825-4b92-8379-9a461c67a7bc.png",
+      "prompt": "Use case: ui-mockup / reference refinement.\nCreate ONE high-fidelity professional UI DESIGN BOARD, a carefully polished COLLECTION GUIDE for the SELECTED \"35 Pocket Fieldkit\" direction of cozy nature idle game Little Elsewhere. This is a refinement of the supplied reference's small Japanese pixel UI, NOT a new visual direction. The supplied reference is a STYLE AND UI LANGUAGE reference; do not reproduce its full landscape here. This deliverable is an enlarged UI specification sheet on warm off-white with no game scenery, so typography, spacing, icon craft, and interaction states can be evaluated.\n\nTitle exactly \"口袋观察站 · 观察图鉴\". Small subtitle \"Little Elsewhere / Selected 35 / Refined 02\". Landscape ~4:3 sheet. Large featured collection window occupies left 76%, three small state examples stacked in a narrow right column occupying 21%, gutters generous. The collection window must be the clear hero. Crisp native-looking UI, not a photo of paper.\n\nDesign system: cream #FAF6E8 surfaces, ink #384235, olive #7F9255, pale selected green #D7E3AA, dusty slate-blue #6D8796, tiny warm gold #D4A65C. A coherent 2px pixel-grid silhouette with small stepped corners, 1px bright inner bevel and restrained 2px bottom shadow. Pixel icons and original species sprites carefully drawn on a 24–32px grid, about 4–5 colors per sprite, clear silhouettes. Legible clean Chinese typography; bitmap numerals and tiny keyboard hints, not unreadable pixel Chinese. Calm mature Japanese game polish, regular 8px spacing, generous internal padding. No generic pill dashboard, heavy wood, vines, glitter, cloth, monochrome green LCD, blurry pseudo-pixels, giant ornaments, or grunge texture.\n\nFeatured collection window:\nHeader \"观察图鉴\", small book icon and \"12/50\", tiny close X aligned right.\nUnder header five compact category tabs with distinct small icons, EXACT counts: \"鸟类 4/10\", \"动物 2/4\", \"昆虫 2/7\", \"风景 3/8\", \"奇遇 1/21\". These sum to 12/50. \"鸟类\" is selected pale-green, others cream. Five consistent equal tabs, clear selected border.\nNext row a small search field with search symbol, and compact filter choices \"全部\", \"已发现\", \"收藏\"; only \"全部\" selected.\nMain content is split into card grid on left and selected specimen detail on right within this same window.\nCard grid: exactly SIX consistent cards, three columns by two rows. Four discovered birds with charming pixel sprites and correct brief labels \"麻雀\", \"山雀\", \"知更鸟\", \"翠鸟\", plus TWO grey silhouettes each labeled \"未发现\". Selected sparrow has pale-green fill, crisp olive focus corners and tiny gold favorite star; others neutral. Unknown cards do not reveal the names or exact colorful illustrations of hidden species.\nSelected detail panel: heading \"麻雀\" with small \"常见\" rarity badge; large polished pixel sparrow on a tiny pixel branch; a small check label \"已收录\". Text \"来访 3 次\", \"熟悉度 3/5\" with exactly five square pips, THREE filled and TWO empty. Two small concise habitat/preference rows with branch and seed icons: \"低枝\" and \"谷物食盘\". Small locked feather memento strip labeled \"再来 2 次\". Bottom two well-sized actions \"收藏\" (star toggle) and \"观察回放\" (small replay icon). No XP bar, battle stats, coin store, or forced manual collection gate. Refine alignment, breathing room, active/disabled states.\n\nNarrow right column, visibly separated from main window and labeled \"状态细节\", contains three enlarged component examples:\n1 heading \"未发现\": one silhouetted species card, a tiny lock/question badge, short clue \"留意高枝\", no species name.\n2 heading \"已收藏\": selected sparrow card with clearly filled gold star, pale-green selection outline and a small confirmation tick.\n3 heading \"来访纪念\": a small feather sprite \"一根小羽毛\", five completed pips and \"来访 5 次\"; small enabled button \"收下纪念\". This is an alternate fifth-visit state and must be visually separate from main sparrow's 3-visit detail.\n\nPolished finished UI specification artwork. Sparse correct Chinese labels, exact sensible counters, no filler paragraphs, no spelling fragments. Let pixel birds and carefully crafted stepped tabs carry character, with clean hierarchy and professional coherent components. The style should clearly belong to original selected concept35, with improved light/shadow, icon detail and reading comfort."
+    }
+  ],
+  "review": {
+    "status": "visually checked",
+    "checks": [
+      "category counts sum to 12/50",
+      "six cards: four discovered, two hidden",
+      "sparrow shows 3 visits and 3/5 pips",
+      "separate fifth-visit keepsake state",
+      "legible Chinese and coherent selected-state styling"
+    ]
+  }
+}

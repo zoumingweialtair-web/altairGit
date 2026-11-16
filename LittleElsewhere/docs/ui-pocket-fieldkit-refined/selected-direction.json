@@ -1,0 +1,81 @@
+{
+  "selected_proposal": 35,
+  "name": "口袋观察站",
+  "english": "Pocket Fieldkit",
+  "selection": "Explicitly selected by user",
+  "phase": "visual and interaction refinement, not yet implemented",
+  "original_design": "../ui-design-v3/35-pocket-fieldkit.png",
+  "palette": {
+    "paper": "#FAF6E8",
+    "ink": "#384235",
+    "olive": "#7F9255",
+    "selected": "#D7E3AA",
+    "secondary": "#6D8796",
+    "rare_accent": "#D4A65C"
+  },
+  "components": {
+    "pixel_grid": 2,
+    "spacing_grid": 8,
+    "body_text": "Readable Chinese; pixel styling primarily in icons, numerals and stepped corners",
+    "icons": [
+      "观察",
+      "投喂",
+      "图鉴",
+      "奇遇",
+      "陪伴"
+    ],
+    "shortcut_keys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "states": [
+      "normal",
+      "hover",
+      "pressed",
+      "disabled",
+      "selected"
+    ],
+    "rule": "Same silhouette and icon position across button states"
+  },
+  "interaction_rules": [
+    "Default feeding popover closed; open only after selecting feeding tool",
+    "Species label shown on hover/selection; collapse after observation to restore the view",
+    "Only one contextual panel open at a time",
+    "Discovered entries are recorded automatically; manual inspection never gates collection",
+    "Unknown entries use silhouettes and clues, with favorite/replay unavailable",
+    "Guide contains five categories; category counts sum to unique collection count",
+    "Focus hides ordinary HUD and retains discoveries in a quiet queue",
+    "UI styling must never modify runtime scenery layers or atmospheric animation"
+  ],
+  "fixture": {
+    "collection": "12/50",
+    "birds": "4/10",
+    "animals": "2/4",
+    "insects": "2/7",
+    "scenery": "3/8",
+    "wonders": "1/21",
+    "selected_species": "麻雀",
+    "visits": 3,
+    "familiarity_filled": 3,
+    "familiarity_total": 5,
+    "keepsake_at": 5,
+    "keepsake": "一根小羽毛"
+  },
+  "existing_runtime": [
+    "50 collection entries",
+    "5-visit keepsakes",
+    "favorites and replay",
+    "quiet focus with observations retained",
+    "4-track mixer: music/rain/wind-leaves/river"
+  ],
+  "proposed_additions": [
+    "Three seed stocks and quantity-based replenishment",
+    "Remaining food percentage",
+    "25/45/60-minute countdown focus presets",
+    "Expanded quiet-visit queue layout"
+  ],
+  "scope_note": "These are approved-direction design images; generated scenery contains slight redraws. Original game scenery assets are not edited."
+}

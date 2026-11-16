@@ -1,0 +1,29 @@
+{
+  "tool_mode": "built-in image_gen",
+  "selected_direction": 35,
+  "name": "口袋观察站 · 陪伴与控件",
+  "english": "Pocket Fieldkit / Companion and States",
+  "filename": "04-companion-and-states.png",
+  "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1e332-7efe-7c70-a551-d86bd31d5201\\exec-c88750d2-07df-4c67-a5f0-955ea576ee3f.png",
+  "references": [
+    "docs/ui-design-v3/35-pocket-fieldkit.png",
+    "docs/ui-concepts-light/background-reference.png"
+  ],
+  "prompt": "Use case: ui-mockup / compositing. Produce ONE polished final refinement design board for SELECTED proposal 35 \"口袋观察站 / Pocket Fieldkit\", dedicated to companion mode and UI component states. This is a coherent refinement of the selected design, NOT another art direction. Board title \"口袋观察站 · 陪伴与控件\" and small subtitle \"Pocket Fieldkit / Refined 04\".\n\nInput Image 1 is the approved style reference: softly crafted Japanese PIXEL FIELD KIT interface with warm cream faces, fine stepped pixel corners, dark olive outlines, colorful original pixel icons. Preserve that style exactly and improve its spacing, legibility, hierarchy and craft. Do NOT switch to monochrome LCD, dark hardware, generic rounded app cards, embroidery or paper collage.\nInput Image 2 is the LOCKED original outdoor scene. Use this existing full-color window scene as the companion screenshot, preserving composition, objects, color, weather and original texture as closely as possible. Do not restyle or pixelize the whole landscape. Keep original left tree and birds, wide curving river, far town, mountains, right house, balcony, plants, food dish, mug and green book.\n\nShared refined system: warm cream #FAF6E8; ink #384235; moss olive #7F9255; selected pale green #D7E3AA; small slate-blue #6D8796; tiny honey-gold #D4A65C. Crisp consistent 2px grid, restrained stepped corners, 1px light inside bevel, only 2px bottom shadow. Clean carefully crafted 24–32px pixel icons, no blur or smooth glossy 3D. Chinese body type must be comfortably readable and simple; use pixel numerals and concise headings. Comfortable 8px-spacing rhythm, excellent alignment, clear hierarchy, matte surfaces. No excessive decoration.\n\nComposition: landscape professional design sheet about 4:3, thin header and wide quiet margins. Upper roughly55–60% shows a compact game viewport labeled \"陪伴模式\", using the locked outdoor image. This is a calm focused mode: only a compact top-left timer \"25:00\" with small pause icon, and a subtle lower-right saved queue label \"已记录 2 次来访\" with a small feather icon. The UI should almost disappear here so the natural scenery dominates. No warning dots, no NEW popups, no active feeder menu, no giant toolbar, no scenery dimming.\nBelow the viewport, outside gameplay, show THREE generous enlarged component panels aligned in one row on clean warm paper, with clear headings:\n1. \"专注设置\": small handsome pixel card, duration presets \"25 / 45 / 60\" with selected25 highlighted pale green and a clear check, large \"25:00\" numeral, small start/pause actions. Three ambient sliders exactly \"轻音乐\", \"雨声\", \"流水\", with three distinct pixel icons and clear square handles. Use appropriate dark track/light fill and good label contrast. Sliders and presets are design proposals.\n2. \"安静收录\": a tiny folded queue chip \"已记录 2 次来访\" shown above an expanded little list with two bird pixel portraits, rows \"麻雀 08:16\", \"山雀 08:32\", gentle checkmarks \"已记录\", and a single \"结束后查看\" button. Show that discoveries are quietly retained while studying, without artificial urgency or lost rewards.\n3. \"按钮状态\": five examples of the SAME binocular \"观察\" button, vertically arranged or tidy2-column layout, with separate clearly legible state labels \"常态\", \"悬停\", \"按下\", \"禁用\", \"选中\". Normal cream; hover light cream and subtle slate focus outline; pressed has depressed 1px shadow; disabled low-contrast grey and no glow; selected pale green fill plus olive border and tiny check. Keep the same icon, shape and typography across all five so differences are intentional and immediately readable.\n\nShort, accurate Chinese words only, no random paragraphs. A few original pixel navigation symbols (binoculars, seed scoop, notebook, sparkle, headphones) can decorate the footer as a tiny unified icon strip if space remains. Avoid crowded encyclopedic styleguides, fake full-screen dashboards, heavy frames, ornaments, rainbow saturation, warning graphics, or changing the beautiful window background. Deliver a polished screenshot-style design board with complete useful interaction controls, in the EXACT approved Pocket Fieldkit style.",
+  "design_status": "refinement concept, not implemented",
+  "proposed_features": [
+    "25 / 45 / 60 minute countdown presets (current game uses elapsed-time focus)",
+    "Expanded quiet discovery queue"
+  ],
+  "runtime_existing": [
+    "Quiet mode with observations retained",
+    "Music/rain/wind/water audio tracks",
+    "Four independent mix sliders: lofi music, rain, wind/leaves, river water"
+  ],
+  "notes": [
+    "Bird song is not shown as an independent mix track.",
+    "Generated landscape is reference-based with slight redraws; runtime scenery not edited.",
+    "Five binocular-button states are shown: normal, hover, pressed, disabled, selected.",
+    "The sheet restyles the existing mixer and shows three tracks as a visual subset; wind/leaves is retained in implementation."
+  ]
+}

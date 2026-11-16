@@ -1,0 +1,35 @@
+{
+  "tool_mode": "built-in image_gen",
+  "reference": [
+    "docs/ui-pocket-fieldkit-refined/02-field-guide.png",
+    "docs/ui-design-v3/35-pocket-fieldkit.png"
+  ],
+  "images": [
+    {
+      "index": 3,
+      "id": "feeding-and-encounters",
+      "name": "相遇与照料精修",
+      "english": "Refined Care and Encounters",
+      "filename": "03-feeding-and-encounters.png",
+      "source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1e332-25f2-71d1-8aee-4a2785765ce7\\exec-5965ef67-310f-4959-96ab-f4c6cfa9d41e.png",
+      "prompt": "Use case: ui-mockup / reference refinement.\nCreate ONE high-fidelity production UI DESIGN BOARD for the selected \"35 Pocket Fieldkit\" cozy Japanese pixel interface of Little Elsewhere. Image1 (Refined02 field guide) is the PRIMARY visual system reference: faithfully match its cream surfaces, olive headers, stepped pixel border treatment, type scale, icon craft and professional spacing. Image2 (concept35) is secondary origin reference. Do NOT make another visual style. No full outdoor scenery in this image: this is an enlarged INTERACTION DETAILS sheet.\n\nExact header \"口袋观察站 · 相遇与照料\", small subtitle \"Little Elsewhere / Selected 35 / Refined 03\". Landscape roughly4:3. Three well-separated equally useful columns, headings \"投喂准备\", \"来客记录\", \"奇遇发现\". A coherent polished specification sheet, not three generic app cards. Use comfortable internal spacing and sensible clear primary and secondary actions.\nPalette must match Image1: cream #FAF6E8, ink #384235, olive #7F9255, selected pale green #D7E3AA, dusty blue #6D8796, tiny gold #D4A65C. Small 2px stepped corners, light inner bevel, subtle 2px pixel shadow. Fine original pixel sprites with 4–5 colors per icon. Clearly legible Chinese body labels; bitmap numerals and short headings. No grunge, heavy ornament, wood, shiny glass, full-green LCD, fantasy vines, or fuzzy pseudo-pixels.\n\nLEFT COLUMN \"投喂准备\":\nFeatured feeding popover with closeX, three equal food tiles each a carefully crafted pixel icon and concise quantities:\n\"葵花籽 ×24\", \"小米 ×36\", \"浆果 ×12\".\nMillet tile selected with pale-green background and olive corner brackets, checkmark in corner.\nQuantity stepper with minus button, centered \"10\", plus button.\nFood-tray status \"余粮 68%\" with modest fill bar and seed symbol.\nBottom actions: primary olive/pale-green \"补充食盘\", secondary cream \"取消\".\nBelow this featured card, two compact component states clearly labeled: success toast with green check and \"已补充\"; disabled grey button with \"库存不足\", distinct subdued text but still readable. Keep these secondary states small and polished.\n\nCENTER COLUMN \"来客记录\":\nAt top a compact arriving-sparrow toast with pixel sparrow thumbnail, \"麻雀来访\", \"08:20\", and a checkmark \"已记录\".\nNext an expanded visitor card with large attractive pixel sparrow, short \"来访 3 次\", \"熟悉度 3/5\" and exactly FIVE little square pips THREE filled TWO empty, small feather clue, one secondary \"查看\" button.\nBelow a neat recent-history list with exactly THREE timestamp rows using small species avatars:\n\"08:20  麻雀\"\n\"07:56  山雀\"\n\"07:31  白蝶\"\nA discreet footer note \"发现自动记录\".\nNo manual 'record' button. No keyboard3 hint attached to recording. Discoveries are logged automatically and do not interrupt companion focus.\n\nRIGHT COLUMN \"奇遇发现\":\nA featured rare-event discovery card for \"极光\", with a beautiful small pixel-art night-sky aurora vignette inside the card ONLY. Surrounding sheet stays warm cream; do not generate a whole night background.\nSubtle tiny gold rarity stars, not casino rewards or giant shine.\nShort check status \"已收录 1/21\".\nConditions shown as two small weather/time icon chips \"夜晚\" and \"晴空\".\nTwo clear actions: star toggle \"收藏\" and play/replay icon \"回放\".\nBelow, a smaller separate UNKNOWN encounter state using grey mystery silhouette/question mark, short title \"未发现\", clue \"留意夜空\", subdued disabled \"回放\" button. Do not reveal the unknown species/event name.\n\nAll three columns must feel like one refined, shippable cozy game system matched tightly to Image1. Include selected, enabled, disabled and success states. Precise readable Chinese, correct numbers, hierarchy and aligned baselines. Original clean pixel sprites, generous breathing room and thin olive/slate rules. Avoid long fake copy and excess decoration. This is a beautiful interaction-design sheet with purposeful controls, not a battle UI, monetized shop, or generic SaaS dashboard.",
+      "edit_prompt": "Precisely edit this finished UI design board. Preserve EVERYTHING else exactly unchanged: all Chinese text, colors, borders, layouts, sprites, spacing and header.\nOnly change the small thumbnail in the BOTTOM-RIGHT \"未发现\" card. It currently depicts a grey bird silhouette behind a white question mark, which incorrectly suggests a hidden bird. Replace only that bird silhouette with a calm neutral GREY PIXEL NIGHT-SKY SYMBOL: a small moon-and-stars silhouette with the same centered white QUESTION MARK, within exactly the existing thumbnail bounds. Match existing small pixel-icon construction and muted grey unknown-state palette. Do not add any species name or new labels. Leave \"未发现\", \"留意夜空\", the disabled \"回放\" button and every other element exactly as-is. This is a rare sky-phenomenon unknown entry, so the icon should read as mysterious sky, not a bird. No other edits.",
+      "initial_source": "C:\\Users\\zoumingwei\\.codex\\generated_images\\01a1e332-25f2-71d1-8aee-4a2785765ce7\\exec-be41bfe1-68c4-4174-bace-8c3acdda1db8.png"
+    }
+  ],
+  "proposed_feature_notes": [
+    "Seed inventory quantities, selected food, quantity stepper, food consumption and stock-insufficient states are UI design proposals, not implemented runtime features.",
+    "Creature discoveries remain automatically recorded; no manual record hotkey is assigned.",
+    "Unknown rare-event state uses a celestial mystery symbol, separate from species silhouettes."
+  ],
+  "review": {
+    "status": "visually checked",
+    "checks": [
+      "style matches refined guide",
+      "feeding state quantities 24/36/12 and 10 correct",
+      "sparrow 3 visits and 3/5 pips",
+      "automatic record notification and three history rows",
+      "rare event known/unknown replay states distinguished"
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "selected_proposal": 35,
+  "title": "口袋观察站 · 精修方案",
+  "phase": "design images, not implemented",
+  "tool_mode": "built-in image_gen",
+  "images": [
+    {
+      "index": 1,
+      "name": "主界面精修",
+      "filename": "01-main-hud.png",
+      "size": [
+        1672,
+        941
+      ],
+      "description": "收起投喂浮层 · 缩小观察提示 · 统一工具按钮",
+      "generation_record": "main-generation.json"
+    },
+    {
+      "index": 2,
+      "name": "观察图鉴",
+      "filename": "02-field-guide.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "description": "五类图鉴 · 熟悉度 · 收藏与来访纪念",
+      "generation_record": "guide-generation.json"
+    },
+    {
+      "index": 3,
+      "name": "相遇与照料",
+      "filename": "03-feeding-and-encounters.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "description": "投喂准备 · 自动记录 · 奇遇收藏与回放",
+      "generation_record": "interaction-generation.json"
+    },
+    {
+      "index": 4,
+      "name": "陪伴与控件",
+      "filename": "04-companion-and-states.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "description": "静默发现 · 专注设置 · 五种按钮状态",
+      "generation_record": "focus-generation.json"
+    }
+  ],
+  "design_specification": "selected-direction.json",
+  "data_review": "design-review.json",
+  "background_note": "Generated image compositions may contain slight redraws. Runtime scenery assets are unchanged."
+}
